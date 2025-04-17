@@ -15,9 +15,7 @@ A landing page do NutriAção serve como porta de entrada para o público intere
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5**
-- **CSS3** / TailwindCSS (ou outro framework)
-- **JavaScript / React.js**
-- **Vite** (para ambiente de desenvolvimento ágil)
+- **CSS3**
 
 ## 📦 Como Executar o Projeto Localmente
 
