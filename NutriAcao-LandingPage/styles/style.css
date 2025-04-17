@@ -1,0 +1,156 @@
+/* 
+   Variáveis de Cores
+ */
+:root {
+    --color-background:#333333 ;   /* Cor de fundo geral do site */
+    --color-secondary-text: #fff;
+    --color-text: #252525 ;         /* Cor do texto comum */
+    --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+    --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
+  }
+  
+  /* 
+     Reset & Base
+   */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 
+     Header
+   */
+  header {
+    padding: 10px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .btn-cadastro {
+    background-color: #004aad;
+    padding: 6px 18px;
+    border-radius: 5px;
+    color: var(--color-secondary-text);
+  }
+
+  .btn-cadastro:hover {
+    background-color: #003983;
+    transition: .5s;
+  }
+
+  .btn-login {
+    border: 1px solid #004aad;
+    color: #004aad;
+    padding: 6px 18px;
+    border-radius: 5px;
+  }
+
+  #logo {
+    width: 75px;
+  }
+  
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+  }
+  
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    color: #004aad;
+    text-decoration: none;
+    font-size: 22px;
+    gap: 5px;
+  }
+
+  nav a {
+    color: #004aad;
+    text-decoration: none;
+  }
+  
+  nav a:hover {
+    text-decoration: underline;
+  }
+  
+  /* 
+     Main Content
+   */
+  main {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    padding: 0 80px;
+  }
+
+  section {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .left-side {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 40%;
+    gap: 25px;
+  }
+
+  #ilustracao {
+    width: 700px;
+  }
+
+  h2 {
+    color: #004aad;
+    font-size: 64px;
+  }
+
+  p {
+    font-size: 24px;
+    color: #333333;
+  }
+
+  button {
+    width: 150px;
+    height: 50px;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    border-radius: 5px;
+    background-color: #004aad;
+    transition: .5s ease-in-out;
+  }
+
+  button:hover {
+    background-color: #fff;
+    border: 1px solid #004aad;
+    color: #004aad;
+    cursor: pointer;
+    border-radius: 0;
+  }
+  /* 
+     Footer
+   */
+  footer {
+    background-color: #004aad; /* Pode substituir por variável */
+    color: var(--color-secondary-text);
+    text-align: center;
+    padding: 15px;
+  }
+
+  .footer-text {
+    color: #fff;
+    font-size: 16px;
+  }
+  
