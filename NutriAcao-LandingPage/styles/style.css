@@ -6,6 +6,7 @@
     --color-secondary-text: #fff;
     --color-text: #252525 ;         /* Cor do texto comum */
     --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+    --color-main: #004AAD;
     --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
   }
   
@@ -37,7 +38,7 @@
   }
   
   .btn-cadastro {
-    background-color: #004aad;
+    background-color: var(--color-main);
     padding: 6px 18px;
     border-radius: 5px;
     color: var(--color-secondary-text);
@@ -49,8 +50,8 @@
   }
 
   .btn-login {
-    border: 1px solid #004aad;
-    color: #004aad;
+    border: 1px solid var(--color-main);
+    color: var(--color-main);
     padding: 6px 18px;
     border-radius: 5px;
   }
@@ -68,14 +69,14 @@
   .footer-logo {
     display: flex;
     align-items: center;
-    color: #004aad;
+    color: var(--color-main);
     text-decoration: none;
     font-size: 22px;
     gap: 5px;
   }
 
   nav a {
-    color: #004aad;
+    color: var(--color-main);
     text-decoration: none;
   }
   
@@ -112,7 +113,7 @@
   }
 
   h2 {
-    color: #004aad;
+    color: var(--color-main);
     font-size: 64px;
   }
 
@@ -128,14 +129,14 @@
     color: #fff;
     font-size: 18px;
     border-radius: 5px;
-    background-color: #004aad;
+    background-color: var(--color-main);
     transition: .5s ease-in-out;
   }
 
   button:hover {
     background-color: #fff;
-    border: 1px solid #004aad;
-    color: #004aad;
+    border: 1px solid var(--color-main);
+    color: var(--color-main);
     cursor: pointer;
     border-radius: 0;
   }
@@ -143,7 +144,7 @@
      Footer
    */
   footer {
-    background-color: #004aad; /* Pode substituir por variável */
+    background-color: var(--color-main); /* Pode substituir por variável */
     color: var(--color-secondary-text);
     text-align: center;
     padding: 15px;

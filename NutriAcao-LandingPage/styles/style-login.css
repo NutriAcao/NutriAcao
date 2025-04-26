@@ -90,14 +90,21 @@
   main{
     display: flex;
     flex: 1;
+    width: 100%;
+    height: 50%;
+  }
+  .left-container{
+    display: flex;
+    width: 45vw;
+    height: 85vh;
   }
 #imgLeft{
     display: flex;
-    height: 82vh;
   }
 section {
     display: flex;
     flex-direction: row;
+    width: 100vw;
 }
 form{
     display: flex;
@@ -107,7 +114,7 @@ form{
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    width: 60vw;
+    width: 50vw;
 }
 #logo-container{
     width: 7vw;
@@ -175,7 +182,7 @@ input:focus-visible{
     background-color: #004aad; /* Pode substituir por variável */
     color: var(--color-secondary-text);
     text-align: center;
-    padding: 23px;
+    padding: 13px;
   }
 
   .footer-text {
