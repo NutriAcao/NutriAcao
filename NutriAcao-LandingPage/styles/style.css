@@ -31,7 +31,7 @@
      Header
    */
   header {
-    padding: 10px 80px;
+    padding: 10px 20vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -80,21 +80,32 @@
     text-decoration: none;
   }
   
-  nav a:hover {
-    text-decoration: underline;
+  #btn-hd :hover{
+    color: var(--color-main);
+    color:#004AAD;
+    transition: .5s;
   }
   
+  nav a :hover{
+    color: var(--color-main);
+    text-decoration: none;
+    background-color: black;
+    color: #fff;
+  }
   /* 
      Main Content
    */
   main {
     display: flex;
     align-items: center;
+    flex-direction: column;
     flex: 1;
-    padding: 0 80px;
+    padding: 0 20vh;
+    
   }
 
   section {
+    width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -119,7 +130,7 @@
 
   p {
     font-size: 24px;
-    color: #333333;
+    color: #424242;
   }
 
   button {
@@ -140,6 +151,31 @@
     cursor: pointer;
     border-radius: 0;
   }
+
+  .cards {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .image-card {
+    width: 296px;
+    height: 296px;
+    background-color: #bbbbbb;
+    border-radius: 5px;
+  
+  }
+
+  .card {
+    width: 296px;
+    align-items: center;
+  }
+
+  .card > p {
+    font-size: 16px;
+  }
+
   /* 
      Footer
    */
