@@ -1,0 +1,198 @@
+/* 
+   Variáveis de Cores
+ */
+ :root {
+    --color-background:#333333 ;   /* Cor de fundo geral do site */
+    --color-secondary-text: #fff;
+    --color-text: #252525 ;         /* Cor do texto comum */
+    --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+    --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
+  }
+  
+  /* 
+     Reset & Base
+   */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  html, body {
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  
+  /* 
+     Header
+   */
+  header {
+    padding: 10px 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .btn-cadastro {
+    background-color: #004aad;
+    padding: 6px 18px;
+    border-radius: 5px;
+    color: var(--color-secondary-text);
+  }
+
+  .btn-cadastro:hover {
+    background-color: #003983;
+    transition: .5s;
+  }
+
+  .btn-login {
+    border: 1px solid #004aad;
+    color: #004aad;
+    padding: 6px 18px;
+    border-radius: 5px;
+  }
+
+  #logo {
+    width: 75px;
+  }
+  
+  nav ul {
+    list-style: none;
+    display: flex;
+    gap: 25px;
+  }
+  
+  .footer-logo {
+    display: flex;
+    align-items: center;
+    color: #004aad;
+    text-decoration: none;
+    font-size: 22px;
+    gap: 5px;
+  }
+
+  nav a {
+    color: #004aad;
+    text-decoration: none;
+  }
+  
+  nav a:hover {
+    text-decoration: underline;
+  }
+
+  /*
+  main content
+*/
+main {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+}
+  .left-container {
+    width: 40vw;
+    height: 100%;
+  }
+  .left-container img {
+    width: 82.3vh;
+    height: 100%;
+    object-fit: cover;
+  }
+  section {
+    display: flex;
+    width: 100%;
+  }
+form{
+    display: flex;
+}
+.right-container {
+    width: 60vw;
+    height: 10
+    0%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+#logo-container{
+    width: 7vw;
+}
+.double-input{
+    display: flex;
+    justify-content: space-between;
+}
+.input-container{
+    display: flex;
+    width: 30vh;
+    padding: 0 2vh;
+    flex-direction: row;
+    background-color: rgb(231, 230, 230);
+    margin: 2vh;
+    border-radius: 9px;
+}
+.input-container i{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #004aad;
+    font-size: 20px;
+    width: 20vh;
+}
+.right-container input{
+    width: 15vw;
+    height: 5vh;
+    margin: 2%;
+    border-radius: 12px;
+    border: none;
+    background-color: transparent;
+    padding: 0 0 0 2%;
+    font-size: 15px;
+}
+input:focus-visible{
+    outline: none;
+}
+.checkbox-container{
+    display: flex;
+    width: 40vh;
+    align-items: center;
+    flex-direction: row;
+    padding: 0;
+    margin: 0;
+}
+#manterConexao{
+    width: 2vw;
+    display: flex;
+    height: 2vh;
+    margin: 0 2.5%;
+    color: #003983;
+    background-color: black;
+    cursor: pointer;
+}
+#btn-entrar{
+    display: flex;
+    width: 15vw;
+    height: 6vh;
+    padding: 0;
+    margin: 4% 0 0;
+    background-color:#004aad;
+    color: #fff;
+    cursor: pointer;
+}
+  /*
+    footer
+  */
+  footer {
+    background-color: #004aad; /* Pode substituir por variável */
+    color: var(--color-secondary-text);
+    text-align: center;
+    padding: 15px;
+  }
+
+  .footer-text {
+    color: #fff;
+    font-size: 16px;
+  }
+
