@@ -4,7 +4,7 @@
 :root {
     --color-background:#333333 ;   /* Cor de fundo geral do site */
     --color-secondary-text: #fff;
-    --color-text: #252525 ;         /* Cor do texto comum */
+    --color-text: #1b1b1b ;         /* Cor do texto comum */
     --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
     --color-main: #004AAD;
     --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
@@ -36,28 +36,69 @@
     align-items: center;
     justify-content: space-between;
   }
-  
-  .btn-cadastro {
-    background-color: var(--color-main);
-    padding: 6px 18px;
-    border-radius: 5px;
-    color: var(--color-secondary-text);
+
+  h1 {
+    font-size: 26px;
+    font-weight: 500;
   }
 
-  .btn-cadastro:hover {
-    background-color: #003983;
-    transition: .5s;
+  ul li a {
+    text-decoration: none;
+    color: var(--color-main);
+    position: relative;
+    padding-bottom: 5px;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background-color: var(--color-main);
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+  }
+  
+  /* Efeito hover */
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  /* Link ativo (Página inicial) */
+  .nav-link.active {
+    color: var(--color-main);
+  }
+  
+  .nav-link.active::after {
+    width: 100%;
   }
 
   .btn-login {
     border: 1px solid var(--color-main);
     color: var(--color-main);
     padding: 6px 18px;
-    border-radius: 5px;
+  }
+
+  .btn-login:hover {
+    border-radius: 6px;
+    transition-duration: .5s;
+  }
+
+  .btn-cadastro {
+    background-color: var(--color-main);
+    padding: 6px 18px;
+    border-radius: 6px;
+    color: var(--color-secondary-text);
+  }
+
+  .btn-cadastro:hover {
+    background-color: #003172;
+    transition: .5s;
   }
 
   #logo {
-    width: 75px;
+    width: 65px;
   }
   
   nav ul {
@@ -65,7 +106,12 @@
     display: flex;
     gap: 25px;
   }
-  
+
+  nav a {
+    color: var(--color-main);
+    text-decoration: none;
+  }
+
   .footer-logo {
     display: flex;
     align-items: center;
@@ -75,23 +121,6 @@
     gap: 5px;
   }
 
-  nav a {
-    color: var(--color-main);
-    text-decoration: none;
-  }
-  
-  #btn-hd :hover{
-    color: var(--color-main);
-    color:#004AAD;
-    transition: .5s;
-  }
-  
-  nav a :hover{
-    color: var(--color-main);
-    text-decoration: none;
-    background-color: black;
-    color: #fff;
-  }
   /* 
      Main Content
    */
@@ -101,36 +130,38 @@
     flex-direction: column;
     flex: 1;
     padding: 0 20vh;
-    
   }
 
-  section {
+  #top-page{
     width: 100%;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    align-items: center;
+    gap: 20px;
   }
 
   .left-side {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    width: 40%;
+    width: 45%;
     gap: 25px;
   }
 
   #ilustracao {
-    width: 700px;
+    width: 100%;
+    height: 800px;
   }
 
   h2 {
     color: var(--color-main);
-    font-size: 64px;
+    font-size: 62px;
   }
-
+  
   p {
-    font-size: 24px;
-    color: #424242;
+    text-align: justify;
+    font-size: 16px;
   }
 
   button {
@@ -152,6 +183,19 @@
     border-radius: 0;
   }
 
+  #grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  h3 {
+    color: var(--color-main);
+    margin-bottom: 20px;
+    font-size: 26px;
+    font-weight: 600;
+  }
+
   .cards {
     display: flex;
     flex-direction: row;
@@ -162,9 +206,8 @@
   .image-card {
     width: 296px;
     height: 296px;
-    background-color: #bbbbbb;
+    background-color: #c5c5c5;
     border-radius: 5px;
-  
   }
 
   .card {
@@ -172,8 +215,35 @@
     align-items: center;
   }
 
-  .card > p {
-    font-size: 16px;
+  #nutriacao {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .left-card {
+    background-color: #d9e5ff;
+    padding: 10px;
+    border-radius: 6px;
+  }
+
+  .right-side {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  h4 {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--color-main);
+  }
+
+  h5 {
+    text-align: justify;
+    font-size: 18px;
+    font-weight: 400;
   }
 
   /* 
