@@ -3,11 +3,11 @@
  */
 :root {
     --color-background:#333333 ;   /* Cor de fundo geral do site */
-    --color-secondary-text: #fff;
     --color-text: #1b1b1b ;         /* Cor do texto comum */
+    --color-secondary-text: #fff ;         /* Cor do texto comum */
     --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
     --color-main: #004AAD;
-    --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
+    --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções (main, etc) */
   }
   
   /* 
@@ -35,6 +35,13 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+  }
+
+  /* 
+     Section
+   */
+  section {
+    padding: 0 20vh;
   }
 
   h1 {
@@ -78,6 +85,7 @@
     border: 1px solid var(--color-main);
     color: var(--color-main);
     padding: 6px 18px;
+    transition: .5s ease;
   }
 
   .btn-login:hover {
@@ -90,11 +98,11 @@
     padding: 6px 18px;
     border-radius: 6px;
     color: var(--color-secondary-text);
+    transition: .5s ease;
   }
 
   .btn-cadastro:hover {
     background-color: #003172;
-    transition: .5s;
   }
 
   #logo {
@@ -129,7 +137,7 @@
     align-items: center;
     flex-direction: column;
     flex: 1;
-    padding: 0 20vh;
+    padding: 0;
   }
 
   #top-page{
@@ -160,7 +168,6 @@
   }
   
   p {
-    text-align: justify;
     font-size: 16px;
   }
 
@@ -181,6 +188,42 @@
     color: var(--color-main);
     cursor: pointer;
     border-radius: 0;
+  }
+
+  #beneficios {
+    display: flex;
+    justify-content: space-around;
+    padding: 3rem 20vh;
+    text-align: center;
+    background-color: var(--color-section);
+    flex-wrap: wrap;
+    width: 100%;
+  }
+  
+  #beneficios div {
+    max-width: 300px;
+    padding: 1.5rem;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  #beneficios div:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  }
+  
+  #beneficios i {
+    color: #222222;
+    margin-bottom: 15px;
+    font-size: 50px;
+    transition: transform 0.3s ease, color 0.3s ease;
+  }
+  
+  #beneficios div:hover i {
+    transform: scale(1.1);
+    color: var(--color-main);
   }
 
   #grid {
@@ -206,7 +249,6 @@
   .image-card {
     width: 296px;
     height: 296px;
-    background-color: #c5c5c5;
     border-radius: 5px;
   }
 
@@ -219,19 +261,34 @@
     width: 100%;
     display: flex;
     justify-content: space-between;
+    padding: 5vh 20vh;
   }
 
   .left-card {
-    background-color: #d9e5ff;
+    background-color: #cfdeff;
     padding: 10px;
     border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 6px solid var(--color-main);
+
+  }
+
+  .left-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+
+  #nutriacao > .left-side {
+    width: 35%;
   }
 
   .right-side {
     width: 40%;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 40px;
+    align-items: center;
   }
 
   h4 {
