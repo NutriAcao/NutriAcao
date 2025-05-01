@@ -2,12 +2,13 @@
    Variáveis de Cores
  */
  :root {
-    --color-background:#333333 ;   /* Cor de fundo geral do site */
-    --color-secondary-text: #fff;
-    --color-text: #252525 ;         /* Cor do texto comum */
-    --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
-    --color-section: rgb(245, 245, 245);      /* Cor de fundo das seções (main, etc) */
-  }
+  --color-background:#333333 ;   /* Cor de fundo geral do site */
+  --color-text: #1b1b1b ;         /* Cor do texto comum */
+  --color-secondary-text: #fff ;         /* Cor do texto comum */
+  --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+  --color-main: #004AAD;
+  --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções (main, etc) */
+}
   
   /* 
      Reset & Base
@@ -29,34 +30,76 @@
   /* 
      Header
    */
-  header {
-    padding: 10px 80px;
+   header {
+    padding: 10px 20vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
   }
   
-  .btn-cadastro {
-    background-color: #004aad;
-    padding: 6px 18px;
-    border-radius: 5px;
-    color: var(--color-secondary-text);
+  h1 {
+    font-size: 26px;
+    font-weight: 500;
   }
 
-  .btn-cadastro:hover {
-    background-color: #003983;
-    transition: .5s;
+  ul li a {
+    text-decoration: none;
+    color: var(--color-main);
+    position: relative;
+    padding-bottom: 5px;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    background-color: var(--color-main);
+    bottom: 0;
+    left: 0;
+    transition: width 0.3s ease;
+  }
+  
+  /* Efeito hover */
+  .nav-link:hover::after {
+    width: 100%;
+  }
+  
+  /* Link ativo (Página inicial) */
+  .nav-link.active {
+    color: var(--color-main);
+  }
+  
+  .nav-link.active::after {
+    width: 100%;
   }
 
   .btn-login {
-    border: 1px solid #004aad;
-    color: #004aad;
+    border: 1px solid var(--color-main);
+    color: var(--color-main);
     padding: 6px 18px;
-    border-radius: 5px;
+    transition: .5s ease;
+  }
+
+  .btn-login:hover {
+    border-radius: 6px;
+    transition-duration: .5s;
+  }
+
+  .btn-cadastro {
+    background-color: var(--color-main);
+    padding: 6px 18px;
+    border-radius: 6px;
+    color: var(--color-secondary-text);
+    transition: .5s ease;
+  }
+
+  .btn-cadastro:hover {
+    background-color: #003172;
   }
 
   #logo {
-    width: 75px;
+    width: 65px;
   }
   
   nav ul {
@@ -64,26 +107,20 @@
     display: flex;
     gap: 25px;
   }
-  
+
+  nav a {
+    color: var(--color-main);
+    text-decoration: none;
+  }
+
   .footer-logo {
     display: flex;
     align-items: center;
-    color: #004aad;
+    color: var(--color-main);
     text-decoration: none;
     font-size: 22px;
     gap: 5px;
   }
-
-  nav a {
-    color: #004aad;
-    text-decoration: none;
-  }
-  
-  nav a:hover {
-    text-decoration: underline;
-  }
-
-
   /*
   main content
 */
