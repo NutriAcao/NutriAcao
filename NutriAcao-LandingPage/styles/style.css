@@ -245,16 +245,18 @@
     width: 100%;
     justify-content: space-between;
   }
-
   .image-card {
-    width: 296px;
-    height: 296px;
+    width: 20vw;
+    height: 7vw;
     border-radius: 5px;
   }
 
   .card {
-    width: 296px;
-    align-items: center;
+    display: flex;
+    flex-direction: column;
+    width: 90vw;
+    align-items: flex-start;
+    margin: 1vh;
   }
 
   #nutriacao {
@@ -294,6 +296,7 @@
   h4 {
     font-size: 20px;
     font-weight: 500;
+    line-height: 5vh;
     color: var(--color-main);
   }
 
