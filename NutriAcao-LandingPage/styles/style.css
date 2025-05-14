@@ -9,7 +9,15 @@
     --color-main: #004AAD;
     --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções (main, etc) */
   }
-  
+  ::-webkit-scrollbar{
+    width: 10px;
+  }
+  ::-webkit-scrollbar-track{
+    background-color: white;
+  }
+  ::-webkit-scrollbar-thumb{
+    background-color:var(--color-main);
+  }
   /* 
      Reset & Base
    */
@@ -25,6 +33,7 @@
     color: var(--color-text);
     display: flex;
     flex-direction: column;
+    scroll-behavior: smooth;
   }
   
   /* 
@@ -181,6 +190,11 @@
     background-color: var(--color-main);
     transition: .5s ease-in-out;
   }
+    button a {
+      text-decoration: none;
+      color: white;
+      transition: .5s ease-in-out;
+  }
 
   button:hover {
     background-color: #fff;
@@ -188,6 +202,9 @@
     color: var(--color-main);
     cursor: pointer;
     border-radius: 0;
+  }
+    button a:hover {
+      color: var(--color-main);
   }
 
   #beneficios {
