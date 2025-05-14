@@ -40,18 +40,20 @@
      Header
    */
   header {
-    padding: 10px 20vh;
+    padding: 5vh 20vh;
     display: flex;
     align-items: center;
     justify-content: space-between;
     position: fixed;
+    transition:1s;
   }
   header ul{
     margin: 0 78vh 0;
     width: 100vw;
   }
   header.rolagem{
-    background-color:white;
+    background-color:rgba(255, 255, 255, 0.884);
+    padding: 0.5vh 20vh;
   }
 
   /* 
@@ -223,6 +225,7 @@
     background-color: var(--color-section);
     flex-wrap: wrap;
     width: 100%;
+    margin-top: 12vh;
   }
   
   #beneficios div {

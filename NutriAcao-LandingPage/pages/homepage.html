@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="../styles/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <script src="app.js"></script>
   <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
 </head>
 <body>
@@ -34,20 +33,19 @@
         <div class="left-side">
             <h2>Transformando Excedentes em Esperança</h2>
             <p>Uma plataforma inteligente que conecta doadores de alimentos a instituições e famílias em situação de vulnerabilidade, promovendo solidariedade, combate ao desperdício e esperança para quem mais precisa.</p>
-            <a href="#beneficios"><button>Saiba mais</button></a>
+            <a href="#bnc"><button>Saiba mais</button></a>
         </div>
         <div>
             <img src="../assets/Farmers market-bro.svg" alt="ilustracao de distribuicao de alimento" id="ilustracao">
         </div>
     </section>
-
+    <div id="bnc"></div>
     <section id="beneficios">
       <div>
         <i class="fas fa-hand-holding-heart"></i>
         <h4>Ajude quem precisa</h4>
         Conecte-se a instituições confiáveis e leve alimentos diretamente a quem mais precisa.
       </div>
-
       <div>
         <i class="fas fa-leaf"></i>
         <h4>Reduza o desperdício</h4>
@@ -127,6 +125,13 @@
   <footer>
     <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
   </footer>
+
+<script>
+  window.addEventListener("scroll", function(){
+    let header = document.querySelector('#header');
+    header.classList.toggle('rolagem', window.scrollY > 200);
+  });
+</script>
 
 </body>
 </html>
