@@ -334,6 +334,55 @@
     font-weight: 400;
   }
 
+  .depoimentos {
+  max-width: 800px;
+  margin: 50px auto;
+  padding: 20px;
+  text-align: center;
+}
+
+.depoimentos h2 {
+  font-size: 2em;
+  margin-bottom: 40px;
+  color: var(--color-main);
+}
+
+.depoimento {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mensagem {
+  font-style: italic;
+  color: #555;
+  margin-bottom: 15px;
+}
+
+.autor {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.autor span {
+  font-weight: bold;
+  color: #333;
+}
+
+.avaliacao {
+  color: gold;
+  font-size: 1.2em;
+  margin-bottom: 10px;
+}
+
+.avaliacao i {
+  margin: 0 2px;
+}
+
   /* 
      Footer
    */
@@ -343,6 +392,7 @@
     text-align: center;
     padding: 15px;
   }
+  
 
   .footer-text {
     color: #fff;
