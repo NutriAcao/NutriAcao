@@ -39,6 +39,13 @@
   /* 
      Header
    */
+
+  #burger{
+    display: none;
+    width: 65px;
+    height: 65px;
+  }
+
   header {
     padding: 5vh 20vh;
     display: flex;
@@ -48,7 +55,6 @@
     transition:1s;
   }
   header ul{
-    margin: 0 78vh 0;
     width: 100vw;
   }
   header.rolagem{
@@ -131,6 +137,7 @@
   nav ul {
     list-style: none;
     display: flex;
+    justify-content: center;
     gap: 25px;
   }
 
@@ -475,3 +482,71 @@
     font-size: 16px;
   }
   
+@media screen and (max-width: 1280px) {
+   .left-side p{
+    display: none;
+    margin-top: 10vh;
+   }
+   .left-side h2{
+    font-size: 45px;
+   }
+   #top-page{
+    margin: 15vh;
+   }
+   .btn-cadastro{
+    display: none;
+   }
+
+}
+
+@media screen and (max-width: 1125px) {
+   #ilustracao{
+      display: none;
+   }
+}
+
+@media screen and (max-width: 1075px) {
+   #card4{
+      display: none;
+   }
+   .btn-login{
+    display: none;
+   }
+}
+
+@media screen and (max-width: 960px) {
+   #contato{
+      display: none;
+   }
+}
+
+@media screen and (max-width: 875px) {
+   .right-side p{
+      display: none;
+   }
+   .right-side h5{
+    width: 250px;
+   }
+    #card3{
+      display: none;
+   }
+   #sobre {
+    display: none;
+   }
+}
+
+@media screen and (max-width: 670px) {
+   #card2{
+      display: none;
+   }
+   .nav-link{
+    display: none;
+   }
+   #burger{
+    display: block ;
+    margin-right: 10vh;
+   }
+   header{
+    padding: 5vh;
+   }
+}
