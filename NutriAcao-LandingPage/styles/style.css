@@ -437,7 +437,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 0;
+  padding: 2rem 0;
 }
 .answer{
   display: none;
@@ -461,8 +461,10 @@
   font-size: 1.4rem;
   padding: 2rem;
 }
-.accordion-item:target .answer{
-  max-height: 20rem;
+.accordion-item .answer {
+  display: none;
+}
+.accordion-item.active .answer {
   display: block;
 }
 
