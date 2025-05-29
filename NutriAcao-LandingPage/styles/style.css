@@ -542,11 +542,54 @@
    .nav-link{
     display: none;
    }
+  nav {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 12vh;
+    right: 0;
+    width: 50vw;
+    height: 92vh;
+    background-color: #003172;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+  }
+
+  nav.active {
+    display: flex;
+  }
    #burger{
     display: block ;
     margin-right: 10vh;
    }
-   header{
-    padding: 5vh;
-   }
+ header {
+  padding: 5vh;
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+}
+#header.rolagem {
+  background-color: rgba(255, 255, 255, 0.884);
+  padding: 5vh;
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+  box-sizing: border-box;
+  box-shadow: 10px 10px 50px #888888;
+  z-index: 1000;
+}
+   nav {
+  display: none;
+}
+nav.active {
+  display: flex;
+}
+   nav li{
+    margin-left: 0;
+    opacity: 0;
+  }
 }
