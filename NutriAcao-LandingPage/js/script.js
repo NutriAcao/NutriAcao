@@ -21,3 +21,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
+
+  window.addEventListener("scroll", function(){
+    let header = document.querySelector('#header');
+    header.classList.toggle('rolagem', window.scrollY > 200);
+  });
+  document.querySelectorAll('.accordion-link').forEach(link => {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    const item = this.parentElement;
+    item.classList.toggle('active');
+  });
+});

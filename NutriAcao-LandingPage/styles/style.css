@@ -35,6 +35,12 @@
     flex-direction: column;
     scroll-behavior: smooth;
   }
+  input:focus-visible{
+    outline: none;
+}
+  textarea:focus-visible{
+    outline: none;
+}
   
   /* 
      Header
@@ -468,6 +474,91 @@
 .accordion-item.active .answer {
   display: block;
 }
+/* CONTATO */
+.contact{
+    display: flex;
+    width: 99vw;
+    align-items: center;
+    justify-content: center;
+    margin: 0 0 1vw;
+}
+.contact-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80vw;
+}
+.contact-container img{
+    display: flex;
+    height: 40vh;
+}
+.center-container{
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  height: 100%;
+}
+.center-container h1{
+  font-weight: 700;
+  font-size: xxx-large;
+  margin: 2vh 0 10vh;
+  color: #003172;
+} 
+.center-container input{
+  background-color: transparent;
+  border: none;
+  border-bottom:#003172 solid 2px;
+  height: 5vh;
+  text-decoration: none;
+  margin-top: 2vh;
+}
+input::placeholder{
+  font-size: 15px;
+  padding: 0 0 0 10px;
+}
+.center-container textarea{
+  resize: none;
+  height: 20vh;
+  border: none;
+  border-bottom:#003172 solid 2px;
+  margin: 0 0 6vh;
+}
+.center-container textarea::placeholder{
+  padding: 1vh 0 0 1vh;
+  font-size: large;
+}
+.center-container button{
+  display: flex;
+  border: #003172 solid 2px;
+  background-color:#004AAD;
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 1vw;
+
+}
+.right-contact-container{
+  display: flex;
+  flex-direction: column;
+  width: 15%;
+  height: 60vh;
+  justify-content: end;
+  margin: 0 0 0 2vh;
+}
+.right-contact-container h1{
+  font-size: large;
+  margin: 1vh 0;
+  color: #003172;
+}
+.right-contact-container h1 i{
+  margin: 0 1vh;
+}
+.right-contact-container h2{
+  font-size:medium;
+  margin: 0 1vh;
+  color: #004AAD;
+}
+
 
   /* 
      Footer

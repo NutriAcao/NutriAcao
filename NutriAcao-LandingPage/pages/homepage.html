@@ -22,7 +22,7 @@
       <ul>
         <li><a href="#" class="nav-link active">Página inicial</a></li>
         <li id="sobre"><a href="#" class="nav-link">Sobre</a></li>
-        <li id="contato"><a href="#" class="nav-link">Contato</a></li>
+        <li id="contato"><a href="#contact" class="nav-link">Contato</a></li>
         <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
         <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
       </ul>
@@ -282,26 +282,30 @@
         </div>    
       </div>
     </section>
+    <section class="contact" id="contact">
+        <form action="" class="contact-container">
+            <img src="../assets/logo-blue.png" alt="">
+            <div class="center-container">
+                <h1>CONTATE-NOS</h1>
+                <input type="text" placeholder="Digite seu nome">
+                <input type="email" placeholder="Digite um email valido">
+                <textarea name="" placeholder="Assunto" id="contact-subject"></textarea>
+                <button type="submit">Enviar</button>
+            </div>
+            <div class="right-contact-container">
+                <h1><i class="fa-solid fa-phone"></i>Ligue para nós</h1>
+                <h2>(11)94632-5234</h2>
+                <h1><i class="fa-solid fa-location-dot"></i>Endereço</h1>
+                <h2>Av. Águia de Haia, 2983 - Cidade Antônio Estêvão de Carvalho, São Paulo - SP, 03694-000</h2>
+            </div>
+        </form>
+    </section>
   </main>
 
   <footer>
     <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
   </footer>
 
-<script>
-  window.addEventListener("scroll", function(){
-    let header = document.querySelector('#header');
-    header.classList.toggle('rolagem', window.scrollY > 200);
-  });
-  document.querySelectorAll('.accordion-link').forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const item = this.parentElement;
-    item.classList.toggle('active');
-  });
-});
-
-</script>
 
 <script src="../js/script.js"></script>
 
