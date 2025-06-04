@@ -1,35 +1,43 @@
-document.addEventListener("DOMContentLoaded", function () {
-  const burger = document.getElementById("burger");
-  const nav = document.querySelector("nav");
-  let isOpen = false;
+document.addEventListener('DOMContentLoaded', function() {
+    const menuButton = document.getElementById('menu-button');
+    const navMenu = document.getElementById('menu');
 
-  burger.addEventListener("click", () => {
-    if (isOpen) {
-      nav.style.display = "none";
-      isOpen = false;
-    } else {
-      nav.style.display = "flex";
-      isOpen = true;
-    }
-  });
+    menuButton.addEventListener('click', function() {
+        navMenu.classList.toggle('active');
+    });
 
-  //fechar se clicar fora do menu
-  document.addEventListener("click", function (event) {
-    if (isOpen && !nav.contains(event.target) && event.target !== burger) {
-      nav.style.display = "none";
-      isOpen = false;
-    }
-  });
-});
+    const navLinks = document.querySelectorAll('#nav-list .nav-link, #nav-list .btn-login, #nav-list .btn-cadastro');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            if (navMenu.classList.contains('active')) {
+                navMenu.classList.remove('active');
+            }
+        });
+    });
 
-  window.addEventListener("scroll", function(){
-    let header = document.querySelector('#header');
-    header.classList.toggle('rolagem', window.scrollY > 200);
-  });
-  document.querySelectorAll('.accordion-link').forEach(link => {
-  link.addEventListener('click', function(e) {
-    e.preventDefault();
-    const item = this.parentElement;
-    item.classList.toggle('active');
-  });
+    const header = document.getElementById('header');
+    window.addEventListener('scroll', function() {
+        if (window.scrollY > 0) {
+            header.classList.add('rolagem');
+        } else {
+            header.classList.remove('rolagem');
+        }
+    });
+
+    const accordionItems = document.querySelectorAll('.accordion-item');
+
+    accordionItems.forEach(item => {
+        const link = item.querySelector('.accordion-link');
+        link.addEventListener('click', function(e) {
+            e.preventDefault(); 
+
+            accordionItems.forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                }
+            });
+
+            item.classList.toggle('active');
+        });
+    });
 });
