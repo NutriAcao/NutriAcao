@@ -2,34 +2,37 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preencha os dados para entrar</title>
     <link rel="stylesheet" href="../styles/style-cadastro.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
-
 </head>
 <body>
 
-    <header>
-      <a class="footer-logo" href="../pages/homepage.html">
-          <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
-          <h1>NutriAção</h1>
-      </a> 
+          <header id="header">
 
-      <nav>
-        <ul>
-          <li><a href="homepage.html" class="nav-link">Página inicial</a></li>
-          <li><a href="#" class="nav-link">Sobre</a></li>
-          <li><a href="#" class="nav-link">Contato</a></li>
-          <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
-          <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
-        </ul>
-      </nav>
-    </header>
+                <button id="menu-button">
+                  <img src="../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
+                </button>
+
+                <a class="footer-logo" href="../pages/homepage.html">
+                  <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
+                  <h1>NutriAção</h1>
+                </a> 
+                
+                <nav id="menu">
+                  <ul id="nav-list">
+                    <li><a href="../pages/cadastropage.html" class="nav-link active">Página inicial</a></li>
+                    <li id="sobre"><a href="../pages/cadastropage.html" class="nav-link">Sobre</a></li>
+                    <li id="contato"><a href="../pages/cadastropage.html" class="nav-link">Contato</a></li>
+                    <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
+                    <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
+                  </ul>
+                </nav>
+        </header>
     
-      
       <main>
         <section>
             <div class="left-container">
@@ -38,68 +41,61 @@
             <form action="">
             <div class="right-container">
                 
-                <div class="right-container">
-                      <img src="../assets/logo-blue.png" alt="Logo NutriAção" id="logo-container">
+                <div class="form-content">
+                     <img src="../assets/logo-blue.png" alt="Logo NutriAção" id="logo-container">
                     
-                      <!-- Nome e Sobrenome -->
+                     
+                    <div class="input-container">
+                        <i class="fa-solid fa-user"></i>
+                        <input type="text" placeholder="Nome" name="nome">
+                    </div>
 
-                      <div class="double-input">
-                        <div class="input-container">
-                          <i class="fa-solid fa-user"></i>
-                          <input type="text" placeholder="Nome" name="nome">
-                        </div>
-                    
-                        <div class="input-container">
-                          <i class="fa-solid fa-user"></i>
-                          <input type="text" placeholder="Sobrenome" name="sobrenome">
-                        </div>
-                      </div>
+                    <div class="input-container">
+                        <i class="fa-solid fa-person"></i>
+                        <input type="text" placeholder="usuário" name="sobrenome">
+                    </div>
 
-                      <!-- telefone -->
+                    <div class="input-container">
+                        <i class="fa-solid fa-phone"></i>
+                        <input type="tel" placeholder="Telefone" name="telefone">
+                    </div>
 
-                      <div class="input-container">
-                          <i class="fa-solid fa-phone"></i>
-                          <input type="tel" placeholder="Telefone" name="telefone">
-                      </div>
-
-                      <!-- Email -->
-
-                      <div class="input-container">
+                    <div class="input-container">
                         <i class="fa-solid fa-envelope"></i>
                         <input type="email" placeholder="Email" name="email">
-                      </div>
+                    </div>
 
-                      <!-- Senha -->
-
-                      <div class="input-container">
+                    <div class="input-container">
                         <i class="fa-solid fa-key"></i>
                         <input type="password" placeholder="Senha" name="senha" >
-                      </div>
+                    </div>
 
-                      <!-- Confirmar Senha -->
-
-                      <div class="input-container">
+                    <div class="input-container">
                         <i class="fa-solid fa-lock"></i>
                         <input type="password" placeholder="Confirme a sua Senha" name="CnfSenha">
-                      </div>
-
                     </div>
+
+                </div>
                   
-                    <!-- Checkbox -->
                     <div class="checkbox-container">
                       <input type="checkbox" id="manterConexao">
                       <label for="manterConexao">Desejo me cadastrar como Doador</label>
                     </div>
                   
-                    <!-- Botão -->
-                    <input type="submit" value="Cadastrar-se" id="btn-entrar">
+                    <div class="botao">
+                      <input type="submit" value="Cadastrar-se" id="btn-entrar">
+                    </div>
 
-                  </div>
+                </div>
             </form>
         </section>
       </main>
       <footer>
         <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
       </footer>
+
+      <script src="../js/script.js"></script>
+
+
 </body>
 </html>

@@ -738,6 +738,7 @@ input::placeholder{
         width: 100%;
         text-align: center;
         align-items: center;
+        margin-top: 20vh;
     }
 }
 
@@ -833,6 +834,7 @@ input::placeholder{
     #menu-button {
         display: flex;
         justify-content: center;
+        width: 90px;
     }
 
     #menu {

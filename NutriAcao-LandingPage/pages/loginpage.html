@@ -13,22 +13,27 @@
 </head>
 <body>
 
-    <header>
-        <a class="footer-logo" href="../pages/homepage.html">
-            <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
-            <h1>NutriAção</h1>
-        </a> 
-    
-        <nav>
-          <ul>
-            <li><a href="homepage.html" class="nav-link">Página inicial</a></li>
-            <li><a href="#" class="nav-link">Sobre</a></li>
-            <li><a href="#" class="nav-link">Contato</a></li>
-            <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
-            <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
-          </ul>
-        </nav>
-      </header>
+    <header id="header">
+
+                <button id="menu-button">
+                  <img src="../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
+                </button>
+
+                <a class="footer-logo" href="../pages/homepage.html">
+                  <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
+                  <h1>NutriAção</h1>
+                </a> 
+                
+                <nav id="menu">
+                  <ul id="nav-list">
+                    <li><a href="../pages/homepage.html" class="nav-link active">Página inicial</a></li>
+                    <li id="sobre"><a href="../pages/homepage.html" class="nav-link">Sobre</a></li>
+                    <li id="contato"><a href="../pages/homepage.html" class="nav-link">Contato</a></li>
+                    <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
+                    <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
+                  </ul>
+                </nav>
+        </header>
       
       <main>
         <section>
@@ -61,5 +66,8 @@
       <footer>
         <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
       </footer>
+
+      <script src="../js/script.js"></script>
+
 </body>
 </html>
