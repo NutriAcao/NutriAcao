@@ -14,6 +14,7 @@ A landing page do NutriAção serve como porta de entrada para o público intere
 
 ## 🛠️ Tecnologias Utilizadas
 
+- **JavaScript**
 - **HTML5**
 - **CSS3**
 
