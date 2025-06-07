@@ -18,6 +18,8 @@ A landing page do NutriAção serve como porta de entrada para o público intere
 - **HTML5**
 - **CSS3**
 
+## 🔗 Acesse a página
+- **Clique aqui:** (https://nutriacao.github.io/NutriAcao/)
 ## 📦 Como Executar o Projeto Localmente
 
 1. Clone o repositório:
