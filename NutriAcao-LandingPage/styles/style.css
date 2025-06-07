@@ -555,6 +555,16 @@ main {
 .accordion-item:hover{
   background-color: #dddddd;
 }
+
+.MapTitle{
+  height: 100%;
+    font-family: 'Poppins', sans-serif;
+    color: var(--color-text);
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+}
+
 .accordion-link{
   font-size: 1.6rem;
   color:var(--color-main);
