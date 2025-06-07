@@ -51,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var local = document.getElementById("searchInput").value;
 
     if (!local) {
-      alert("Digite uma localização válida.");
+      alert("Local não encontrado. Digite uma localização válida.");
       return;
     }
 
