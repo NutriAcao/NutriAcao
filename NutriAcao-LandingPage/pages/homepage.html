@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
 
@@ -95,7 +96,22 @@
         Trabalhamos todos os dias para transformar excedentes em esperança, com processos rápidos, seguros e impactantes. Cada doação é mais que alimento: é dignidade, carinho e transformação.</p>
     </div>
   </div>
+  <h2 style="font-family: Arial, sans-serif; font-size: 1.5rem; margin-left: 1rem;">Mapa de ONGs próximas</h2>
+  <p style="font-family: Arial, sans-serif; font-size: 0.9rem; margin-left: 1rem;">(Você pode escolher a sua localização clicando no mapa ou buscando)</p>
+  <br>
+  <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 100%; margin: 1rem auto;">
   
+</div>
+<div id="map-container">
+  <div id="map"></div>
+</div>
+  <div id="search-container">
+  <br>
+  <input type="text" id="searchInput" placeholder="Digite uma cidade ou endereço...">
+  <button id="searchBtn" onclick="buscarLocalizacao()">Buscar</button>
+</div>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
     </section>
 
     <section id="grid">

@@ -86,7 +86,9 @@
     transition: 0.5s ease-in-out;
     z-index: 1000;
     background-color: transparent;
+     z-index: 9999;
 }
+
 
 header.rolagem {
     background-color: rgba(255, 255, 255, 0.95);
@@ -1013,4 +1015,57 @@ input::placeholder{
     .right-contact-container h2 {
         font-size: 0.9rem;
     }
+}
+
+#search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+#searchInput {
+  padding: 10px;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+#searchBtn {
+  padding: 10px;
+  font-size: 1rem;
+  background-color: #004AAD;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+#searchBtn:hover {
+  background-color: #003172;
+}
+
+#map-container {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+#map-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#map {
+  width: 100%;
+  height: 600px;
+  border-radius: 12px;
+  margin-left: 1.5rem; 
+  margin-right: 1.5rem; 
+  border-radius: 12px;
 }
