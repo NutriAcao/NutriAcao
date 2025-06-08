@@ -1046,7 +1046,7 @@ input::placeholder{
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 #map-container {
-  width: 100%;
+  width: 95%;
   max-width: 600px;
   margin: 0 auto;
   border-radius: 16px;
