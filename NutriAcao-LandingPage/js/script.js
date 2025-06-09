@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     menuButton.addEventListener('click', function() {
         navMenu.classList.toggle('active');
     });
-
+    //para navegar no site
     const navLinks = document.querySelectorAll('#nav-list .nav-link, #nav-list .btn-login, #nav-list .btn-cadastro');
     navLinks.forEach(link => {
         link.addEventListener('click', function() {
@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
+    //scrolla a tela para baixo
     const header = document.getElementById('header');
     window.addEventListener('scroll', function() {
         if (window.scrollY > 0) {
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-
+//para buscar a localização
 document.addEventListener("DOMContentLoaded", function () {
 
 
