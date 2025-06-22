@@ -26,4 +26,4 @@ A landing page do NutriAção serve como porta de entrada para o público intere
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/seu-usuario/NutriAcao-LandingPage.git
+git clone https://github.com/NutriAcao/NutriAcao.git
