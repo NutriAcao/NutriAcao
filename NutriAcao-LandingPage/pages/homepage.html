@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Exemplo com Header e Footer</title>
+  <title>Página inicial - NutriAção</title>
   <link rel="stylesheet" href="../styles/style.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
 
@@ -86,7 +88,7 @@
     </div>
 
     <div class="right-side">
-        <h4>Sobre o NutriAção</h4>
+        <h3>Sobre o NutriAção</h3>
 
         <h5>Nossa missão é combater o desperdício de alimentos e levar esperança para milhares de famílias.</h5>
         
@@ -94,8 +96,22 @@
         solidariedade para combater o desperdício de alimentos e promover um futuro mais justo e sustentável.
         Trabalhamos todos os dias para transformar excedentes em esperança, com processos rápidos, seguros e impactantes. Cada doação é mais que alimento: é dignidade, carinho e transformação.</p>
     </div>
-  </div>
+  </div id="MapTitle">
+  <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.5rem; margin-left: 1rem;">Mapa de ONGs próximas</h2>
+  <p style="font-family: 'Poppins', sans-serif; font-size: 0.9rem; margin-left: 1rem;">(Você pode escolher a sua localização clicando no mapa ou buscando)</p>
+  <br>
+  <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 100%; margin: 1rem auto;">
   
+</div>
+<div id="map-container">
+  <div id="map"></div>
+</div>
+  <div id="search-container">
+  <br>
+  <input type="text" id="searchInput" placeholder="Digite uma cidade ou endereço...">
+  <button id="searchBtn" onclick="buscarLocalizacao()">Buscar</button>
+</div>
+
     </section>
 
     <section id="grid">
@@ -301,6 +317,9 @@
             <div class="right-contact-container">
                 <h1><i class="fa-solid fa-phone"></i>Ligue para nós</h1>
                 <h2>(11)94632-5234</h2>
+                <h1><i class="fa-solid fa-leaf"></i>Nos siga</h1>
+                <h2><i class="fab fa-instagram"></i> @NutriAção <br> 
+                  <i class="fab fa-x"></i> @NutriAçãoX </h2>
                 <h1><i class="fa-solid fa-location-dot"></i>Endereço</h1>
                 <h2>Av. Águia de Haia, 2983 - Cidade Antônio Estêvão de Carvalho, São Paulo - SP, 03694-000</h2>
             </div>
@@ -312,8 +331,15 @@
     <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
   </footer>
 
-
-<script src="../js/script.js"></script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script type="module" src="../js/menu.js"></script>
+<script type="module" src="../js/scroll.js"></script>
+<script type="module" src="../js/accordion.js"></script>
+<script type="module" src="../js/search.js"></script>
+<script type="module" src="../js/main.js"></script>
+<script type="module" src="../js/ongs.js"></script>
+<script type="module" src="../js/map.js"></script>
+<script src="../js/main.js"></script>
 
 </body>
 </html>
