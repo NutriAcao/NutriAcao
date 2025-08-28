@@ -476,4 +476,54 @@ footer {
         font-size: 2rem;
         margin-bottom: 2vh;
     }
+    .options-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    margin-top: 20px;
+}
+
+.radio-label {
+    display: flex; 
+    align-items: center;
+    background-color: #f0f0f0;
+    padding: 15px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, border 0.3s;
+}
+
+.radio-label:hover {
+    background-color: #e6e6e6;
+}
+
+.radio-label input[type="radio"] {
+    /* Esconda o input de rádio nativo */
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer; /* Mantenha o cursor */
+}
+
+.radio-label input[type="radio"]:checked {
+    border-color: var(--color-main);
+}
+
+.radio-label input[type="radio"]:checked::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-main);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    aspect-ratio: 1 / 1;
+}
 }

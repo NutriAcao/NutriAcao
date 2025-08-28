@@ -34,61 +34,41 @@
         </header>
     
       <main>
+
         <section>
             <div class="left-container">
                 <img src="../assets/left_img_cadastro.jpg" alt="" srcset="" id="imgLeft"/>
             </div>
-            <form action="">
-            <div class="right-container">
-                
-                <div class="form-content">
-                     <img src="../assets/logo-blue.png" alt="Logo NutriAção" id="logo-container">
-                    
-                     
-                    <div class="input-container">
-                        <i class="fa-solid fa-user"></i>
-                        <input type="text" placeholder="Nome" name="nome">
-                    </div>
+            <form action="../pages/form_redirect.html" method="POST">
+                <div class="right-container">
+                    <div class="form-content">
+                        <img src="../assets/logo-blue.png" alt="Logo NutriAção" id="logo-container">
+                        
+                        <h2>Cadastrar como:</h2>
 
-                    <div class="input-container">
-                        <i class="fa-solid fa-person"></i>
-                        <input type="text" placeholder="Usuário" name="sobrenome">
+                        <div class="options-container">
+                            <label class="radio-label">
+                                <input type="radio" name="profile_type" value="ong" required>
+                                <span class="custom-radio"></span> <span>ONG</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="profile_type" value="ong" required>
+                                <span class="custom-radio"></span> <span>Empresa</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="profile_type" value="ong" required>
+                                <span class="custom-radio"></span> <span>Pessoa Física</span>
+                            </label>
+                        </div>
+                        
+                        <div class="botao">
+                            <input type="submit" value="Continuar" id="btn-entrar">
+                        </div>
                     </div>
-
-                    <div class="input-container">
-                        <i class="fa-solid fa-phone"></i>
-                        <input type="tel" placeholder="Telefone" name="telefone">
-                    </div>
-
-                    <div class="input-container">
-                        <i class="fa-solid fa-envelope"></i>
-                        <input type="email" placeholder="Email" name="email">
-                    </div>
-
-                    <div class="input-container">
-                        <i class="fa-solid fa-key"></i>
-                        <input type="password" placeholder="Senha" name="senha" >
-                    </div>
-
-                    <div class="input-container">
-                        <i class="fa-solid fa-lock"></i>
-                        <input type="password" placeholder="Confirme a sua Senha" name="CnfSenha">
-                    </div>
-
-                </div>
-                  
-                    <div class="checkbox-container">
-                      <input type="checkbox" id="manterConexao">
-                      <label for="manterConexao">Desejo me cadastrar como Doador</label>
-                    </div>
-                  
-                    <div class="botao">
-                      <input type="submit" value="Cadastrar-se" id="btn-entrar">
-                    </div>
-
                 </div>
             </form>
         </section>
+
       </main>
       <footer>
         <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
