@@ -253,6 +253,29 @@ input:focus-visible{
     margin-left: 10px;
     font-size: 14px;
 }
+
+/*  
+efeito de marcação
+
+Nota: Não mexer na ordem do input e label no HTML, caso contrário o código não funcionará, visto que opera com base em irmãos adjacenetes (+)
+*/
+
+input#input_ong:checked + label#label-ong {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_empresa:checked + label#label-empresa {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+
 #manterConexao{
     width: 1px;
     height: 18px;
@@ -294,35 +317,34 @@ footer {
   font-size: 16px;
 } 
 
-@media screen and (max-width: 1610px) {
+@media screen and (max-width: 1610px) and (min-width: 600px) {
     
     .right-container {
-    display: flex;
-    align-items: center;
-    align-content: center;
-    width: 100%;
+    height: 100%;
   }
 
   p {
     margin: auto;
   }
 
+section {
+  display: flex;
+}
+
 form {
+  margin-left: auto;
+  
   display:flex;
   width: 100%;
+  max-width: 500px;
   align-items: center;
   align-content: center;
 }
 
-section {
-  width: 100%;
+
+
 }
 
-
-
-    .btn-cadastro {
-        display: none;
-    }
      #menu-button {
         display: flex;
         justify-content: center;
@@ -332,7 +354,6 @@ section {
     }
 
     #menu {
-        display:none;
         flex-direction: column;
         position: fixed;
         top: 0;
@@ -496,12 +517,10 @@ section {
 .radio-label {
 min-width: 170px;
 width: 50vw;
+max-width: 350px;
 
   
     display: flex; 
-    align-items: end;
-    align-content: end;
-    text-align: center;
     background-color: #f0f0f0;
     padding: 15px 20px;
     border-radius: 4px;
@@ -544,7 +563,6 @@ input[type="radio"] {
 }
 }
 
-}
 
 
 
@@ -767,6 +785,7 @@ section {
 .radio-label {
 min-width: 170px;
 width: 50vw;
+max-width: 350px;
 
   
     display: flex; 
@@ -814,5 +833,28 @@ input[type="radio"] {
     aspect-ratio: 1 / 1;
 }
 }
+
+/*  
+efeito de marcação
+
+Nota: Não mexer na ordem do input e label no HTML, caso contrário o código não funcionará, visto que opera com base em irmãos adjacenetes (+)
+*/
+
+input#input_ong:checked + label#label-ong {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+
+}
+
+input#input_empresa:checked + label#label-empresa {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
 
 }
