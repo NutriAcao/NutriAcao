@@ -100,7 +100,7 @@ ul li a {
   color: var(--color-main);
 }
 
-.nav-link.active::after {
+.nav-link.active:hover::after {
   width: 100%;
 }
 
@@ -295,27 +295,31 @@ footer {
 } 
 
 @media screen and (max-width: 1610px) {
-    .left-container {
-      display: none;
-    }
-    section{
-      display: flex;
-      justify-content: center;
-    }
-  
+    
+    .right-container {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    width: 100%;
   }
 
-@media screen and (max-width: 1230px) {
-    .nav-link {
-        display: none;
-    }
+  p {
+    margin: auto;
+  }
+
+form {
+  display:flex;
+  width: 100%;
+  align-items: center;
+  align-content: center;
 }
-@media screen and (max-width: 1010px) {
-    .btn-cadastro {
-        display: none;
-    }
+
+section {
+  width: 100%;
 }
-@media screen and (max-width: 892px) {
+
+
+
     .btn-cadastro {
         display: none;
     }
@@ -328,7 +332,7 @@ footer {
     }
 
     #menu {
-        display: none;
+        display:none;
         flex-direction: column;
         position: fixed;
         top: 0;
@@ -341,6 +345,10 @@ footer {
         transition: transform 0.3s ease-in-out;
         transform: translateX(100%);
         z-index: 999;
+    }
+
+    #menu-button:active + #menu {
+      display: flex;
     }
 
     #menu.active {
@@ -478,6 +486,7 @@ footer {
     }
     .options-container {
     display: flex;
+    align-items: center;
     flex-direction: column;
     gap: 15px;
     width: 300px;
@@ -485,8 +494,14 @@ footer {
 }
 
 .radio-label {
+min-width: 170px;
+width: 50vw;
+
+  
     display: flex; 
-    align-items: center;
+    align-items: end;
+    align-content: end;
+    text-align: center;
     background-color: #f0f0f0;
     padding: 15px 20px;
     border-radius: 4px;
@@ -495,20 +510,21 @@ footer {
     transition: background-color 0.3s, border 0.3s;
 }
 
+
 .radio-label:hover {
     background-color: #e6e6e6;
 }
 
-.radio-label input[type="radio"] {
-    /* Esconda o input de rádio nativo */
+input[type="radio"] {
+    /* Esconda o input de rádio nativo
     position: absolute;
     opacity: 0;
     width: 0;
     height: 0;
     margin: 0;
     padding: 0;
-    cursor: pointer; /* Mantenha o cursor */
-}
+    cursor: pointer; Mantenha o cursor */
+    display: none;
 
 .radio-label input[type="radio"]:checked {
     border-color: var(--color-main);
@@ -526,4 +542,277 @@ footer {
     transform: translate(-50%, -50%);
     aspect-ratio: 1 / 1;
 }
+}
+
+}
+
+
+
+
+  
+  
+/*
+@media screen and (max-width: 1230px) {
+    .nav-link {
+        display: none;
+    }
+}
+@media screen and (max-width: 1010px) {
+    .btn-cadastro {
+        display: none;
+    }
+} */
+    
+@media screen and (max-width: 600px) { 
+
+  .right-container {
+    display: flex;
+    align-items: center;
+    align-content: center;
+    width: 100%;
+  }
+
+  p {
+    margin: auto;
+  }
+
+form {
+  display:flex;
+  width: 100%;
+  align-items: center;
+  align-content: center;
+}
+
+section {
+  width: 100%;
+}
+
+  div.left-container {
+    display: none;
+  }
+
+    .btn-cadastro {
+        display: none;
+    }
+     #menu-button {
+        display: flex;
+        justify-content: center;
+        height: 50px;
+        width: 90px;
+        border-radius: 4px;
+    }
+
+    #menu {
+        display:none;
+        flex-direction: column;
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 100vw;
+        height: 80vh;
+        background-color: #003172;
+        justify-content: center;
+        align-items: center;
+        transition: transform 0.3s ease-in-out;
+        transform: translateX(100%);
+        z-index: 999;
+    }
+
+    #menu-button:active + #menu {
+      display: flex;
+    }
+
+    #menu.active {
+        display: flex;
+        transform: translateX(0);
+    }
+
+    #menu.active #nav-list li,
+    #menu.active .nav-link,
+    #menu.active .btn-login,
+    #menu.active .btn-cadastro {
+        display: block !important;
+    }
+
+    #menu.active #sobre,
+    #menu.active #contato {
+        display: block !important;
+    }
+
+    nav ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        width: 80%;
+        padding: 0;
+    }
+
+    .nav-link,.btn-login,.btn-cadastro {
+        display: flex;
+        text-align: center;
+        color: var(--color-main);
+        font-size: 1.5rem;
+        padding: 10px 0;
+        width: 28vh;
+        background-color: white;
+        border-radius: 6px;
+    }
+
+    .nav-link::after {
+        display: none;
+    }
+
+    .btn-login {
+        border-color: white;
+    }
+
+    .btn-login:hover {
+        background-color: white;
+        color: #003172;
+    }
+
+    .btn-cadastro {
+        background-color: white;
+        color: var(--color-main);
+    }
+
+    .btn-cadastro:hover {
+        background-color: #ccc;
+    }
+
+    header, header.rolagem {
+        padding: 3vh 5vh;
+        justify-content: space-between;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    header.rolagem #menu-button > img {
+        filter: brightness(100);
+    }
+
+    #top-page {
+        padding: 15vh 5vh 5vh;
+    }
+
+    #top-page .left-side h2 {
+        font-size: 38px;
+    }
+
+    #beneficios {
+        padding: 5vh 5vh;
+        gap: 20px;
+    }
+
+    #beneficios div {
+        max-width: 90%;
+    }
+
+    #grid {
+        padding: 5vh 5vh;
+    }
+
+    .card {
+        width: 90%;
+    }
+
+    #nutriacao {
+        padding: 5vh 5vh;
+    }
+
+    #nutriacao > .left-side,
+    .right-side {
+        width: 100%;
+    }
+
+    .faq {
+        padding: 5vh 5vh;
+    }
+
+    .faq .container {
+        padding: 0 0.5rem;
+    }
+
+    .accordion-link {
+        font-size: 1rem;
+        padding: 1rem 0;
+    }
+
+    .answer p {
+        font-size: 0.9rem;
+    }
+
+    .contact {
+        padding: 5vh 5vh;
+    }
+
+    .contact-container {
+        padding: 20px;
+    }
+
+    .center-container h1 {
+        font-size: 2rem;
+        margin-bottom: 2vh;
+    }
+    .options-container {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+    width: 300px;
+    margin-top: 20px;
+}
+
+.radio-label {
+min-width: 170px;
+width: 50vw;
+
+  
+    display: flex; 
+    align-items: end;
+    align-content: end;
+    text-align: center;
+    background-color: #f0f0f0;
+    padding: 15px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s, border 0.3s;
+}
+
+
+.radio-label:hover {
+    background-color: #e6e6e6;
+}
+
+input[type="radio"] {
+    /* Esconda o input de rádio nativo
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+    padding: 0;
+    cursor: pointer; Mantenha o cursor */
+    display: none;
+
+.radio-label input[type="radio"]:checked {
+    border-color: var(--color-main);
+}
+
+.radio-label input[type="radio"]:checked::after {
+    content: '';
+    width: 12px;
+    height: 12px;
+    background-color: var(--color-main);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    aspect-ratio: 1 / 1;
+}
+}
+
 }
