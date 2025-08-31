@@ -364,7 +364,7 @@ form {
         justify-content: center;
         align-items: center;
         transition: transform 0.3s ease-in-out;
-        transform: translateX(100%);
+        transform: translateY(-100%);
         z-index: 999;
     }
 
@@ -374,7 +374,7 @@ form {
     #menu.active {
       /* display: flex; */
       display: flex;
-      transform: translateX(0);
+      transform: translateY(0);
         
     }
 
@@ -437,6 +437,7 @@ form {
         justify-content: space-between;
         background-color: rgba(255, 255, 255, 0.95);
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1;
     }
 
     header.rolagem #menu-button > img {
@@ -636,7 +637,7 @@ section {
         justify-content: center;
         align-items: center;
         transition: transform 0.3s ease-in-out;
-        transform: translateX(100%);
+        transform: translateY(-100%);
         z-index: 999;
     }
 
@@ -646,7 +647,8 @@ section {
     #menu.active {
       /* display: flex; */
       display: flex;
-      transform: translateX(0);
+      transform: translateY(0);
+      
         
     }
 
@@ -655,11 +657,13 @@ section {
     #menu.active .btn-login,
     #menu.active .btn-cadastro {
         display: block !important;
+        
     }
 
     #menu.active #sobre,
     #menu.active #contato {
         display: block !important;
+        
     }
 
     nav ul {

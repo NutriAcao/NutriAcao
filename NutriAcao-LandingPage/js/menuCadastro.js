@@ -14,3 +14,5 @@ export function initMenu() {
     });
   });
 }
+
+initMenu()
