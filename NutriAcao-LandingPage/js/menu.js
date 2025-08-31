@@ -5,6 +5,7 @@ export function initMenu() {
 
   menuButton.addEventListener('click', () => {
     navMenu.classList.toggle('active');
+  
   });
 
   navLinks.forEach(link => {
@@ -13,3 +14,5 @@ export function initMenu() {
     });
   });
 }
+
+initMenu()
