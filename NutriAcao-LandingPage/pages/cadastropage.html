@@ -13,16 +13,12 @@
 
           <header id="header">
 
-                <button id="menu-button">
-                  <img src="../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
-                </button>
-
-                <a class="footer-logo" href="../pages/homepage.html">
-                  <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
-                  <h1>NutriAção</h1>
-                </a> 
                 
-                <nav id="menu">
+            <button id="menu-button">
+              <img src="../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
+            </button>
+
+            <nav id="menu">
                   <ul id="nav-list">
                     <li><a href="../pages/cadastropage.html" class="nav-link active">Página inicial</a></li>
                     <li id="sobre"><a href="../pages/cadastropage.html" class="nav-link">Sobre</a></li>
@@ -31,6 +27,12 @@
                     <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
                   </ul>
                 </nav>
+
+                <a class="footer-logo" href="../pages/homepage.html">
+                  <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
+                  <h1>NutriAção</h1>
+                </a> 
+                
         </header>
     
       <main>
@@ -47,16 +49,18 @@
                         <h2>Cadastrar como:</h2>
 
                         <div class="options-container">
-                            <label class="radio-label" for="input_ong"><p>ONG</p> </label>
+                            
                                 <input type="radio" name="profile_type" value="ong" id="input_ong" required>
+                                <label class="radio-label" for="input_ong" id="label-ong"><p>ONG</p> </label>
                                 
                             
-                            <label class="radio-label" for="input_empresa"><p>Empresa</p> </label>
+                            
                                 <input type="radio" name="profile_type" value="ong" id="input_empresa"  required>
+                                <label class="radio-label" for="input_empresa" id="label-empresa"><p>Empresa</p> </label>
                                
                             
-                            <label class="radio-label" for="input_pessoa-fisica"><p>Pessoa Física</p> </label>
                                 <input type="radio" name="profile_type" value="ong" id="input_pessoa-fisica" required>
+                                <label class="radio-label" for="input_pessoa-fisica" id="label-pessoa-fisica"><p>Pessoa Física</p> </label>
                                 
                             
                         </div>
@@ -74,9 +78,7 @@
         <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
       </footer>
 
-      <script src="../js/script.js"></script>
-            
-
+<script type="module" src="../js/menu.js"></script>
 
 
 </body>
