@@ -253,6 +253,29 @@ input:focus-visible{
     margin-left: 10px;
     font-size: 14px;
 }
+
+/*  
+efeito de marcação
+
+Nota: Não mexer na ordem do input e label no HTML, caso contrário o código não funcionará, visto que opera com base em irmãos adjacenetes (+)
+*/
+
+input#input_ong:checked + label#label-ong {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_empresa:checked + label#label-empresa {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+
 #manterConexao{
     width: 1px;
     height: 18px;
@@ -294,35 +317,30 @@ footer {
   font-size: 16px;
 } 
 
-@media screen and (max-width: 1610px) {
+@media screen and (min-width: 600px) {
     
     .right-container {
-    display: flex;
-    align-items: center;
-    align-content: center;
-    width: 100%;
+    height: 100%;
   }
 
   p {
     margin: auto;
   }
 
+section {
+  display: flex;
+}
+
 form {
+
   display:flex;
   width: 100%;
   align-items: center;
   align-content: center;
 }
 
-section {
-  width: 100%;
 }
 
-
-
-    .btn-cadastro {
-        display: none;
-    }
      #menu-button {
         display: flex;
         justify-content: center;
@@ -332,7 +350,10 @@ section {
     }
 
     #menu {
-        display:none;
+      display: flex;
+ 
+
+    
         flex-direction: column;
         position: fixed;
         top: 0;
@@ -347,13 +368,14 @@ section {
         z-index: 999;
     }
 
-    #menu-button:active + #menu {
-      display: flex;
-    }
-
+    /* #menu-button:active + #menu {
+    } */
+    
     #menu.active {
-        display: flex;
-        transform: translateX(0);
+      /* display: flex; */
+      display: flex;
+      transform: translateX(0);
+        
     }
 
     #menu.active #nav-list li,
@@ -496,12 +518,10 @@ section {
 .radio-label {
 min-width: 170px;
 width: 50vw;
+max-width: 350px;
 
   
     display: flex; 
-    align-items: end;
-    align-content: end;
-    text-align: center;
     background-color: #f0f0f0;
     padding: 15px 20px;
     border-radius: 4px;
@@ -544,15 +564,14 @@ input[type="radio"] {
 }
 }
 
-}
 
 
 
 
   
   
-/*
-@media screen and (max-width: 1230px) {
+
+/* @media screen and (max-width: 1230px) {
     .nav-link {
         display: none;
     }
@@ -561,9 +580,11 @@ input[type="radio"] {
     .btn-cadastro {
         display: none;
     }
-} */
+}  */
     
 @media screen and (max-width: 600px) { 
+
+
 
   .right-container {
     display: flex;
@@ -603,7 +624,8 @@ section {
     }
 
     #menu {
-        display:none;
+     display: flex;
+        
         flex-direction: column;
         position: fixed;
         top: 0;
@@ -618,13 +640,14 @@ section {
         z-index: 999;
     }
 
-    #menu-button:active + #menu {
-      display: flex;
-    }
-
+    /* #menu-button:active + #menu {
+    } */
+    
     #menu.active {
-        display: flex;
-        transform: translateX(0);
+      /* display: flex; */
+      display: flex;
+      transform: translateX(0);
+        
     }
 
     #menu.active #nav-list li,
@@ -767,6 +790,7 @@ section {
 .radio-label {
 min-width: 170px;
 width: 50vw;
+max-width: 350px;
 
   
     display: flex; 
@@ -814,5 +838,28 @@ input[type="radio"] {
     aspect-ratio: 1 / 1;
 }
 }
+
+/*  
+efeito de marcação
+
+Nota: Não mexer na ordem do input e label no HTML, caso contrário o código não funcionará, visto que opera com base em irmãos adjacenetes (+)
+*/
+
+input#input_ong:checked + label#label-ong {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+
+}
+
+input#input_empresa:checked + label#label-empresa {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
+input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
+  background-color: #003172;
+  color: var(--color-secondary-text);
+}
+
 
 }
