@@ -182,6 +182,19 @@ section {
 form{
   display: flex;
 }
+
+
+div#mensagem-erro {
+  display: none;
+ color: red;
+ font-size: 1.25rem;
+ text-align: center;
+ border: 1px solid red;
+ border-radius: 10px;
+ padding: 10px;
+}
+
+
 .right-container {
   height: 100%;
     width: 60vw;
@@ -261,9 +274,6 @@ input:focus-visible{
     margin-left: 10px;
     font-size: 14px;
 }
-
-
-
 
 #manterConexao{
     width: 1px;
@@ -364,7 +374,9 @@ input[type="radio"] {
     margin: 0;
     padding: 0;
     cursor: pointer; Mantenha o cursor */
-    display: none;
+  visibility: hidden;
+  
+}
 
 .radio-label input[type="radio"]:checked {
     border-color: var(--color-main);
@@ -382,7 +394,7 @@ input[type="radio"] {
     transform: translate(-50%, -50%);
     aspect-ratio: 1 / 1;
 }
-}
+
 
 /*  
 efeito de marcação
@@ -781,10 +793,6 @@ section {
         font-size: 2rem;
         margin-bottom: 2vh;
     }
-    
-  
-
-
 
 }
 
