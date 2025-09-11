@@ -902,7 +902,6 @@ button[type="submit"]:hover {
     background-color: rgba(0, 0, 0, 0.5); /* Fundo preto semi-transparente */
     justify-content: center;
     align-items: center;
-    display: flex; /* Alinha o modal-content no centro */
 }
 
 /* O conteúdo do formulário dentro do modal */
@@ -1001,7 +1000,7 @@ form#form-cadastro-empresa {
 #form-cadastro-ong legend,
 #form-cadastro-empresa legend {
     font-weight: bold;
-    color: #333;
+    color: #004d9c;
     padding: 0 10px;
 }
 

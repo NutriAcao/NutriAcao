@@ -18,29 +18,29 @@ export function initMenu() {
 }
 
 // --- FUNCIONALIDADE 2: LÓGICA DAS OPÇÕES DE CADASTRO ORIGINAIS ---
-const ong = document.getElementById("input_ong");
-const empresa = document.getElementById("input_empresa");
-const pessoa_fisica = document.getElementById("input_pessoa-fisica");
-const erro = document.getElementById("mensagem-erro");
+// const ong = document.getElementById("input_ong");
+// const empresa = document.getElementById("input_empresa");
+// const pessoa_fisica = document.getElementById("input_pessoa-fisica");
+// const erro = document.getElementById("mensagem-erro");
 
-if (document.querySelector('form')) {
-    document.querySelector('form').addEventListener('submit', function (e) {
-        if (!ong.checked && !empresa.checked && !pessoa_fisica.checked) {
-            e.preventDefault();
-            if (erro) {
-                erro.style.display = "flex";
-            }
-        }
-    });
+// if (document.querySelector('form')) {
+//     document.querySelector('form').addEventListener('submit', function (e) {
+//         if (!ong.checked && !empresa.checked && !pessoa_fisica.checked) {
+//             e.preventDefault();
+//             if (erro) {
+//                 erro.style.display = "flex";
+//             }
+//         }
+//     });
 
-    document.querySelector('form').addEventListener('click', function () {
-        if (ong.checked || empresa.checked || pessoa_fisica.checked) {
-            if (erro) {
-                erro.style.display = "none";
-            }
-        }
-    });
-}
+//     document.querySelector('form').addEventListener('click', function () {
+//         if (ong.checked || empresa.checked || pessoa_fisica.checked) {
+//             if (erro) {
+//                 erro.style.display = "none";
+//             }
+//         }
+//     });
+// }
 
 // --- FUNCIONALIDADE 3: LÓGICA DOS POPUPS DE CADASTRO ---
 document.addEventListener('DOMContentLoaded', () => {
