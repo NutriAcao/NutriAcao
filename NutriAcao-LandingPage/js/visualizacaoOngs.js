@@ -34,12 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
         updateItemCount();
     });
     
-    // Toggle submenu
-    document.getElementById('toggleGestao').addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('gestaoSubmenu').classList.toggle('show');
-    });
-    
     // Paginação simples
     const pageButtons = document.querySelectorAll('.page-btn');
     const prevButton = document.getElementById('prevPage');
