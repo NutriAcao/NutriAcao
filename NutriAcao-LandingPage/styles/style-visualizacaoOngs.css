@@ -372,3 +372,103 @@ tr:hover {
         justify-content: center;
     }
 }
+
+ dialog {
+            width: 90%;
+            max-width: 800px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            padding: 0;
+            overflow: hidden;
+            margin: auto;
+        }
+
+        dialog::backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-header {
+            background-color: #3498db;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            padding: 20px;
+
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        .info-table th {
+            background-color: #f8f9fa;
+            color: #495057;
+            width: 30%;
+            font-weight: 600;
+        }
+
+        .info-table td {
+            background-color: white;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .items-table th {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .section-title {
+            margin: 20px 0 10px 0;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #3498db;
+            color: #2c3e50;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }

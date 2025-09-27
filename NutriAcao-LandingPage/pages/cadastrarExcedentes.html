@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../styles/cadastrarExcedentes.css">
+
+
+
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+
+
+    
+</head>
+<body>
+    <header>
+        <a href="visualizacaoOngs.html"><img src="../assets/Back-Transparent-Background-PNG.png" alt="voltar" id="voltar"></a>
+    
+        <a href="homepage.html"><img src="../assets/logo-black.png" alt="logo" id="logo"></a>
+
+        
+    
+    </header>
+
+    <main>
+<form id="form-cadastro-empresa">
+<fieldset>
+                          <legend>Dados da Doação</legend>
+                          <label for="nome-empresa">Nome do produto doado:</label>
+                          <input type="text" id="nome-empresa" name="nome-empresa" placeholder="Ex: Arroz" required>
+                          
+                          <label for="cnpj-empresa">Quantidade:</label>
+                          <input type="number" id="cnpj-empresa" name="cnpj-empresa" placeholder="" required>
+                          
+                          <label for="tipo-negocio">Data de validade:</label>
+                          <input type="date" id="tipo-negocio" name="tipo-negocio" required>
+                          
+                          <label for="cep-empresa">CEP para retirada da doação:</label>
+                          <input type="text" id="cep-empresa" name="cep-empresa" placeholder="00000-000" required>
+                          
+                          
+                          <label for="telefone-institucional-empresa">Telefone para contato:</label>
+                          <input type="tel" id="telefone-institucional-empresa" name="telefone-institucional-empresa" placeholder="(00) 00000-0000" required>
+                          
+                          <label for="email-institucional-empresa">E-mail para contato:</label>
+                          <input type="email" id="email-institucional-empresa" name="email-institucional-empresa" placeholder="Ex: exemplo@gmail.com" required>
+                      </fieldset>
+
+                      <button type="submit" id="enviar">Adicionar item</button>
+                      </form>
+
+
+        </main>
+</body>
+</html>
