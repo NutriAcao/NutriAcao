@@ -1,0 +1,27 @@
+{
+  "name": "nutricaoarquivo",
+  "version": "1.0.0",
+  "description": "**NutriAcao** é uma iniciativa desenvolvida como parte de um projeto voltado para o combate à fome e a promo",
+  "main": "backend/index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node backend/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/amoras1601/NutriAcao.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/amoras1601/NutriAcao/issues"
+  },
+  "homepage": "https://github.com/amoras1601/NutriAcao#readme",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pg": "^8.11.3",
+    "express": "^4.18.3"
+  }
+}
