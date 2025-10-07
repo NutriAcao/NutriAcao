@@ -4,20 +4,21 @@ import path from 'path';
 import { Pool } from 'pg';
 import { fileURLToPath } from 'url';
 
+import { createClient } from '@supabase/supabase-js';
+
+
 // --- Configuração Essencial para ES Modules ---
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename); 
 // ----------------------------------------------
 
 
-// 1. Configura o Dotenv para ler o arquivo .env
+//cnfigura o Dotenv para ler o arquivo .env
 dotenv.config(); 
 
-// A porta será 8081, pois é o valor que você configurou no seu .env
+//porta 8081
 const PORT = process.env.PORT || 5501; 
 const DATABASE_URL = process.env.DATABASE_URL;
-
-// --- CONFIGURAÇÃO DO BANCO DE DADOS (POSTGRES) ---
 
 if (!DATABASE_URL) {
     console.error('ERRO FATAL: DATABASE_URL não está configurada no arquivo .env');
@@ -81,5 +82,13 @@ app.listen(PORT, () => {
   console.log(`Teste de conexão DB em: http://localhost:${PORT}/db-test`);
 });
 
-// É útil exportar o pool para que outros módulos possam usá-lo para consultas
+
 export { pool };
+
+
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+console.log('Cliente Supabase inicializado com sucesso.');
