@@ -62,11 +62,20 @@ html, body {
 
  header {
   padding: 10px 20vh;
-  
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+   z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
+header.rolagem {
+        padding: 3vh 5vh;
+        justify-content: space-between;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
 
 h1 {
   font-size: 26px;
@@ -313,13 +322,7 @@ p {
 }
 
 
-header, header.rolagem {
-        padding: 3vh 5vh;
-        justify-content: space-between;
-        background-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        z-index: 1;
-    }
+
 
 
 
@@ -400,10 +403,11 @@ input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
 }
 
 
-@media screen and (min-width: 600px) and (max-width: 1230px) {
+@media screen and (min-width: 650px) and (max-width: 850px) {
     
     .right-container {
     height: 100%;
+    width: 100%;
   }
 
   p {
@@ -412,16 +416,25 @@ input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
 
 section {
   display: flex;
+  width: 100%;
 }
 
 form {
 
   display:flex;
   width: 100%;
-  max-width: 500px;
+  
   align-items: center;
   align-content: center;
 }
+
+
+header {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 3vh 5vh;
+}
+
 
 
 
@@ -435,8 +448,6 @@ form {
 
     #menu {
       display: flex;
- 
-
     
         flex-direction: column;
         position: fixed;
@@ -447,7 +458,6 @@ form {
         background-color: #003172;
         justify-content: center;
         align-items: center;
-        transition: transform 0.3s ease-in-out;
         transform: translateY(-100%);
         z-index: 999;
     }
@@ -463,6 +473,13 @@ form {
     #menu.active .nav-link,
     #menu.active .btn-login,
     #menu.active .btn-cadastro {
+        display: block !important;
+    }
+
+    #menu #nav-list li,
+    #menu .nav-link,
+    #menu .btn-login,
+    #menu .btn-cadastro {
         display: block !important;
     }
 
@@ -582,13 +599,25 @@ form {
         font-size: 2rem;
         margin-bottom: 2vh;
     }
-   
-
 }
     
-@media screen and (max-width: 600px) { 
+@media screen and (min-width: 1000px) and (max-width: 1230px) {
+   .nav-link {
+    display: none;
+   }
+}
+
+@media screen and (min-width: 850px) and (max-width: 1000px) {
+    .nav-link {
+    display: none;
+   }
+   .btn-login {
+    display: none;
+   }
+}
 
 
+@media screen and (max-width: 650px) { 
 
   .right-container {
     display: flex;
@@ -603,11 +632,20 @@ form {
   width: 100%;
   align-items: center;
   align-content: center;
+  flex: 1;
 }
 
 section {
-  width: 100%;
+  width: 100vw;
 }
+
+header {
+    display: flex;
+    flex-direction: row-reverse;
+    
+    padding: 3vh 5vh;
+}
+
 
   div.left-container {
     display: none;
@@ -636,7 +674,7 @@ section {
         background-color: #003172;
         justify-content: center;
         align-items: center;
-        transition: transform 0.3s ease-in-out;
+        
         transform: translateY(-100%);
         z-index: 999;
     }
@@ -657,6 +695,15 @@ section {
         display: block !important;
         
     }
+
+    #menu #nav-list li,
+    #menu .nav-link,
+    #menu .btn-login,
+    #menu .btn-cadastro {
+        display: block !important;
+        
+    }
+
 
     #menu.active #sobre,
     #menu.active #contato {
