@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true })); // para ler dados do form
 app.use(express.static("ŃutriAcao-LandingPage"));
 
 app.get('/', (req, res)=>{
-    res.sendFile(path.join('/home/gabriel/github/NutriAcao/NutriAcao-LandingPage/pages/cadastropage.html'))
+    res.sendFile(path.join('/home/gabriel/github/NutriAcao/public/pages/cadastropage.html'))
 })
 app.post('/cadastrarConta', async (req, res) => {
     // 1. Desestruturar os dados do formulário
