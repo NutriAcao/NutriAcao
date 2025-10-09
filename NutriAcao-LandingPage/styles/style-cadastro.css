@@ -124,6 +124,8 @@ ul li a {
 .btn-login:hover {
   border-radius: 6px;
   transition-duration: .5s;
+  background-color: var(--color-main);
+  color: var(--color-secondary-text);
 }
 
 .btn-cadastro {
@@ -497,40 +499,13 @@ header {
         padding: 0;
     }
 
-    .nav-link,.btn-login,.btn-cadastro {
-        display: flex;
-        text-align: center;
-        color: var(--color-main);
-        font-size: 1.5rem;
-        padding: 10px 0;
-        width: 28vh;
-        background-color: white;
-        border-radius: 6px;
-    }
-
     .nav-link::after {
         display: none;
     }
 
-    .btn-login {
-        border-color: white;
-    }
+   
 
-    .btn-login:hover {
-        background-color: white;
-        color: #003172;
-    }
-
-    .btn-cadastro {
-        background-color: white;
-        color: var(--color-main);
-    }
-
-    .btn-cadastro:hover {
-        background-color: #ccc;
-    }
-
-    
+   
 
     header.rolagem #menu-button > img {
         filter: brightness(100);
@@ -611,7 +586,7 @@ header {
     .nav-link {
     display: none;
    }
-   .btn-login {
+   .btn-cadastro {
     display: none;
    }
 }
@@ -720,39 +695,13 @@ header {
         padding: 0;
     }
 
-    .nav-link,.btn-login,.btn-cadastro {
-        display: flex;
-        text-align: center;
-        color: var(--color-main);
-        font-size: 1.5rem;
-        padding: 10px 0;
-        width: 28vh;
-        background-color: white;
-        border-radius: 6px;
-    }
+   
 
     .nav-link::after {
         display: none;
     }
 
-    .btn-login {
-        border-color: white;
-    }
-
-    .btn-login:hover {
-        background-color: white;
-        color: #003172;
-    }
-
-    .btn-cadastro {
-        background-color: white;
-        color: var(--color-main);
-    }
-
-    .btn-cadastro:hover {
-        background-color: #ccc;
-    }
-
+   
     
 
     header.rolagem #menu-button > img {
