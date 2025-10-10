@@ -490,6 +490,39 @@ header {
         display: block !important;
     }
 
+
+ .nav-link,.btn-login,.btn-cadastro {
+        display: flex;
+        text-align: center;
+        color: var(--color-main);
+        font-size: 1.5rem;
+        padding: 10px 0;
+        width: 28vh;
+        background-color: white;
+        border-radius: 6px;
+    } 
+ 
+ 
+ .btn-login {
+        border-color: white;
+    }
+
+    .btn-login:hover {
+        background-color: white;
+        color: #003172;
+    }
+
+    .btn-cadastro {
+        background-color: white;
+        color: var(--color-main);
+    }
+
+    .btn-cadastro:hover, .btn-login:hover, .nav-link:hover {
+        background-color: #ccc;
+    }
+    
+
+
     nav ul {
         display: flex;
         flex-direction: column;
@@ -503,9 +536,6 @@ header {
         display: none;
     }
 
-   
-
-   
 
     header.rolagem #menu-button > img {
         filter: brightness(100);
@@ -685,6 +715,39 @@ header {
         display: block !important;
         
     }
+
+
+ .nav-link,.btn-login,.btn-cadastro {
+        display: flex;
+        text-align: center;
+        color: var(--color-main);
+        font-size: 1.5rem;
+        padding: 10px 0;
+        width: 28vh;
+        background-color: white;
+        border-radius: 6px;
+    } 
+ 
+ 
+ .btn-login {
+        border-color: white;
+    }
+
+    .btn-login:hover {
+        background-color: white;
+        color: #003172;
+    }
+
+    .btn-cadastro {
+        background-color: white;
+        color: var(--color-main);
+    }
+
+    .btn-cadastro:hover, .btn-login:hover, .nav-link:hover {
+        background-color: #ccc;
+    }
+    
+
 
     nav ul {
         display: flex;

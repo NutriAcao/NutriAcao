@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preencha os dados para entrar</title>
+    <link rel="stylesheet" href="../styles/style-cadastro.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+</head>
+<body>
+
+          <header id="header">
+             <a class="footer-logo" href="../pages/homepage.html">
+                  <img src="../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
+                  <h1>NutriAção</h1>
+                </a> 
+
+                
+            <button id="menu-button">
+              <img src="../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
+            </button>
+
+            <nav id="menu">
+                  <ul id="nav-list">
+                    <li><a href="../pages/cadastropage.html" class="nav-link active">Página inicial</a></li>
+                    <li id="sobre"><a href="../pages/cadastropage.html" class="nav-link">Sobre</a></li>
+                    <li id="contato"><a href="../pages/cadastropage.html" class="nav-link">Contato</a></li>
+                    <li><a href="../pages/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
+                    <li><a href="../pages/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
+                  </ul>
+                </nav>
+
+               
+                
+        </header>
+
+
+        
+          <div id="modal-ong" class="modal">
+              <div class="modal-content">
+                  <span class="close-button">&times;</span>
+                  <h2>Cadastrar como ONG</h2>
+                  <form id="form-cadastro-ong">
+                      <fieldset>
+                          <legend>Dados da Instituição</legend>
+                          <label for="nome-instituicao">Nome da Instituição:</label>
+                          <input type="text" id="nome-instituicao" name="nome-instituicao" required>
+                          
+                          <label for="cnpj">CNPJ:</label>
+                          <input type="text" id="cnpj" name="cnpj" placeholder="00.000.000/0000-00" required>
+                          
+                          <label for="area-atuacao">Área de Atuação:</label>
+                          <input type="text" id="area-atuacao" name="area-atuacao">
+                          
+                          <label for="cep">CEP:</label>
+                          <input type="text" id="cep" name="cep" placeholder="00000-000" required>
+                          
+                          <label for="endereco">Endereço Completo:</label>
+                          <input type="text" id="endereco" name="endereco" required>
+                          
+                          <label for="telefone-institucional">Telefone:</label>
+                          <input type="tel" id="telefone-institucional" name="telefone-institucional" placeholder="(00) 00000-0000" required>
+                          
+                          <label for="email-institucional">E-mail Institucional:</label>
+                          <input type="email" id="email-institucional" name="email-institucional" required>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Dados do Responsável Legal</legend>
+                          <label for="nome-responsavel">Nome Completo:</label>
+                          <input type="text" id="nome-responsavel" name="nome-responsavel" required>
+                          
+                          <label for="cpf-responsavel">CPF:</label>
+                          <input type="text" id="cpf-responsavel" name="cpf-responsavel" placeholder="000.000.000-00" required>
+                          
+                          <label for="cargo">Cargo/Função:</label>
+                          <input type="text" id="cargo" name="cargo">
+                          
+                          <label for="email-pessoal-responsavel">E-mail Pessoal:</label>
+                          <input type="email" id="email-pessoal-responsavel" name="email-pessoal-responsavel" required>
+                          
+                          <label for="telefone-responsavel">Telefone para Contato:</label>
+                          <input type="tel" id="telefone-responsavel" name="telefone-responsavel" required>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Credenciais de Acesso</legend>
+                          <label for="login">Login (E-mail Institucional):</label>
+                          <input type="email" id="login" name="login" required>
+                          
+                          <label for="senha">Senha:</label>
+                          <input type="password" id="senha" name="senha" required minlength="8">
+                          
+                          <label for="confirma-senha">Confirme a Senha:</label>
+                          <input type="password" id="confirma-senha" name="confirma-senha" required>
+                      </fieldset>
+
+                      <button type="submit">Cadastrar ONG</button>
+                  </form>
+              </div>
+          </div>
+          <div id="modal-empresa" class="modal">
+              <div class="modal-content">
+                  <span class="close-button">&times;</span>
+                  <h2>Cadastrar como Empresa</h2>
+                  <form id="form-cadastro-empresa">
+                      <fieldset>
+                          <legend>Dados da Empresa</legend>
+                          <label for="nome-empresa">Nome da Empresa/Comércio:</label>
+                          <input type="text" id="nome-empresa" name="nome-empresa" required>
+                          
+                          <label for="cnpj-empresa">CNPJ:</label>
+                          <input type="text" id="cnpj-empresa" name="cnpj-empresa" placeholder="00.000.000/0000-00" required>
+                          
+                          <label for="tipo-negocio">Tipo de Negócio:</label>
+                          <input type="text" id="tipo-negocio" name="tipo-negocio" required>
+                          
+                          <label for="cep-empresa">CEP:</label>
+                          <input type="text" id="cep-empresa" name="cep-empresa" placeholder="00000-000" required>
+                          
+                          <label for="endereco-empresa">Endereço Completo:</label>
+                          <input type="text" id="endereco-empresa" name="endereco-empresa" required>
+                          
+                          <label for="telefone-institucional-empresa">Telefone:</label>
+                          <input type="tel" id="telefone-institucional-empresa" name="telefone-institucional-empresa" placeholder="(00) 00000-0000" required>
+                          
+                          <label for="email-institucional-empresa">E-mail Institucional:</label>
+                          <input type="email" id="email-institucional-empresa" name="email-institucional-empresa" required>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Dados do Representante Legal</legend>
+                          <label for="nome-responsavel-empresa">Nome Completo:</label>
+                          <input type="text" id="nome-responsavel-empresa" name="nome-responsavel-empresa" required>
+                          
+                          <label for="cpf-responsavel-empresa">CPF:</label>
+                          <input type="text" id="cpf-responsavel-empresa" name="cpf-responsavel-empresa" placeholder="000.000.000-00" required>
+                          
+                          <label for="cargo-empresa">Cargo/Função:</label>
+                          <input type="text" id="cargo-empresa" name="cargo-empresa">
+                          
+                          <label for="email-responsavel-empresa">E-mail Pessoal/Corporativo:</label>
+                          <input type="email" id="email-responsavel-empresa" name="email-responsavel-empresa" required>
+                          
+                          <label for="telefone-responsavel-empresa">Telefone para Contato:</label>
+                          <input type="tel" id="telefone-responsavel-empresa" name="telefone-responsavel-empresa" required>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Credenciais de Acesso</legend>
+                          <label for="login-empresa">Login (E-mail Institucional):</label>
+                          <input type="email" id="login-empresa" name="login-empresa" required>
+                          
+                          <label for="senha-empresa">Senha:</label>
+                          <input type="password" id="senha-empresa" name="senha-empresa" required minlength="8">
+                          
+                          <label for="confirma-senha-empresa">Confirme a Senha:</label>
+                          <input type="password" id="confirma-senha-empresa" name="confirma-senha-empresa" required>
+                      </fieldset>
+                      
+                      <button type="submit">Cadastrar Empresa</button>
+                  </form>
+              </div>
+          </div>
+          <div id="modal-pessoa-fisica" class="modal">
+              <div class="modal-content">
+                  <span class="close-button">&times;</span>
+                  <h2>Cadastrar como Pessoa Física</h2>
+                  <form id="form-cadastro-pessoa-fisica">
+                      
+                      <fieldset>
+                          <legend>Dados Pessoais</legend>
+                          <label for="nome-completo-pf">Nome Completo:</label>
+                          <input type="text" id="nome-completo-pf" name="nome-completo-pf" required>
+                          
+                          <label for="cpf-pf">CPF:</label>
+                          <input type="text" id="cpf-pf" name="cpf-pf" placeholder="000.000.000-00" required>
+                          
+                          <label for="rg-pf">RG:</label>
+                          <input type="text" id="rg-pf" name="rg-pf" required>
+                          
+                          <label for="data-nascimento-pf">Data de Nascimento:</label>
+                          <input type="date" id="data-nascimento-pf" name="data-nascimento-pf" required>
+                          
+                          <label for="sexo-pf">Sexo:</label>
+                          <select id="sexo-pf" name="sexo-pf" required>
+                              <option value="">Selecione.</option>
+                              <option value="Masculino">Masculino</option>
+                              <option value="Feminino">Feminino</option>
+                              <option value="Outro">Outro</option>
+                              <option value="Nao Informar">Prefiro não informar</option>
+                          </select>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Contato e Endereço</legend>
+                          <label for="cep-pf">CEP:</label>
+                          <input type="text" id="cep-pf" name="cep-pf" placeholder="00000-000" required>
+                          
+                          <label for="endereco-pf">Endereço Completo:</label>
+                          <input type="text" id="endereco-pf" name="endereco-pf" required>
+                          
+                          <label for="telefone-pf">Telefone para Contato:</label>
+                          <input type="tel" id="telefone-pf" name="telefone-pf" placeholder="(00) 00000-0000" required>
+                          
+                          <label for="email-pf">E-mail:</label>
+                          <input type="email" id="email-pf" name="email-pf" required>
+                      </fieldset>
+
+                      <fieldset>
+                          <legend>Credenciais de Acesso</legend>
+                          <label for="login-pf">Login (E-mail):</label>
+                          <input type="email" id="login-pf" name="login-pf" required>
+                          
+                          <label for="senha-pf">Senha:</label>
+                          <input type="password" id="senha-pf" name="senha-pf" required minlength="8">
+                          
+                          <label for="confirma-senha-pf">Confirme a Senha:</label>
+                          <input type="password" id="confirma-senha-pf" name="confirma-senha-pf" required>
+                      </fieldset>
+
+                      <button type="submit">Cadastrar Pessoa Física</button>
+                  </form>
+              </div>
+          </div>
+                <main>
+        <section>
+        
+            <div class="left-container">
+                <img src="../assets/left_img_cadastro.jpg" alt="" srcset="" id="imgLeft"/>
+            </div>
+            <form action="/pages/form_redirect.html" method="POST">
+                <div class="right-container">
+                    <div class="form-content">
+                        <img src="../assets/logo-blue.png" alt="Logo NutriAção" id="logo-container">
+                        
+                        <h2>Cadastrar como:</h2>
+
+                        <div class="options-container">
+                          <div id="mensagem-erro">Por favor, selecione uma das opções !</div>
+                            
+                                <input type="radio" name="profile_type" value="ong" id="input_ong" >
+                                <label class="radio-label" for="input_ong" id="btn-cadastrar-ong"><p>ONG</p></label>                                
+                            
+                            
+                                <input type="radio" name="profile_type" value="empresa" id="input_empresa" >
+                                <label class="radio-label" for="input_empresa" id="btn-cadastrar-empresa"><p>Empresa</p></label>
+                            
+                                <input type="radio" name="profile_type" value="pessoa_fisica" id="input_pessoa-fisica" >
+                                <label class="radio-label" for="input_pessoa-fisica" id="btn-cadastrar-pessoa-fisica"><p>Pessoa Física</p> </label>
+                            
+                        </div>
+                        
+                    </div>
+                </div>
+            </form>
+        </section>
+      </main>
+      <footer>
+        <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
+      </footer>
+
+      
+    
+      
+    </body>
+
+
+    <script type="module" src="../js/cadastro.js"></script>
+</html>
