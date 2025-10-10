@@ -1,53 +1,71 @@
+// backend/src/controllers/pessoaFisicaController.js
+
 import { supabase } from '../config/supabaseClient.js';
-import bcrypt from 'bcrypt'; // Lembre-se de instalar: npm install bcrypt
+import bcrypt from 'bcrypt'; 
 
 const saltRounds = 10;
 
 export async function cadastrarPessoaFisica(req, res) {
-    // 1. Receber e preparar os dados do formulário
-    // ATENÇÃO: Os nomes das chaves (nome, cpf, email, etc.) DEVEM ser os 'name' dos seus inputs HTML.
-    const { nome, cpf, rg, data_nascimento, genero, cep, endereco, telefone, email, senha } = req.body; 
+    const { 
+        nome, 
+        cpf, 
+        rg, 
+        data_nascimento, 
+        genero, 
+        cep, 
+        endereco, 
+        telefone, 
+        email, 
+        senha // Este campo vem do formulário, mas NÃO vai para o banco (o hash vai)
+    } = req.body; 
 
-    // O cadastro de Pessoa Física deve ter uma senha associada, que vamos hashificar
-    if (!senha) {
-        return res.status(400).send("A senha é obrigatória para o cadastro.");
+    if (!senha || !nome || !cpf || !email || !cep || !endereco || !telefone) {
+        return res.status(400).send("Campos essenciais (Nome, CPF, E-mail, Senha e Contato/Endereço) não podem estar vazios.");
     }
     
     try {
-        // 2. Hash da Senha para Segurança (MUITO IMPORTANTE)
         const senhaHash = await bcrypt.hash(senha, saltRounds); 
 
-        // 3. Inserir dados na tabela 'PessoaFisica'
         const { data, error } = await supabase
-            .from('PessoaFisica') 
+            .from('PessoaFisica')
             .insert([
-                { 
-                    nome, cpf, rg, data_nascimento, genero, cep, endereco, telefone, email,
-                    // Adicione uma coluna de senha hash na sua tabela se não for usar o Auth do Supabase!
-                    // se sua tabela tiver uma coluna 'senha_hash' você faria:
-                    // senha_hash: senhaHash
+                {
+                    nome: nome, 
+                    cpf: cpf, 
+                    rg: rg, 
+                    data_nascimento: data_nascimento, 
+                    genero: genero, 
+                    cep: cep, 
+                    endereco: endereco, 
+                    telefone: telefone, 
+                    email: email,
+                    
+                    senha_hash: senhaHash
                 } 
             ])
             .select();
 
         if (error) {
             console.error('Erro ao cadastrar Pessoa Física:', error.message);
-            // Erro 23505 (Unique Violation) é comum para CPF duplicado
+            
+            // Erro 23505 (Unique Violation) é comum para CPF ou Email duplicado
             if (error.code === '23505') {
-                 return res.status(409).send("CPF ou Email já cadastrado.");
+                 return res.status(409).send("CPF ou Email já cadastrado. Por favor, verifique seus dados.");
             }
             return res.status(500).send("Falha no cadastro. Erro: " + error.message);
         }
+        
+        const dadosResposta = { ...data[0] };
+        delete dadosResposta.senha_hash; 
 
-        // 4. Resposta de sucesso
         return res.status(201).json({ 
             status: 'OK', 
             message: 'Pessoa Física cadastrada com sucesso!', 
-            dados: data[0] 
+            dados: dadosResposta
         });
 
     } catch (e) {
         console.error('Erro interno do servidor no cadastro:', e);
-        return res.status(500).send("Erro interno ao processar a requisição.");
+        return res.status(500).send("Erro fatal ao processar a requisição. Verifique o console do servidor.");
     }
 }

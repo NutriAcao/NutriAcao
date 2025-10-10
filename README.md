@@ -1,29 +1,42 @@
-# 🌱 NutriAção - Landing Page
+# 🌱 NutriAção 
+## Transformando Excedentes em esperança!
 
-**NutriAção** é uma iniciativa desenvolvida como parte de um projeto voltado para o combate à fome e a promoção da agricultura sustentável, alinhado com os Objetivos de Desenvolvimento Sustentável (ODS 2) da ONU. Esta landing page tem como objetivo apresentar o projeto, atrair colaboradores, conscientizar o público e incentivar ações de doação inteligente de alimentos.
+**NutriAção** é uma iniciativa desenvolvida como parte de um projeto voltado para o combate à fome, alinhado com os Objetivos de Desenvolvimento Sustentável (ODS 2) da ONU.
 
-## 🚀 Visão Geral
-
-A landing page do NutriAção serve como porta de entrada para o público interessado no projeto. Ela apresenta:
-
-- Propósito e missão da iniciativa
-- Como funciona o sistema de doações inteligentes
-- Benefícios para instituições e doadores
-- Formulário de contato e interesse
-- Design responsivo e acessível
-
-## 🛠️ Tecnologias Utilizadas
-
+## Tecnologias Utilizadas
+### Frontend
+- **Design Responsivo**
+- **Fetch API**
 - **JavaScript**
 - **HTML5**
 - **CSS3**
+### Backend
+- **Express.js**
+- **PostgreSQL**
+- **JSON Web Tokens (JWT)**
+- **API RESTful**
+- **dotenv**
+- **bcrypt**
+- **Render**
 
 ## 🔗 Acesse o site
-- **Acesse a página:** https://nutriacao.github.io/NutriAcao/NutriAcao-LandingPage/pages/homepage.html
+- **Acesse a página:** https://nutriacao.onrender.com/pages/homepage.html
+
+## 🔗 Infraestrutura & Integração
+
+Este projeto é um sistema *full-stack*. 
+
+| Serviço | Plataforma | URL de Produção |
+| :--- | :--- | :--- |
+| **Frontend/Landing Page** | GitHub Pages | https://nutriacao.github.io/NutriAcao/public/pages/homepage.html |
+| **Backend API (Node/Express)**| Render | https://nutriacao.onrender.com/pages/homepage.html |
+| **Banco de Dados** | Supabase | N/A (Acessado via API) |
 
 ## 📦 Como Executar o Projeto Localmente
 
-1. Clone o repositório:
+###  é necessário possuir o Node.js
 
-```bash
-git clone https://github.com/NutriAcao/NutriAcao.git
+1. Clone o repositório:
+   ```bash
+      git clone https://github.com/NutriAcao/NutriAcao.git
+  
