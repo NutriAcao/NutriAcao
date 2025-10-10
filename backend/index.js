@@ -22,7 +22,8 @@ if (!DATABASE_URL) {
 }
 
 // inicializa o Express
-const app = express();const publicPath = path.join(__dirname, '..', 'public');  
+const app = express();
+const publicPath = path.join(__dirname, '..', 'public');  
 app.use(express.urlencoded({ extended: true })); // Middleware para ler forms
 app.use(express.json()); // Middleware para ler JSON
 

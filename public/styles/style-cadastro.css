@@ -62,11 +62,20 @@ html, body {
 
  header {
   padding: 10px 20vh;
-  
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+   z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
+header.rolagem {
+        padding: 3vh 5vh;
+        justify-content: space-between;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        z-index: 1;
+    }
 
 h1 {
   font-size: 26px;
@@ -115,6 +124,8 @@ ul li a {
 .btn-login:hover {
   border-radius: 6px;
   transition-duration: .5s;
+  background-color: var(--color-main);
+  color: var(--color-secondary-text);
 }
 
 .btn-cadastro {
@@ -313,13 +324,7 @@ p {
 }
 
 
-header, header.rolagem {
-        padding: 3vh 5vh;
-        justify-content: space-between;
-        background-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        z-index: 1;
-    }
+
 
 
 
@@ -400,10 +405,11 @@ input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
 }
 
 
-@media screen and (min-width: 600px) and (max-width: 1230px) {
+@media screen and (min-width: 650px) and (max-width: 850px) {
     
     .right-container {
     height: 100%;
+    width: 100%;
   }
 
   p {
@@ -412,16 +418,25 @@ input#input_pessoa-fisica:checked + label#label-pessoa-fisica {
 
 section {
   display: flex;
+  width: 100%;
 }
 
 form {
 
   display:flex;
   width: 100%;
-  max-width: 500px;
+  
   align-items: center;
   align-content: center;
 }
+
+
+header {
+    display: flex;
+    flex-direction: row-reverse;
+    padding: 3vh 5vh;
+}
+
 
 
 
@@ -435,8 +450,6 @@ form {
 
     #menu {
       display: flex;
- 
-
     
         flex-direction: column;
         position: fixed;
@@ -447,7 +460,6 @@ form {
         background-color: #003172;
         justify-content: center;
         align-items: center;
-        transition: transform 0.3s ease-in-out;
         transform: translateY(-100%);
         z-index: 999;
     }
@@ -466,21 +478,20 @@ form {
         display: block !important;
     }
 
+    #menu #nav-list li,
+    #menu .nav-link,
+    #menu .btn-login,
+    #menu .btn-cadastro {
+        display: block !important;
+    }
+
     #menu.active #sobre,
     #menu.active #contato {
         display: block !important;
     }
 
-    nav ul {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-        width: 80%;
-        padding: 0;
-    }
 
-    .nav-link,.btn-login,.btn-cadastro {
+ .nav-link,.btn-login,.btn-cadastro {
         display: flex;
         text-align: center;
         color: var(--color-main);
@@ -489,13 +500,10 @@ form {
         width: 28vh;
         background-color: white;
         border-radius: 6px;
-    }
-
-    .nav-link::after {
-        display: none;
-    }
-
-    .btn-login {
+    } 
+ 
+ 
+ .btn-login {
         border-color: white;
     }
 
@@ -509,11 +517,25 @@ form {
         color: var(--color-main);
     }
 
-    .btn-cadastro:hover {
+    .btn-cadastro:hover, .btn-login:hover, .nav-link:hover {
         background-color: #ccc;
     }
-
     
+
+
+    nav ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        width: 80%;
+        padding: 0;
+    }
+
+    .nav-link::after {
+        display: none;
+    }
+
 
     header.rolagem #menu-button > img {
         filter: brightness(100);
@@ -582,13 +604,25 @@ form {
         font-size: 2rem;
         margin-bottom: 2vh;
     }
-   
-
 }
     
-@media screen and (max-width: 600px) { 
+@media screen and (min-width: 1000px) and (max-width: 1230px) {
+   .nav-link {
+    display: none;
+   }
+}
+
+@media screen and (min-width: 850px) and (max-width: 1000px) {
+    .nav-link {
+    display: none;
+   }
+   .btn-cadastro {
+    display: none;
+   }
+}
 
 
+@media screen and (max-width: 650px) { 
 
   .right-container {
     display: flex;
@@ -603,11 +637,20 @@ form {
   width: 100%;
   align-items: center;
   align-content: center;
+  flex: 1;
 }
 
 section {
-  width: 100%;
+  width: 100vw;
 }
+
+header {
+    display: flex;
+    flex-direction: row-reverse;
+    
+    padding: 3vh 5vh;
+}
+
 
   div.left-container {
     display: none;
@@ -636,7 +679,7 @@ section {
         background-color: #003172;
         justify-content: center;
         align-items: center;
-        transition: transform 0.3s ease-in-out;
+        
         transform: translateY(-100%);
         z-index: 999;
     }
@@ -658,22 +701,23 @@ section {
         
     }
 
+    #menu #nav-list li,
+    #menu .nav-link,
+    #menu .btn-login,
+    #menu .btn-cadastro {
+        display: block !important;
+        
+    }
+
+
     #menu.active #sobre,
     #menu.active #contato {
         display: block !important;
         
     }
 
-    nav ul {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-        width: 80%;
-        padding: 0;
-    }
 
-    .nav-link,.btn-login,.btn-cadastro {
+ .nav-link,.btn-login,.btn-cadastro {
         display: flex;
         text-align: center;
         color: var(--color-main);
@@ -682,13 +726,10 @@ section {
         width: 28vh;
         background-color: white;
         border-radius: 6px;
-    }
-
-    .nav-link::after {
-        display: none;
-    }
-
-    .btn-login {
+    } 
+ 
+ 
+ .btn-login {
         border-color: white;
     }
 
@@ -702,10 +743,28 @@ section {
         color: var(--color-main);
     }
 
-    .btn-cadastro:hover {
+    .btn-cadastro:hover, .btn-login:hover, .nav-link:hover {
         background-color: #ccc;
     }
+    
 
+
+    nav ul {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+        width: 80%;
+        padding: 0;
+    }
+
+   
+
+    .nav-link::after {
+        display: none;
+    }
+
+   
     
 
     header.rolagem #menu-button > img {
