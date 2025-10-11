@@ -27,7 +27,7 @@ export async function cadastrarPessoaFisica(req, res) {
         const senhaHash = await bcrypt.hash(senha, saltRounds); 
 
         const { data, error } = await supabase
-            .from('PessoaFisica')
+            .from('pessoaFisica')
             .insert([
                 {
                     nome: nome, 

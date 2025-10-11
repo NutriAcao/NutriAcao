@@ -35,7 +35,7 @@ export async function cadastrarEmpresa(req, res) {
 
         // insere dados na tabela 'Empresa'
         const { data, error } = await supabase
-            .from('Empresa')
+            .from('empresa')
             .insert([
                 { 
                     nome: nome, 

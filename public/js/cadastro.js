@@ -19,31 +19,9 @@ export function initMenu() {
 }
 
 // --- FUNCIONALIDADE 2: LÓGICA DAS OPÇÕES DE CADASTRO ORIGINAIS ---
-// const ong = document.getElementById("input_ong");
-// const empresa = document.getElementById("input_empresa");
-// const pessoa_fisica = document.getElementById("input_pessoa-fisica");
-// const erro = document.getElementById("mensagem-erro");
+// (MANTIDA COMENTADA)
 
-// if (document.querySelector('form')) {
-//     document.querySelector('form').addEventListener('submit', function (e) {
-//         if (!ong.checked && !empresa.checked && !pessoa_fisica.checked) {
-//             e.preventDefault();
-//             if (erro) {
-//                 erro.style.display = "flex";
-//             }
-//         }
-//     });
-
-//     document.querySelector('form').addEventListener('click', function () {
-//         if (ong.checked || empresa.checked || pessoa_fisica.checked) {
-//             if (erro) {
-//                 erro.style.display = "none";
-//             }
-//         }
-//     });
-// }
-
-// --- FUNCIONALIDADE 3: LÓGICA DOS POPUPS DE CADASTRO ---
+// --- FUNCIONALIDADE 3: LÓGICA DOS POPUPS DE CADASTRO E ENVIO ---
 document.addEventListener('DOMContentLoaded', () => {
     // Seleciona os elementos do DOM para o cadastro de ONG
     const btnCadastrarOng = document.getElementById('btn-cadastrar-ong');
@@ -63,28 +41,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Seleciona todos os botões de fechar popups
     const closeButtons = document.querySelectorAll('.close-button');
 
-    // Abre o popup de ONG
-    if (btnCadastrarOng) {
-        btnCadastrarOng.addEventListener('click', () => {
-            modalOng.style.display = 'block';
-        });
-    }
+    // ==========================================================
+    // LÓGICA DE ABRIR/FECHAR MODAIS (MANTIDA)
+    // ==========================================================
+    if (btnCadastrarOng) btnCadastrarOng.addEventListener('click', () => { modalOng.style.display = 'block'; });
+    if (btnCadastrarEmpresa) btnCadastrarEmpresa.addEventListener('click', () => { modalEmpresa.style.display = 'block'; });
+    if (btnCadastrarPessoaFisica) btnCadastrarPessoaFisica.addEventListener('click', () => { modalPessoaFisica.style.display = 'block'; });
 
-    // Abre o popup de Empresa
-    if (btnCadastrarEmpresa) {
-        btnCadastrarEmpresa.addEventListener('click', () => {
-            modalEmpresa.style.display = 'block';
-        });
-    }
-
-    // Abre o popup de Pessoa Física
-    if (btnCadastrarPessoaFisica) {
-        btnCadastrarPessoaFisica.addEventListener('click', () => {
-            modalPessoaFisica.style.display = 'block';
-        });
-    }
-
-    // Lógica para fechar qualquer popup
     closeButtons.forEach(button => {
         button.addEventListener('click', () => {
             if (modalOng) modalOng.style.display = 'none';
@@ -96,26 +59,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Fecha o popup quando o usuário clica fora da caixa
     window.addEventListener('click', (event) => {
-        if (event.target === modalOng) {
-            modalOng.style.display = 'none';
-            formOng.reset();
-        }
-        if (event.target === modalEmpresa) {
-            modalEmpresa.style.display = 'none';
-            formEmpresa.reset();
-        }
-        if (event.target === modalPessoaFisica) {
-            modalPessoaFisica.style.display = 'none';
-            formPessoaFisica.reset();
-        }
+        if (event.target === modalOng) { modalOng.style.display = 'none'; formOng.reset(); }
+        if (event.target === modalEmpresa) { modalEmpresa.style.display = 'none'; formEmpresa.reset(); }
+        if (event.target === modalPessoaFisica) { modalPessoaFisica.style.display = 'none'; formPessoaFisica.reset(); }
     });
 
-    // Validação do formulário de ONG
+    // ==========================================================
+    // LÓGICA DE SUBMISSÃO E ENVIO DE DADOS (AGORA COM FETCH)
+    // ==========================================================
+    
+    // Submissão da ONG
     if (formOng) {
-        formOng.addEventListener('submit', (event) => {
+        formOng.addEventListener('submit', async (event) => { // ADICIONADO 'async'
             event.preventDefault(); 
+            
             const senha = document.getElementById('senha').value;
             const confirmaSenha = document.getElementById('confirma-senha').value;
 
@@ -123,30 +81,123 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('As senhas não coincidem!');
                 return;
             }
-            alert('Formulário de ONG enviado com sucesso!');
-            modalOng.style.display = 'none';
-            formOng.reset();
+
+            // 1. Coleta e converte os dados do formulário
+            const formData = new FormData(formOng);
+            const dadosCompletos = Object.fromEntries(formData.entries());
+            
+            // 2. Cria o objeto de dados que será enviado para o Express
+            // Nota: Se o seu controller da ONG espera os dados do Responsável Legal,
+            // você deve adicionar essas chaves aqui também.
+            const dadosONG = {
+                // Dados da Instituição
+                nome: dadosCompletos.nome,
+                cnpj: dadosCompletos.cnpj,
+                area_atuacao: dadosCompletos.area_atuacao,
+                cep: dadosCompletos.cep,
+                endereco: dadosCompletos.endereco,
+                telefone: dadosCompletos.telefone,
+                email: dadosCompletos.email,
+                // Credenciais
+                login: dadosCompletos.login, // Adicionado 'login'
+                senha: dadosCompletos.senha 
+            };
+
+            try {
+                // 3. Envia a requisição HTTP POST para o backend
+                const response = await fetch('/api/cadastro/ong', { 
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // Informa ao Express o formato
+                    },
+                    body: JSON.stringify(dadosONG) // Envia o JSON
+                });
+
+                const resultado = await response.json();
+                
+                // 4. Trata a resposta do Express
+                if (response.ok) { // 200-299 Status code
+                    alert(`✅ SUCESSO! ${resultado.message}`); 
+                    modalOng.style.display = 'none';
+                    formOng.reset();
+                } else {
+                    // Erros 400, 409, 500 retornados pelo seu Controller
+                    alert(`❌ FALHA: ${resultado.message || 'Erro de servidor desconhecido.'}`);
+                }
+
+            } catch (error) {
+                console.error('Erro de rede ao comunicar com o servidor:', error);
+                alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+            }
         });
     }
     
-    // Validação do formulário de Empresa
-    if (formEmpresa) {
-        formEmpresa.addEventListener('submit', (event) => {
-            event.preventDefault(); 
-            const senha = document.getElementById('senha-empresa').value;
-            const confirmaSenha = document.getElementById('confirma-senha-empresa').value;
+    // Submissão de Empresa (APENAS ESQUELETO - REQUER LÓGICA DE FETCH COMPLETA)
+    // Localize formEmpresa.addEventListener('submit') e substitua por este código:
+if (formEmpresa) {
+    formEmpresa.addEventListener('submit', async (event) => { // É NECESSÁRIO O 'async'
+        event.preventDefault(); 
+        
+        // Validação de senha
+        const senha = document.getElementById('senha-empresa').value;
+        const confirmaSenha = document.getElementById('confirma-senha-empresa').value;
 
-            if (senha !== confirmaSenha) {
-                alert('As senhas não coincidem!');
-                return;
+        if (senha !== confirmaSenha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
+        
+        // 1. Coleta dos dados do formulário
+        const formData = new FormData(formEmpresa);
+        const dadosCompletos = Object.fromEntries(formData.entries());
+
+        // 2. Prepara o objeto JSON para o Express.
+        // As chaves (à esquerda) devem ser o que o seu Controller espera.
+        const dadosEmpresa = {
+            // DADOS DA EMPRESA (Verifique se estes nomes batem com o NAME no HTML)
+            nome: dadosCompletos.nome_do_comercio, // Exemplo, se o name for 'nome_do_comercio'
+            cnpj: dadosCompletos.cnpj,
+            area_atuacao: dadosCompletos.area_atuacao,
+            cep: dadosCompletos.cep,
+            endereco: dadosCompletos.endereco,
+            telefone: dadosCompletos.telefone,
+            email: dadosCompletos.email,
+            
+            
+            // CREDENCIAIS
+            senha: dadosCompletos.senha 
+        };
+
+        try {
+            // 3. Envio da Requisição HTTP POST
+            const response = await fetch('/api/cadastro/empresa', { // Rota para Empresa
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json' 
+                },
+                body: JSON.stringify(dadosEmpresa)
+            });
+
+            const resultado = await response.json();
+            
+            // 4. Tratamento da Resposta
+            if (response.ok) { 
+                alert(`✅ SUCESSO! ${resultado.message || 'Empresa cadastrada com sucesso!'}`); 
+                document.getElementById('modal-empresa').style.display = 'none';
+                formEmpresa.reset();
+            } else {
+                alert(`❌ FALHA (Status ${response.status}): ${resultado.message || 'Erro de servidor desconhecido.'}`);
             }
-            alert('Formulário de Empresa enviado com sucesso!');
-            modalEmpresa.style.display = 'none';
-            formEmpresa.reset();
-        });
-    }
 
-    // Validação do formulário de Pessoa Física
+        } catch (error) {
+            console.error('Erro de rede ou falha ao processar a resposta:', error);
+            alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+        }
+    });
+}
+    
+
+    // Submissão de Pessoa Física (APENAS ESQUELETO - REQUER LÓGICA DE FETCH COMPLETA)
     if (formPessoaFisica) {
         formPessoaFisica.addEventListener('submit', (event) => {
             event.preventDefault(); 
@@ -157,9 +208,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('As senhas não coincidem!');
                 return;
             }
-            alert('Formulário de Pessoa Física enviado com sucesso!');
-            modalPessoaFisica.style.display = 'none';
-            formPessoaFisica.reset();
+            // *** AQUI VOCÊ DEVE INSERIR A LÓGICA DE FETCH PARA A PESSOA FÍSICA ***
+            alert('Formulário de Pessoa Física interceptado. Insira a lógica de FETCH aqui.');
         });
     }
 });

@@ -30,7 +30,7 @@ export async function cadastrarONG(req, res) {
         const senhaHash = await bcrypt.hash(senha, saltRounds); 
 
         const { data, error } = await supabase
-            .from('ONG')
+            .from('ong')
             .insert([
                 {
                     nome: nome, 
@@ -45,7 +45,22 @@ export async function cadastrarONG(req, res) {
                 } 
             ])
             .select();
+        if (error) {
+                    // **LINHA CRUCIAL DE DEBUG**
+                    console.error('ERRO AO INSERIR NO SUPABASE:', error);
+                    
+                    // Retorna o erro 409 para violação de unicidade (CNPJ/Email duplicado)
+                    if (error.code === '23505') {
+                        return res.status(409).send("CNPJ ou E-mail institucional já cadastrado. Erro de DB: " + error.message);
+                    }
+                    
+                    // **RETORNA O ERRO GERAL DE DB (Se o Supabase retornar algo)**
+                    return res.status(500).send("Falha no cadastro da ONG. Detalhes: " + error.message);
+                }
 
+                // ... Resposta de sucesso (201) ...
+
+           
         if (error) {
             console.error('Erro ao cadastrar ONG:', error.message);
             
