@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+  <title>Painel de Empresas - NutriAção</title>
+  <link rel="stylesheet" href="../styles/style-visualizarDoacoes.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div id="divSideLine"><img src="../assets/Logo-white.png" alt=""></div>
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Nutri<span>Ação</span></h1>
+            </div>
+            <ul class="menu">
+                <li>
+                    <a href="../pages/visualizacaoOngs.html">
+                        <i class="fas fa-building"></i> Visualizar ONGs
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/visualizacaoEmpresas.html" class="active">
+                        <i class="fas fa-hand-holding-usd"></i> Visualizar Empresas
+                    </a>
+                </li>
+                <li>
+                    <a href="#" id="toggleGestao">
+                        <i class="fas fa-map-marked-alt"></i> Mapa de Doações
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/cadastrarExcedentes.html">
+                        <i class="fas fa-plus-circle"></i> Cadastrar Excedentes
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas
+                    </a>
+                </li>
+                <li>
+                    <a href="../pages/HistoricoDoacoes.html">
+                        <i class="fas fa-history"></i> Histórico de Doações
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-chart-line"></i> Relatórios de Impacto
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-user-circle"></i> Minha Conta
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-headset"></i> Suporte
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-question-circle"></i> Ajuda / FAQ
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- Conteúdo Principal -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1><i class="fas fa-list-alt"></i> Visualizar Doações</h1>
+                <p>Acompanhe todas as doações de alimentos disponíveis</p>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalDoacoes">0</div>
+                    <div class="stat-label">Total de Doações</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="doacoesAtivas">0</div>
+                    <div class="stat-label">Doações Ativas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="kgDoados">0</div>
+                    <div class="stat-label">Kg Doados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="empresasParticipantes">0</div>
+                    <div class="stat-label">Empresas Participantes</div>
+                </div>
+            </div>
+
+            <!-- Busca e Filtros -->
+            <div class="search-filters">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Pesquisar alimentos, empresas, etc...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                <div class="filters-row">
+                    <select class="filter-select" id="filterStatus">
+                        <option value="">Todos os status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Andamento">Andamento</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                    <select class="filter-select" id="filterEmpresa">
+                        <option value="">Todas as empresas</option>
+                    </select>
+                    <select class="filter-select" id="filterOrdenacao">
+                        <option value="recentes">Mais recentes</option>
+                        <option value="antigos">Mais antigos</option>
+                        <option value="quantidade">Maior quantidade</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Tabela de Doações -->
+            <div class="table-container">
+                <table class="doacoes-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Doação Disponível</th>
+                            <th>Quantidade (kg)</th>
+                            <th>Empresa</th>
+                            <th>CNEA</th>
+                            <th>Doações Realizadas</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Dados carregados via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination" id="pagination">
+                <!-- Paginação gerada via JavaScript -->
+            </div>
+        </main>
+    </div> 
+   </body>
+    <script src="../js/visualizacaoDoacoes.js"></script>
+</html>
