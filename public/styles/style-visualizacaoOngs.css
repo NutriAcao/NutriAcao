@@ -243,8 +243,9 @@ tr:hover {
 
 .status.disponivel {
     background-color: #e3fcef;
-    color: #27ae60;
+    color: #004AAD;;
 }
+
 
 .status.reservado {
     background-color: #fef3e2;
@@ -472,3 +473,93 @@ tr:hover {
         .btn-secondary:hover {
             background-color: #5a6268;
         }
+        /* Correção e Melhoria dos Estilos para os Filtros da RF09 */
+
+.filters-rf09 {
+    /* Centraliza os filtros na horizontal (o principal ajuste) */
+    display: flex; 
+    flex-wrap: wrap; /* Permite que os itens quebrem a linha em telas menores */
+    align-items: flex-end; /* Alinha os botões/campos à parte inferior */
+    gap: 20px; /* Aumenta o espaço entre os campos */
+    padding: 10px 0;
+    max-width: 900px; /* Limita a largura para melhor controle visual */
+}
+
+.filter-group {
+    /* Mantém o label e o input/select na vertical DENTRO de cada grupo */
+    display: flex;
+    flex-direction: column;
+    min-width: 150px;
+    flex-grow: 1; /* Permite que os campos cresçam para preencher o espaço disponível */
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.filter-group select,
+.filter-group input[type="date"],
+.filter-group input[type="text"] {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    height: 38px; /* Garante altura uniforme */
+    width: 100%; /* Ocupa a largura total do seu grupo */
+}
+
+.btn-primary-filter {
+    background-color: #004AAD;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s;
+    height: 38px; /* Altura exata para alinhar perfeitamente com os campos */
+    margin-bottom: 0;
+}
+
+.btn-primary-filter i {
+    margin-right: 5px;
+}
+
+.btn-primary-filter:hover {
+    background-color: #032e66;;
+}
+
+/* Garante que o container de busca não interfira no alinhamento horizontal dos filtros */
+.card-header {
+    /* Mantém o alinhamento da busca e dos filtros */
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Alinha no topo */
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+/* Responsividade para garantir que em telas muito pequenas os filtros voltem a ser verticais */
+@media (max-width: 768px) {
+    .filters-rf09 {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+    }
+    .filter-group {
+        min-width: 100%;
+    }
+    .btn-primary-filter {
+        width: 100%;
+        height: auto;
+    }
+    .card-header {
+        flex-direction: column;
+    }
+    .search-container {
+        width: 100%;
+    }
+}
