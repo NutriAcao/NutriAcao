@@ -10,6 +10,7 @@ import bcrypt from 'bcrypt'; // essa biblioteca é necessária para a segurança
 const saltRounds = 10;
 
 export async function cadastrarEmpresa(req, res) {
+    console.log('Dados recebidos no req.body:', req.body); 
     // receber e preparar os dados da Empresa do formulário
     const { 
         nome, 
