@@ -151,10 +151,7 @@ if (formEmpresa) {
         const formData = new FormData(formEmpresa);
         const dadosCompletos = Object.fromEntries(formData.entries());
 
-        // 2. Prepara o objeto JSON para o Express.
-        // As chaves (à esquerda) devem ser o que o seu Controller espera.
         const dadosEmpresa = {
-            // DADOS DA EMPRESA (Verifique se estes nomes batem com o NAME no HTML)
             nome: dadosCompletos.nome,
             cnpj: dadosCompletos.cnpj,
             area_atuacao: dadosCompletos.area_atuacao,
@@ -162,8 +159,6 @@ if (formEmpresa) {
             endereco: dadosCompletos.endereco,
             telefone: dadosCompletos.telefone,
             email: dadosCompletos.email,
-            // Credenciais
-            login: dadosCompletos.login, // Adicionado 'login'
             senha: dadosCompletos.senha 
         };
 
