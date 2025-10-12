@@ -36,7 +36,7 @@ app.use('/api/cadastro', cadastroRoutes)
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
-   res.sendFile(path.join(publicPath, "pages", "homepage" , "homepage.html"));
+   res.sendFile(path.join(publicPath, "pages", "homepage.html"));
 });
 
 
