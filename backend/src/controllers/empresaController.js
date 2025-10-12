@@ -52,6 +52,7 @@ export async function cadastrarEmpresa(req, res) {
             .select(); // Retorna o registro para confirmação
 
         if (error) {
+            
             console.error('Erro ao cadastrar Empresa:', error.message);
             
             // logica para lidar com violação de unicidade (CNPJ ou Email duplicado)

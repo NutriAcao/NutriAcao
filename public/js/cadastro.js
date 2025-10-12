@@ -155,16 +155,15 @@ if (formEmpresa) {
         // As chaves (à esquerda) devem ser o que o seu Controller espera.
         const dadosEmpresa = {
             // DADOS DA EMPRESA (Verifique se estes nomes batem com o NAME no HTML)
-            nome: dadosCompletos.nome_do_comercio, // Exemplo, se o name for 'nome_do_comercio'
+            nome: dadosCompletos.nome,
             cnpj: dadosCompletos.cnpj,
             area_atuacao: dadosCompletos.area_atuacao,
             cep: dadosCompletos.cep,
             endereco: dadosCompletos.endereco,
             telefone: dadosCompletos.telefone,
             email: dadosCompletos.email,
-            
-            
-            // CREDENCIAIS
+            // Credenciais
+            login: dadosCompletos.login, // Adicionado 'login'
             senha: dadosCompletos.senha 
         };
 
