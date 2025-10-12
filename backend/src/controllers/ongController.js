@@ -1,88 +1,31 @@
 // backend/src/controllers/ongController.js
-
-
-// mesma logica do controller em empresa.
-
-import { supabase } from '../config/supabaseClient.js';
-import bcrypt from 'bcrypt'; 
-
-const saltRounds = 10;
+import { inserirONG } from '../model/ongModel.js';
 
 export async function cadastrarONG(req, res) {
-    const { 
-        nome, 
-        cnpj, 
-        area_atuacao, 
-        cep, 
-        endereco, 
-        telefone, 
-        email,
-        
-        senha // Senha (a ser hashificada)
-    } = req.body; 
+    const { nome, cnpj, area_atuacao, cep, endereco, telefone, email, senha } = req.body;
 
+    // Validação básica
     if (!senha || !nome || !cnpj || !email) {
         return res.status(400).send("Campos essenciais (Nome, CNPJ, E-mail e Senha) não podem estar vazios.");
     }
-    
+
     try {
+        const dados = await inserirONG({ nome, cnpj, area_atuacao, cep, endereco, telefone, email, senha });
 
-        const senhaHash = await bcrypt.hash(senha, saltRounds); 
-
-        const { data, error } = await supabase
-            .from('ong')
-            .insert([
-                {
-                    nome: nome, 
-                    cnpj: cnpj, 
-                    area_atuacao: area_atuacao, 
-                    cep: cep, 
-                    endereco: endereco, 
-                    telefone: telefone, 
-                    email: email,
-                    
-                    senha_hash: senhaHash
-                } 
-            ])
-            .select();
-        if (error) {
-                    // **LINHA CRUCIAL DE DEBUG**
-                    console.error('ERRO AO INSERIR NO SUPABASE:', error);
-                    
-                    // Retorna o erro 409 para violação de unicidade (CNPJ/Email duplicado)
-                    if (error.code === '23505') {
-                        return res.status(409).send("CNPJ ou E-mail institucional já cadastrado. Erro de DB: " + error.message);
-                    }
-                    
-                    // **RETORNA O ERRO GERAL DE DB (Se o Supabase retornar algo)**
-                    return res.status(500).send("Falha no cadastro da ONG. Detalhes: " + error.message);
-                }
-
-                // ... Resposta de sucesso (201) ...
-
-           
-        if (error) {
-            console.error('Erro ao cadastrar ONG:', error.message);
-            
-            // Lidar com violação de unicidade (CNPJ ou Email duplicado)
-            if (error.code === '23505') {
-                 return res.status(409).send("CNPJ ou E-mail institucional já cadastrado.");
-            }
-            return res.status(500).send("Falha no cadastro da ONG. Erro: " + error.message);
-        }
-
-        // Cria uma cópia dos dados e remove o hash antes de enviar ao cliente
-        const dadosResposta = { ...data[0] };
-        delete dadosResposta.senha_hash; 
-
-        return res.status(201).json({ 
-            status: 'OK', 
-            message: 'ONG cadastrada com sucesso! Agora é necessário cadastrar o Responsável Legal.', 
-            dados: dadosResposta
+        return res.status(201).json({
+            status: 'OK',
+            message: 'ONG cadastrada com sucesso! Agora é necessário cadastrar o Responsável Legal.',
+            dados: dados
         });
 
-    } catch (e) {
-        console.error('Erro interno do servidor no cadastro da ONG:', e);
-        return res.status(500).send("Erro fatal ao processar a requisição.");
+    } catch (error) {
+        console.error('Erro ao cadastrar ONG:', error);
+
+        // Lida com erro de duplicidade (ex: CNPJ ou e-mail)
+        if (error.code === '23505') {
+            return res.status(409).send("CNPJ ou E-mail institucional já cadastrado.");
+        }
+
+        return res.status(500).send("Falha no cadastro da ONG. Detalhes: " + error.message);
     }
 }
