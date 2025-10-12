@@ -7,6 +7,7 @@ import cadastroRoutes from './src/routes/cadastroRoutes.js';
 import './src/config/dbPool.js'; 
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
+import testeBDRoute from './src/routes/testeBDRoute.js';
 
 // configuração de Variáveis
 dotenv.config(); 
@@ -31,6 +32,7 @@ app.use(express.json()); // Middleware para ler JSON
 app.use(express.static(publicPath));
 
 // usar Rotas
+app.use('/', testeBDRoute)
 app.use('/', dbRoutes); 
 app.use('/api/cadastro', cadastroRoutes)
 
@@ -38,7 +40,6 @@ app.use('/api/cadastro', cadastroRoutes)
 app.get("/", (req, res) => {
    res.sendFile(path.join(publicPath, "pages", "homepage.html"));
 });
-
 
 // inicia o Servidor
 app.listen(PORT, () => {
