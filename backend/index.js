@@ -4,6 +4,7 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cadastroRoutes from './src/routes/cadastroRoutes.js'; 
+import login from './src/routes/loginRoutes.js'
 import './src/config/dbPool.js'; 
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
@@ -35,6 +36,7 @@ app.use(express.static(publicPath));
 app.use('/', testeBDRoute)
 app.use('/', dbRoutes); 
 app.use('/api/cadastro', cadastroRoutes)
+app.use('/api/login', login)
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
