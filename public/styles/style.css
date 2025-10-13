@@ -352,6 +352,12 @@ main {
   }
 
   #beneficios {
+    
+    background-image: url('/assets/planodefundo.png');
+    background-size: cover;         
+    background-position: center;  
+    background-repeat: no-repeat;
+
     display: flex;
     justify-content: space-around;
     padding: 3rem 20vh;
