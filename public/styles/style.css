@@ -350,10 +350,9 @@ main {
     button a:hover {
       color: var(--color-main);
   }
-
   #beneficios {
     
-    background-image: url('/assets/planodefundo.png');
+    background-image: url('../assets/planodefundo.png');
     background-size: cover;         
     background-position: center;  
     background-repeat: no-repeat;
