@@ -305,25 +305,16 @@
       </div>
     </section>
     <section class="contact" id="contact">
-        <form action="" class="contact-container">
+        <form action="/enviar_contato" method="POST" class="contact-container"> 
             <img src="/../assets/logo-blue.png" alt="">
             <div class="center-container">
                 <h1>CONTATE-NOS</h1>
-                <input type="text" placeholder="Digite seu nome">
-                <input type="email" placeholder="Digite um email valido">
-                <textarea name="" placeholder="Assunto" id="contact-subject"></textarea>
+                <input type="text" name="nome" placeholder="Digite seu nome" required>
+                <input type="email" name="email" placeholder="Digite um email valido" required>
+                <textarea name="assunto" placeholder="Assunto/Mensagem" id="contact-subject" rows="5" required></textarea>
                 <button type="submit">Enviar</button>
             </div>
-            <div class="right-contact-container">
-                <h1><i class="fa-solid fa-phone"></i>Ligue para nós</h1>
-                <h2>(11)94632-5234</h2>
-                <h1><i class="fa-solid fa-leaf"></i>Nos siga</h1>
-                <h2><i class="fab fa-instagram"></i> @NutriAção <br> 
-                  <i class="fab fa-x"></i> @NutriAçãoX </h2>
-                <h1><i class="fa-solid fa-location-dot"></i>Endereço</h1>
-                <h2>Av. Águia de Haia, 2983 - Cidade Antônio Estêvão de Carvalho, São Paulo - SP, 03694-000</h2>
-            </div>
-        </form>
+            </form>
     </section>
   </main>
 

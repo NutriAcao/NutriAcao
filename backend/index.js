@@ -9,6 +9,7 @@ import './src/config/dbPool.js';
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
+import nodemailer from 'nodemailer'
 
 // configuração de Variáveis
 dotenv.config(); 
@@ -42,6 +43,57 @@ app.use('/api/login', login)
 app.get("/", (req, res) => {
    res.sendFile(path.join(publicPath, "pages", "homepage.html"));
 });
+
+
+// configurações do nodemailer, modulo usado para ler forms da landing page e mandar email.
+// configuração das variaveis de ambiente
+const transporter = nodemailer.createTransport({
+  host:process.env.EMAIL_HOST || 'smtp.exemplo.com',
+  port:process.env.EMAIL_PORT || 587,
+  secure:process.env.EMAIL_SECURE === 'true',
+  auth: {
+      user:process.env.EMAIL_USER,
+      pass:process.env.EMAIL_PASS
+  },
+})
+
+app.post('/enviar_contato', async(req,res) => {
+  console.log("--- ROTA /ENVIAR_CONTATO FOI ATINGIDA ---");
+  console.log("Dados recebidos:", req.body);
+
+  const {nome,email,assunto} = req.body;
+  if(!nome || !email || !assunto )
+    return res.status(400).json({ success:false, mensage: 'Todos os campos são obrigatórios'
+  })
+
+    const mailOptions = {
+    from: process.env.EMAIL_USER, 
+    to: process.env.EMAIL_RECIPIENT || 'email.de.contato@nutriacao.com.br', 
+    subject: `[CONTATO SITE] - ${assunto.substring(0, 50)}...`, 
+    text: `Nome: ${nome}\nEmail: ${email}\n\nMensagem:\n${assunto}`,
+    replyTo: email, 
+    html: `
+        <h2>Nova Mensagem do Site NutriAção</h2>
+        <p><strong>Nome:</strong> ${nome}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <hr>
+        <p><strong>Mensagem:</strong> ${assunto.replace(/\n/g, '<br>')}</p>
+        `
+    };
+       try{
+          const info = await transporter.sendMail(mailOptions);
+          console.log('Mensagem Enviada: %s', info.messageId);
+          app.get("/", (req, res) => {
+            res.sendFile(path.join(publicPath, "pages", "homepage.html"));
+          });
+          return;
+        } catch (error) {
+            console.error("Erro ao enviar email:", error);
+            res.status(500).json({ success: false, message: 'Ops! Ocorreu um erro ao enviar sua mensagem.' });
+    }
+
+  });
+
 
 // inicia o Servidor
 app.listen(PORT, () => {
