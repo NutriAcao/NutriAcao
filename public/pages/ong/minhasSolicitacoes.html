@@ -3,45 +3,57 @@
 <head>
     <meta charset="UTF-8">
   <title>Visualização de Doações - NutriAção</title>
-  <link rel="stylesheet" href="../styles/style-visualizacaoOngs.css"> 
+  <link rel="stylesheet" href="../../styles/style-visualizacaoOngs.css"> 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../../assets/Logo-white.png" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 <body>
     <div class="container">
-        <div id="divSideLine"><img src="../assets/Logo-white.png" alt="Logo"></div>
+        <div id="divSideLine"><img src="../../assets/Logo-white.png" alt="Logo"></div>
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             
             <ul class="menu">
-                <li>
-                    <a href="#" class="active"> 
-                        <i class="fas fa-box-open"></i> Visualizar Doações
+               <li>
+                    <a href="visualizacaoDoacoes.html">
+                        <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="#" id="toggleGestao">
+                        <i class="fas fa-map-marked-alt"></i> Mapa de Doações
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="minhasSolicitacoes.html" class="active">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
                     </a>
                 </li>
+               
                 <li>
+                    
                     <a href="#">
                         <i class="fas fa-chart-line"></i> Relatórios de Consumo
                     </a>
                 </li>
-        
-                 <li>
+                <li>
                     <a href="#">
-                        <i class="fas fa-user-circle"></i> Meu Perfil
+                        <i class="fas fa-user-circle"></i> Minha Conta
                     </a>
                 </li>
                 <li>
                     <a href="#">
                         <i class="fas fa-headset"></i> Suporte
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <i class="fas fa-question-circle"></i> Ajuda / FAQ
                     </a>
                 </li>
             </ul>
@@ -154,6 +166,6 @@
         </main>
     </div>
 
-    <script src="../js/visualizacaoDoacoesONG.js"></script> 
+    <script src="../../js/visualizacaoDoacoesONG.js"></script> 
 </body>
 </html>

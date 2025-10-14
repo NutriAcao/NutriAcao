@@ -24,9 +24,10 @@ export async function login(req, res) {
         // Retorna sucesso e tipo do usuário
         return res.status(200).json({ 
             message: 'Login bem-sucedido!',
-            /*userId: usuario.id,
-            tipo: usuario.tipo*///se quiser testar pra ver se ta pegando, descomenta, nao sei se é uma falha de segurança, mas Deus nos abençoe que não seja
-            //por que muito provavelmente eu não vou lembrar de tirar esse comentario na entrega do p.i
+            userId: usuario.id,
+            tipo: usuario.tipo
+            // se quiser testar pra ver se ta pegando, descomenta, nao sei se é uma falha de segurança, mas Deus nos abençoe que não seja
+            // por que muito provavelmente eu não vou lembrar de tirar esse comentario na entrega do p.i
         });
 
     } catch (err) {

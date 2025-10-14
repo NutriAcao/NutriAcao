@@ -23,10 +23,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const resultado = await response.json();
 
-            if (response.ok) {
+             if (response.ok) {
+                if (resultado.tipo === 'ong') {
+                    window.location.href = '../ong/visualizacaoDoacoes.html';
                 alert('Login bem-sucedido!');
                 console.log('Dados do usuário:', resultado);
                 // Redirecionar ou salvar token/session aqui
+            }}
+             if (resultado.tipo === 'empresa') {
+                alert('Login bem-sucedido!');
+                window.location.href ='../empresa/visualizacaoOngs.html';
             } else {
                 alert(`Erro: ${resultado.message}`);
             }
@@ -36,3 +42,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
