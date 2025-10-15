@@ -21,7 +21,12 @@ export async function cadastrarEmpresa(req, res) {
         telefone, 
         email,
         
-        senha 
+        senha,
+        nome_responsavel_empresa,
+        cpf_responsavel_empresa,
+        cargo_responsavel_empresa,
+        email_responsavel_empresa,
+        telefone_responsavel_empresa,
     } = req.body; 
 
     // verificação de Segurança e Validação Simples
@@ -46,7 +51,13 @@ export async function cadastrarEmpresa(req, res) {
                     telefone: telefone, 
                     email: email,
                     
-                    senha_hash: senhaHash // Armazena a senha criptografada
+                    senha_hash: senhaHash, // Armazena a senha criptografada
+
+                    nome_responsavel_empresa: nome_responsavel_empresa,
+                    cpf_responsavel_empresa: cpf_responsavel_empresa,
+                    cargo_responsavel_empresa: cargo_responsavel_empresa,
+                    email_responsavel_empresa: email_responsavel_empresa,
+                    telefone_responsavel_empresa: telefone_responsavel_empresa,
                 } 
             ])
             .select(); // Retorna o registro para confirmação

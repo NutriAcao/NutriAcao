@@ -98,6 +98,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 endereco: dadosCompletos.endereco,
                 telefone: dadosCompletos.telefone,
                 email: dadosCompletos.email,
+                nome_responsavel_ong: dadosCompletos.nome_responsavel_ong,
+                cpf_responsavel_ong: dadosCompletos.cpf_responsavel_ong,
+                cargo_responsavel_ong: dadosCompletos.cargo_responsavel_ong,
+                email_responsavel_ong: dadosCompletos.email_responsavel_ong,
+                telefone_responsavel_ong: dadosCompletos.telefone_responsavel_ong,
                 // Credenciais
                 login: dadosCompletos.login, // Adicionado 'login'
                 senha: dadosCompletos.senha 
@@ -117,12 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 4. Trata a resposta do Express
                 if (response.ok) { // 200-299 Status code
-                    alert(`✅ SUCESSO! ${resultado.message}`); 
+                    alert(`✅ SUCESSO!`); 
                     modalOng.style.display = 'none';
                     formOng.reset();
                 } else {
                     // Erros 400, 409, 500 retornados pelo seu Controller
-                    alert(`❌ FALHA: ${resultado.message || 'Erro de servidor desconhecido.'}`);
+                    alert('❌ FALHA: Erro de servidor desconhecido.');
                 }
 
             } catch (error) {
@@ -159,7 +164,13 @@ if (formEmpresa) {
             endereco: dadosCompletos.endereco,
             telefone: dadosCompletos.telefone,
             email: dadosCompletos.email,
-            senha: dadosCompletos.senha 
+            senha: dadosCompletos.senha,
+            nome_responsavel_empresa: dadosCompletos.nome_responsavel_empresa,
+            cpf_responsavel_empresa: dadosCompletos.cpf_responsavel_empresa,
+            cargo_responsavel_empresa: dadosCompletos.cargo_responsavel_empresa,
+            email_responsavel_empresa: dadosCompletos.email_responsavel_empresa,
+            telefone_responsavel_empresa: dadosCompletos.telefone_responsavel_empresa,
+               
         };
 
         try {
@@ -176,11 +187,11 @@ if (formEmpresa) {
             
             // 4. Tratamento da Resposta
             if (response.ok) { 
-                alert(`✅ SUCESSO! ${resultado.message || 'Empresa cadastrada com sucesso!'}`); 
+                alert(`✅ SUCESSO! Empresa cadastrada com sucesso!`); 
                 document.getElementById('modal-empresa').style.display = 'none';
                 formEmpresa.reset();
             } else {
-                alert(`❌ FALHA (Status ${response.status}): ${resultado.message || 'Erro de servidor desconhecido.'}`);
+                alert(`❌ FALHA'}`);
             }
 
         } catch (error) {

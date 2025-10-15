@@ -17,7 +17,15 @@ export async function inserirONG(dados) {
         endereco: dados.endereco,
         telefone: dados.telefone,
         email: dados.email,
-        senha_hash: senhaHash
+        senha_hash: senhaHash,
+        
+        // NOVOS CAMPOS DO RESPONSÁVEL (Com sufixo)
+        nome_responsavel_ong: dados.nome_responsavel_ong,
+        cpf_responsavel_ong: dados.cpf_responsavel_ong,
+        cargo_responsavel_ong: dados.cargo_responsavel_ong,
+        email_responsavel_ong: dados.email_responsavel_ong,
+        telefone_responsavel_ong: dados.telefone_responsavel_ong
+        
     };
     //HAHAHAHAHAHAHAHAHAHAHAHAHAHAHA
 
