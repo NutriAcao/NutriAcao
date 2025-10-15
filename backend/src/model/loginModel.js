@@ -3,7 +3,7 @@ import { supabase } from "../config/supabaseClient.js";
 
 
 export async function buscarUsuarioPorEmail(email) {
-    const tabelas = ['empresa', 'ong', 'pessoafisica', 'responsavellegal', 'responsavellegal_empresa'];
+    const tabelas = ['empresa', 'ong'];
 
     for (const tabela of tabelas) {
         const { data, error } = await supabase
