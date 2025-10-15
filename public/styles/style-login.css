@@ -242,6 +242,48 @@ input:focus-visible{
     color: #fff;
     cursor: pointer;
 }
+
+div.container-tipoUsuario {
+  min-height: 3rem;
+  min-width: 8rem;
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  align-items:center;
+  justify-content: space-around;
+
+}
+
+div.container-tipoUsuario > input[type="radio"] {
+  
+  display: none;
+  
+}
+
+div.container-tipoUsuario > label {
+  font-size: 1.10rem;
+  background-color: var(--color-secondary-text);
+  min-width: 8rem;
+  text-align: center;
+  border: solid 2px var(--color-main);
+  transition: all 0.3s ease-in-out;
+}
+
+div.container-tipoUsuario > label:hover {
+  cursor: pointer;
+  border-radius: 4px;
+  background-color: #004aad;
+  color: var(--color-secondary-text)
+
+}
+
+div.container-tipoUsuario > label.activeTipoUsuario {
+   cursor: pointer;
+  border-radius: 4px;
+  background-color: #004aad;
+  color: var(--color-secondary-text)
+}
+
   /*
     footer
   */

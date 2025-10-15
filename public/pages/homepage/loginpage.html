@@ -19,18 +19,18 @@
                   <img src="../../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
                 </button>
 
-                <a class="footer-logo" href="/pages/homepage.html">
+                <a class="footer-logo" href="../homepage.html">
                   <img src="../../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
                   <h1>NutriAção</h1>
                 </a> 
                 
                 <nav id="menu">
                   <ul id="nav-list">
-                    <li><a href="/pages/homepage.html" class="nav-link active">Página inicial</a></li>
-                    <li id="sobre"><a href="/pages/homepage.html" class="nav-link">Sobre</a></li>
-                    <li id="contato"><a href="/pages/homepage.html" class="nav-link">Contato</a></li>
-                    <li><a href="../../pages/homepage/loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
-                    <li><a href="../../pages/homepage/cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
+                    <li><a href="../homepage.html" class="nav-link active">Página inicial</a></li>
+                    <li id="sobre"><a href="../homepage.html" class="nav-link">Sobre</a></li>
+                    <li id="contato"><a href="../homepage.html" class="nav-link">Contato</a></li>
+                    <li><a href="loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
+                    <li><a href="cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
                   </ul>
                 </nav>
         </header>
@@ -42,8 +42,17 @@
             </div>
             <form action="" id="formulario-login" method="post">
             <div class="right-container">
+              
                 <img src="../../assets/logo-blue.png" alt="" srcset="" id="logo-container">
-                
+                <h2>Cadastrar como:</h2>
+
+                <div class="container-tipoUsuario">
+                  <input type="radio" name="tipoUsuario" id="ong">
+                  <label for="ong">ONG</label>
+                  <input type="radio" name="tipoUsuario" id="empresa">
+                  <label for="empresa">Empresa</label>
+                </div>
+
                 <div class="input-container">
                     <i class="fa-solid fa-user"></i>
                     <input id="user" type="text" placeholder="Usuário">
@@ -67,8 +76,12 @@
         <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
       </footer>
 
+    <script src="../../js/menu.js"></script>
     <script src="../../js/login.js"></script>
-      <script src="/backend/index.js"></script>
+    <script src="../../js/paginaLoginStyleControl.js"></script>
+    <script src="../../../backend/index.js"></script>
+    
+    
 
 </body>
 </html>
