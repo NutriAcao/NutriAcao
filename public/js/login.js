@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const senhaInput = document.getElementById('password');
     const empresaRadio = document.getElementById('empresa');
     const ongRadio = document.getElementById('ong');
+    
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
@@ -20,47 +21,31 @@ document.addEventListener('DOMContentLoaded', () => {
             const response = await fetch('/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: usuario, senha })
+                body: JSON.stringify({ email: usuario, senha, tipo: empresaRadio.checked ? 'empresa' : 'ong' })
             });
 
             const resultado = await response.json();
 
-             if (response.ok) {
-                if (resultado.tipo === 'ong') {
-                    if (ongRadio.checked) {
-                        alert('Login bem-sucedido!');
-                        window.location.href = '../ong/visualizacaoDoacoes.html';
+            if (!response.ok) {
+        alert(`Erro: ${resultado.message}`);
+        return;
+    }
 
-                    } else if (empresaRadio.checked) {
-                        alert('Erro: Usuário não encontrado !');
-                        //Indica que o usuário é do tipo ONG, mas tentou logar como empresa
-                    } else {
-                alert(`Erro: ${resultado.message}`);
-            }
-            
-            } else if (resultado.tipo === 'empresa') {
-                if (empresaRadio.checked) {
+    // Verifica se o tipo retornado bate com o tipo selecionado
+    if (resultado.tipo === 'ong' && ongRadio.checked) {
+        alert('Login bem-sucedido!');
+        window.location.href = '../ong/visualizacaoDoacoes.html';
+    } else if (resultado.tipo === 'empresa' && empresaRadio.checked) {
+        alert('Login bem-sucedido!');
+        window.location.href = '../empresa/visualizacaoOngs.html';
+    } else {
+        alert('Erro: Usuário não encontrado no tipo selecionado !');
+    }
 
-                    alert('Login bem-sucedido!');
-                    window.location.href ='../empresa/visualizacaoOngs.html';
-                } else if (ongRadio.checked) {
-                    alert('Usuário não encontrado !');
-                    //Indica que o usuário é do tipo Empresa, mas tentou logar como ONG
-                } else {
-                alert(`Erro: ${resultado.message}`);
-            }
-            } else {
-                    alert('Erro: Usuário não encontrado !');
-                    //Indica que o usuário não está em nenhuma das tabelas, ou seja, não efetuou o cadastro
-                    
-                
-                
-            } 
-        }
-             
-        } catch (error) {
+} catch (error) {
             console.error('Erro de rede:', error);
             alert('Falha na comunicação com o servidor');
+            
         }
     });
 });
