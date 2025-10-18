@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 
   if (bloqueadas.includes(req.path)) {
     // Verifica autenticação
-    if (!req.headers.authorization || !verificarToken(req)) {
+    if (!req.headers.authorization) {
       return res.status(403).send('Acesso negado');
     }
   }
