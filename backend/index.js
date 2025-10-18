@@ -62,27 +62,27 @@ app.get('/api/usuario', verificarToken, (req, res) => {
 });
 
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
-app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
+app.get('/empresa/visualizacaoOngs.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'visualizacaoOngs.html'))
   
 })
 
-app.get('/cadastrarExcedentes.html', verificarToken, (req,res) => {
+app.get('/empresa/cadastrarExcedentes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'cadastrarExcedentes.html'))
   
 })
-app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
+app.get('/empresa/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'HistoricoDoacoesEmpresa.html'))
   
 })
 
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
-app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
+app.get('/ong/visualizacaoDoacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'ong', 'visualizacaoDoacoes.html'))
   
 })
-app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
+app.get('/ong/minhasSolicitacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'ong', 'minhasSolicitacoes.html'))
   
 })
