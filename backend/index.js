@@ -37,27 +37,6 @@ import { verificarToken } from './src/routes/authMiddleware.js';
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
-app.use((req, res, next) => {
-  const bloqueadas = [
-    '/pages/empresa/visualizacaoOngs.html', //Rotas protegidas da empresa
-    '/pages/empresa/cadastrarExcedentes.html',
-    '/pages/empresa/HistoricoDoacoesEmpresa.html',
-    '/pages/ong/visualizacaoDoacoes.html', //Rotas protegidas da ong
-    '/pages/ong/minhasSolicitacoes.html'
-  ];
-
-  if (bloqueadas.includes(req.path)) {
-    // Verifica autenticação
-    if (!req.headers.authorization) {
-      return res.status(403).send('Acesso negado');
-    }
-  }
-
-  next(); // Continua para o express.static
-});
-
-
-app.use(express.static(publicPath));
 
 // usar Rotas
 app.use('/', testeBDRoute)
