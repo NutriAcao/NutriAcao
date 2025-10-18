@@ -37,6 +37,24 @@ import { verificarToken } from './src/routes/authMiddleware.js';
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
+const rotasProtegidas = [
+  '/pages/empresa/visualizacaoOngs.html',
+  '/pages/empresa/cadastrarExcedentes.html',
+  '/pages/empresa/HistoricoDoacoesEmpresa.html',
+  '/pages/ong/visualizacaoDoacoes.html',
+  '/pages/ong/minhasSolicitacoes.html'
+];
+
+app.use((req, res, next) => {
+  if (rotasProtegidas.includes(req.path)) {
+    return verificarToken(req, res, next); // chama o middleware de autenticação
+  }
+  next(); // continua normalmente
+});
+
+
+
+app.use(express.static(publicPath));
 
 // usar Rotas
 app.use('/', testeBDRoute)
