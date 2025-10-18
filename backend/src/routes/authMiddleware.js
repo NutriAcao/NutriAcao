@@ -2,20 +2,22 @@ import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
 
+//Middleware para verificar o token JWT
 export function verificarToken(req, res, next) {
-    const authHeader = req.headers.authorization;
+    const token = req.cookies.token;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Token não fornecido.' });
-    }
+  if (!token) {
+    //redireciona o usuário para a página de login caso não tenha token
+    return res.redirect('/loginpage');
+    
+  }
 
-    const token = authHeader.split(' ')[1];
-
-    try {
-        const payload = jwt.verify(token, JWT_SECRET);
-        req.usuario = payload; // adiciona os dados do usuário na requisição
-        next();
-    } catch (err) {
-        return res.status(403).json({ message: 'Token inválido ou expirado.' });
-    }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.usuario = decoded;
+    next();
+  } catch (err) {
+    //Se o token for inválido ou expirado, redireciona para a página de login
+    return res.redirect('/loginpage');
+  }
 }

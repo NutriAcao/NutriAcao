@@ -11,6 +11,9 @@ import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
 import nodemailer from 'nodemailer'
 
+
+
+
 // configuração de Variáveis
 dotenv.config(); 
 const __filename = fileURLToPath(import.meta.url);
@@ -29,6 +32,10 @@ const app = express();
 const publicPath = path.join(__dirname, '..', 'public');  
 app.use(express.urlencoded({ extended: true })); // Middleware para ler forms
 app.use(express.json()); // Middleware para ler JSON
+import { verificarToken } from './src/routes/authMiddleware.js';
+//Middleware para ler cookies
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
 
 
 app.use(express.static(publicPath));
@@ -43,6 +50,44 @@ app.use('/api/login', login)
 app.get("/", (req, res) => {
    res.sendFile(path.join(publicPath, "pages", "homepage.html"));
 });
+
+// Rota padrão para servir a tela de login
+app.get('/loginpage', (req,res) => {
+  res.sendFile(path.join(publicPath,'pages','homepage', 'loginpage.html'))
+})
+
+// Rota auxiliar para obter dados do usuário autenticado
+app.get('/api/usuario', verificarToken, (req, res) => {
+  res.json(req.usuario);
+});
+
+// ==============ROTAS PROTEGIDAS PARA EMPRESA====================
+app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(publicPath,'pages', 'empresa', 'visualizacaoOngs.html'))
+  
+})
+
+app.get('/cadastrarExcedentes.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(publicPath,'pages', 'empresa', 'cadastrarExcedentes.html'))
+  
+})
+app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(publicPath,'pages', 'empresa', 'HistoricoDoacoesEmpresa.html'))
+  
+})
+
+
+// ==============ROTAS PROTEGIDAS PARA ONG====================
+app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(publicPath,'pages', 'ong', 'visualizacaoDoacoes.html'))
+  
+})
+app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(publicPath,'pages', 'ong', 'minhasSolicitacoes.html'))
+  
+})
+
+
 
 
 // configurações do nodemailer, modulo usado para ler forms da landing page e mandar email.

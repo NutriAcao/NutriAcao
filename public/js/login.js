@@ -31,13 +31,18 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    
+
+
     // Verifica se o tipo retornado bate com o tipo selecionado
     if (resultado.tipo === 'ong' && ongRadio.checked) {
         alert('Login bem-sucedido!');
-        window.location.href = '../ong/visualizacaoDoacoes.html';
+        window.location.href = '/visualizacaoDoacoes.html';
+        
     } else if (resultado.tipo === 'empresa' && empresaRadio.checked) {
         alert('Login bem-sucedido!');
-        window.location.href = '../empresa/visualizacaoOngs.html';
+        window.location.href = '/visualizacaoOngs.html';
+
     } else {
         alert('Erro: Usuário não encontrado no tipo selecionado !');
     }
