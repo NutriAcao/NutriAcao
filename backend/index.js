@@ -37,22 +37,6 @@ import { verificarToken } from './src/routes/authMiddleware.js';
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
-const rotasProtegidas = [
-  '/pages/empresa/visualizacaoOngs.html',
-  '/pages/empresa/cadastrarExcedentes.html',
-  '/pages/empresa/HistoricoDoacoesEmpresa.html',
-  '/pages/ong/visualizacaoDoacoes.html',
-  '/pages/ong/minhasSolicitacoes.html'
-];
-
-app.use((req, res, next) => {
-  if (rotasProtegidas.includes(req.path)) {
-    return verificarToken(req, res, next); // chama o middleware de autenticação
-  }
-  next(); // continua normalmente
-});
-
-
 
 app.use(express.static(publicPath));
 
@@ -78,27 +62,27 @@ app.get('/api/usuario', verificarToken, (req, res) => {
 });
 
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
-app.get('/pages/empresa/visualizacaoOngs.html', verificarToken, (req,res) => {
+app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'visualizacaoOngs.html'))
   
 })
 
-app.get('/pages/empresa/cadastrarExcedentes.html', verificarToken, (req,res) => {
+app.get('/cadastrarExcedentes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'cadastrarExcedentes.html'))
   
 })
-app.get('/pages/empresa/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
+app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'empresa', 'HistoricoDoacoesEmpresa.html'))
   
 })
 
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
-app.get('/pages/ong/visualizacaoDoacoes.html', verificarToken, (req,res) => {
+app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'ong', 'visualizacaoDoacoes.html'))
   
 })
-app.get('/pages/ong/minhasSolicitacoes.html', verificarToken, (req,res) => {
+app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(publicPath,'pages', 'ong', 'minhasSolicitacoes.html'))
   
 })
