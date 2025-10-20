@@ -63,27 +63,27 @@ app.get('/api/usuario', verificarToken, (req, res) => {
 
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
 app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
-  res.sendFile(path.join(publicPath,'pages', 'empresa', 'visualizacaoOngs.html'))
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'visualizacaoOngs.html'));
   
 })
 
 app.get('/cadastrarExcedentes.html', verificarToken, (req,res) => {
-  res.sendFile(path.join(publicPath,'pages', 'empresa', 'cadastrarExcedentes.html'))
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'cadastrarExcedentes.html'));
   
 })
 app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
-  res.sendFile(path.join(publicPath,'pages', 'empresa', 'HistoricoDoacoesEmpresa.html'))
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
   
 })
 
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
 app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
-  res.sendFile(path.join(publicPath,'pages', 'ong', 'visualizacaoDoacoes.html'))
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'visualizacaoDoacoes.html'));
   
 })
 app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
-  res.sendFile(path.join(publicPath,'pages', 'ong', 'minhasSolicitacoes.html'))
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
   
 })
 
