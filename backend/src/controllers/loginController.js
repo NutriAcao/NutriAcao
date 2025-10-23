@@ -27,7 +27,12 @@ const token = jwt.sign(
             {
                 id: usuario.id,
                 email: usuario.email,
-                tipo: usuario.tipo
+                tipo: usuario.tipo,
+                nome: usuario.tipo === 'ong' 
+                ? usuario.nome_responsavel_ong 
+                : usuario.nome_responsavel_empresa,
+                nomeInstituicao: usuario.nome
+                
             },
             process.env.JWT_SECRET,
             { expiresIn: '1h' } // Token expira em 1 hora

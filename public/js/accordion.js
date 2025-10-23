@@ -16,3 +16,5 @@ export function initAccordion() {
     });
   });
 }
+
+initAccordion();
