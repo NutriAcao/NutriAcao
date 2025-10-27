@@ -15,15 +15,14 @@ document.addEventListener('DOMContentLoaded', function() {
             feedback.style.color = '#004AAD';
             submitButton.disabled = true;
 
-            // Coleta dos dados (IMPORTANTE: Use os nomes dos campos do seu HTML)
+            // Coleta dos dados
             const formData = {
               email: this.querySelector('input[name="email"]').value, 
-              assunto: "Mensagem de Suporte - Empresa ABC", // Definindo um assunto fixo aqui, se preferir
+              assunto: "Mensagem de Suporte - Empresa ABC",
               descricao: this.querySelector('textarea[name="descricao"]').value
             };
 
             try {
-              // Garante que a rota está CORRETA: '/enviar-contato' (com hífen)
               const response = await fetch('/enviar-contato', { 
                 method: 'POST',
                 headers: {
@@ -37,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
               if (response.ok) {
                 feedback.textContent = result.message;
                 feedback.style.color = 'green';
-                this.reset(); // Limpa o formulário
+                this.reset();
               } else {
                 feedback.textContent = `Erro: ${result.message}`;
                 feedback.style.color = 'red';
@@ -47,7 +46,7 @@ document.addEventListener('DOMContentLoaded', function() {
               feedback.textContent = 'Erro de conexão. Verifique o servidor.';
               feedback.style.color = 'red';
             } finally {
-              submitButton.disabled = false; // Reabilita o botão
+              submitButton.disabled = false;
             }
         });
     }

@@ -1,24 +1,21 @@
 body {
-    overflow-x: hidden; /* IMPEDE QUE O CONTEÚDO ESTOURE A TELA HORIZONTALMENTE */
+    overflow-x: hidden;
 }
+
 .contact {
     display: flex;
-    /* Centraliza o bloco de conteúdo dentro do espaço restante */
     justify-content: center; 
     align-items: center;
-    margin: 0 0 1vw; /* Margens removidas para usar o padding principal */
-
-    /* Vamos usar um padding-left/right baseado no seu layout, 
-       que parece ser 10vh ou 10vh no media query */
-    padding: 5vh 10vw; /* Usando 10vw como exemplo de espaçamento lateral */
+    margin: 0 0 1vw; 
+    padding: 5vh 10vw; 
 }
 
 .contact-container {
   display: flex;
   align-items: center;
-  /* Reduzimos um pouco para garantir que a imagem e o formulário caibam lado a lado */
+
   width: 95%; 
-  justify-content: flex-start; /* Alinha imagem e formulário à esquerda do container */
+  justify-content: flex-start; 
 }
 .contact-container img{
     display: flex;
@@ -92,7 +89,7 @@ input::placeholder{
 }
 
   footer {
-    background-color: var(--color-main); /* Pode substituir por variável */
+    background-color: var(--color-main); 
     color: var(--color-secondary-text);
     text-align: center;
     padding: 15px;
@@ -130,11 +127,10 @@ input::placeholder{
         padding: 5vh 10vh;
     }
 
-    /* O CONTAINER .contact É O ALVO PRINCIPAL AQUI */
     .contact {
-        /* Redefinimos o padding para 0 e confiamos na nova margem de 5vw */
+       
         padding: 5vh 0; 
-        /* Adicionamos a margem de 5vw à esquerda para mover */
+      
         margin-left: 5vw; 
     }
 
