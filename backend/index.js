@@ -10,6 +10,7 @@ import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
 import nodemailer from 'nodemailer'
+import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 
 
 
@@ -86,6 +87,13 @@ app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
   
 })
+app.get('/HistoricoDoacoesONG.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'HistoricoDoacoesONG.html'));
+  
+})
+
+app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes); // Prefixo opcional
+app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes); // Prefixo opcional
 
 
 
