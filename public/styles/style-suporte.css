@@ -1,0 +1,216 @@
+body {
+    overflow-x: hidden; /* IMPEDE QUE O CONTEÚDO ESTOURE A TELA HORIZONTALMENTE */
+}
+.contact {
+    display: flex;
+    /* Centraliza o bloco de conteúdo dentro do espaço restante */
+    justify-content: center; 
+    align-items: center;
+    margin: 0 0 1vw; /* Margens removidas para usar o padding principal */
+
+    /* Vamos usar um padding-left/right baseado no seu layout, 
+       que parece ser 10vh ou 10vh no media query */
+    padding: 5vh 10vw; /* Usando 10vw como exemplo de espaçamento lateral */
+}
+
+.contact-container {
+  display: flex;
+  align-items: center;
+  /* Reduzimos um pouco para garantir que a imagem e o formulário caibam lado a lado */
+  width: 95%; 
+  justify-content: flex-start; /* Alinha imagem e formulário à esquerda do container */
+}
+.contact-container img{
+    display: flex;
+    height: 40vh;
+}
+.center-container{
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  height: 100%;
+}
+.center-container h1{
+  font-weight: 700;
+  font-size: xxx-large;
+  margin: 2vh 0 10vh;
+  color: #003172;
+} 
+.center-container input{
+  background-color: transparent;
+  border: none;
+  border-bottom:#003172 solid 2px;
+  height: 5vh;
+  text-decoration: none;
+  margin-top: 2vh;
+}
+input::placeholder{
+  font-size: 15px;
+  padding: 0 0 0 10px;
+}
+.center-container textarea{
+  resize: none;
+  height: 20vh;
+  border: none;
+  border-bottom:#003172 solid 2px;
+  margin: 0 0 6vh;
+}
+.center-container textarea::placeholder{
+  padding: 1vh 0 0 1vh;
+  font-size: large;
+}
+.center-container button{
+  display: flex;
+  border: #003172 solid 2px;
+  background-color:#004AAD;
+  color: #ffffff;
+  align-items: center;
+  justify-content: center;
+  margin: 0 0 1vw;
+
+}
+.right-contact-container{
+  display: flex;
+  flex-direction: column;
+  width: 15%;
+  height: 60vh;
+  justify-content: end;
+  margin: 0 0 0 2vh;
+}
+.right-contact-container h1{
+  font-size: large;
+  margin: 1vh 0;
+  color: #003172;
+}
+.right-contact-container h1 i{
+  margin: 0 1vh;
+}
+.right-contact-container h2{
+  font-size:medium;
+  margin: 0 1vh;
+  color: #004AAD;
+}
+
+  footer {
+    background-color: var(--color-main); /* Pode substituir por variável */
+    color: var(--color-secondary-text);
+    text-align: center;
+    padding: 15px;
+  }
+  
+
+  .footer-text {
+    color: #fff;
+    font-size: 16px;
+  }
+  
+@media screen and (max-width: 1280px) {
+    #top-page {
+        padding-left: 10vh;
+        padding-right: 10vh;
+    }
+
+    #top-page .left-side p {
+        display: none;
+    }
+
+    #top-page .left-side h2 {
+        font-size: 45px;
+    }
+
+    header, header.rolagem {
+        padding: 2vh 10vh;
+    }
+
+    .btn-cadastro {
+        display: none;
+    }
+
+    #nutriacao {
+        padding: 5vh 10vh;
+    }
+
+    /* O CONTAINER .contact É O ALVO PRINCIPAL AQUI */
+    .contact {
+        /* Redefinimos o padding para 0 e confiamos na nova margem de 5vw */
+        padding: 5vh 0; 
+        /* Adicionamos a margem de 5vw à esquerda para mover */
+        margin-left: 5vw; 
+    }
+
+    .contact-container img {
+        height: 25vh;
+    }
+}
+
+@media screen and (max-width: 1125px) {
+    #ilustracao {
+        display: none;
+    }
+
+    #top-page .left-side {
+        width: 100%;
+        text-align: center;
+        align-items: center;
+        margin-top: 20vh;
+    }
+}
+
+@media screen and (max-width: 1075px) {
+
+    .btn-login {
+        display: none;
+    }
+
+    .cards {
+        justify-content: center;
+    }
+
+    #nutriacao {
+        flex-direction: column;
+        align-items: center;
+        gap: 40px;
+    }
+
+    #nutriacao > .left-side,
+    .right-side {
+        width: 80%;
+        text-align: center;
+        align-items: center;
+    }
+
+    .left-card {
+        text-align: left;
+    }
+
+    .right-side h5 {
+        text-align: center;
+    }
+
+    .contact-container {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .contact-container img {
+        height: 20vh;
+    }
+
+    .center-container,
+    .right-contact-container {
+        width: 100%;
+        padding-left: 0;
+        border-left: none;
+    }
+
+    .right-contact-container h1 {
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 960px) {
+    #contato {
+        display: none;
+    }
+}

@@ -23,10 +23,10 @@
     "@supabase/supabase-js": "^2.74.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.5",
+    "dotenv": "^16.6.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "nodemailer": "^7.0.9",
+    "nodemailer": "^7.0.10",
     "pg": "^8.11.3"
   }
 }
