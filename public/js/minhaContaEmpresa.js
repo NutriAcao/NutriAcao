@@ -8,9 +8,34 @@ const dadosEmpresa = {
     emailLogin: "joao.silva@empresa.com"
 };
 
-// Inicialização da página
 document.addEventListener('DOMContentLoaded', function() {
-    // Preencher dados na página
+
+//Essa função carrega os dados do usuário logado
+async function carregarUsuario() {
+  try {
+    const res = await fetch('/api/usuario');
+    const dados = await res.json();
+    
+    console.log('Dados completos:', dados);
+    
+    console.log('Dados do usuário:', JSON.stringify(dados, null, 2));
+    
+    if (dados.success) {
+      console.log('Nome:', dados.data.nome_responsavel);
+      console.log('Empresa:', dados.data.nome_empresa);
+      console.log('Email:', dados.data.email_login);
+    } else {
+      console.log('Erro na API:', dados.message);
+    }
+    
+  } catch (erro) {
+    console.error('Erro ao buscar usuário:', erro);
+  }
+}
+
+carregarUsuario();
+});
+document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('nome-responsavel').textContent = dadosEmpresa.nomeResponsavel;
     document.getElementById('cargo-responsavel').textContent = dadosEmpresa.cargoResponsavel;
     document.getElementById('cpf-responsavel').textContent = mascararCPF(dadosEmpresa.cpfResponsavel);
@@ -151,7 +176,6 @@ function confirmarExclusaoConta() {
     const confirmacao = confirm('Tem certeza que deseja excluir sua conta? Esta ação não pode ser desfeita.');
     
     if (confirmacao) {
-        // Aqui normalmente faria uma requisição para o backend para excluir a conta
         alert('Sua conta será excluída. Você será redirecionado para a página inicial.');
         // Redirecionar para a página inicial ou fazer logout
         // window.location.href = '/';
@@ -173,7 +197,6 @@ function salvarAlteracoes() {
             return;
         }
         
-        // Aqui normalmente faria uma requisição para o backend para alterar a senha
         alert('Senha alterada com sucesso!');
     } 
     else if (modalTitulo === 'Editar Informações do Responsável') {
@@ -203,7 +226,6 @@ function salvarAlteracoes() {
         dadosEmpresa.telefoneResponsavel = telefone;
         dadosEmpresa.emailLogin = emailLogin;
         
-        // Atualizar exibição
         document.getElementById('email-responsavel').textContent = emailResponsavel;
         document.getElementById('telefone-responsavel').textContent = telefone;
         document.getElementById('email-login').textContent = emailLogin;

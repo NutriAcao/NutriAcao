@@ -13,7 +13,6 @@ import nodemailer from 'nodemailer'
 
 
 
-
 // configuração de Variáveis
 dotenv.config(); 
 const __filename = fileURLToPath(import.meta.url);
@@ -75,7 +74,10 @@ app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
   
 })
-
+app.get('/minhaContaEmpresa.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'minhaContaEmpresa.html'));
+  
+})
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
 app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
@@ -84,7 +86,6 @@ app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
 })
 app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
-  
 })
 
 
