@@ -118,9 +118,7 @@ const transporter = nodemailer.createTransport({
   },
   tls: {
     rejectUnauthorized: false 
-  },
-
-  requireTLS: true
+  }
 });
 
 // Rota de Contato
