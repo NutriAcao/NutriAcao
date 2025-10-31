@@ -10,6 +10,7 @@ import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
 import nodemailer from 'nodemailer'
+import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 
 
 
@@ -75,6 +76,10 @@ app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
   
 })
+app.get('/suporteEmpresa.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'suporteEmpresa.html'));
+  
+})
 
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
@@ -86,59 +91,71 @@ app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
   
 })
-
-
-
-
-// configurações do nodemailer, modulo usado para ler forms da landing page e mandar email.
-// configuração das variaveis de ambiente
-const transporter = nodemailer.createTransport({
-  host:process.env.EMAIL_HOST || 'smtp.exemplo.com',
-  port:process.env.EMAIL_PORT || 587,
-  secure:process.env.EMAIL_SECURE === 'true',
-  auth: {
-      user:process.env.EMAIL_USER,
-      pass:process.env.EMAIL_PASS
-  },
+app.get('/HistoricoDoacoesONG.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'HistoricoDoacoesONG.html'));
+  
 })
 
-app.post('/enviar_contato', async(req,res) => {
-  console.log("--- ROTA /ENVIAR_CONTATO FOI ATINGIDA ---");
-  console.log("Dados recebidos:", req.body);
+app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes); // Prefixo opcional
+app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes); // Prefixo opcional
 
-  const {nome,email,assunto} = req.body;
-  if(!nome || !email || !assunto )
-    return res.status(400).json({ success:false, mensage: 'Todos os campos são obrigatórios'
-  })
 
-    const mailOptions = {
-    from: process.env.EMAIL_USER, 
-    to: process.env.EMAIL_RECIPIENT || 'email.de.contato@nutriacao.com.br', 
-    subject: `[CONTATO SITE] - ${assunto.substring(0, 50)}...`, 
-    text: `Nome: ${nome}\nEmail: ${email}\n\nMensagem:\n${assunto}`,
-    replyTo: email, 
-    html: `
-        <h2>Nova Mensagem do Site NutriAção</h2>
-        <p><strong>Nome:</strong> ${nome}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <hr>
-        <p><strong>Mensagem:</strong> ${assunto.replace(/\n/g, '<br>')}</p>
-        `
-    };
-       try{
-          const info = await transporter.sendMail(mailOptions);
-          console.log('Mensagem Enviada: %s', info.messageId);
-          app.get("/", (req, res) => {
-            res.sendFile(path.join(publicPath, "pages", "homepage.html"));
-          });
-          return;
-        } catch (error) {
-            console.error("Erro ao enviar email:", error);
-            res.status(500).json({ success: false, message: 'Ops! Ocorreu um erro ao enviar sua mensagem.' });
+
+
+// Configuração do Nodemailer
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  secure: process.env.EMAIL_SECURE === 'true',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false 
+  }
+});
+
+// Rota de Contato
+app.post('/enviar-contato', async (req, res) => {
+  try {
+    const { email, assunto, descricao } = req.body;
+
+    if (!email || !assunto || !descricao) {
+      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
     }
 
-  });
+    console.log('Recebendo solicitação de contato de:', email);
 
+    const mailOptions = {
+      from: process.env.EMAIL_USER, 
+      to: process.env.EMAIL_RECIPIENT, 
+      replyTo: email,
+      subject: `[Contato NutriAção] - ${assunto}`,
+      
+      html: `
+        <h2>Nova Mensagem de Contato Recebida</h2>
+        <p><strong>De:</strong> ${email}</p>
+        <p><strong>Assunto:</strong> ${assunto}</p>
+        <hr>
+        <p><strong>Mensagem:</strong></p>
+        <p>${descricao}</p>
+      `,
+      
+      text: `Nova Mensagem de Contato Recebida\n\nDe: ${email}\nAssunto: ${assunto}\n\nMensagem:\n${descricao}`
+    };
+
+    // Envio do E-mail
+    await transporter.sendMail(mailOptions);
+
+    console.log('E-mail enviado com sucesso!');
+    res.status(200).json({ message: 'Mensagem enviada com sucesso!' });
+
+  } catch (error) {
+    console.error('Erro ao enviar o e-mail:', error);
+    res.status(500).json({ message: 'Erro ao enviar a mensagem. Tente novamente.', error: error.message });
+  }
+});
 
 // inicia o Servidor
 app.listen(PORT, () => {

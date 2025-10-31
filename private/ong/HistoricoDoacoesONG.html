@@ -19,35 +19,33 @@
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-                <li>
-                    <a href="/visualizacaoOngs.html">
-                        <i class="fas fa-building"></i> Visualizar ONGs
+               <li>
+                    <a href="/visualizacaoDoacoes.html">
+                        <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
                     </a>
                 </li>
-                
                 <li>
                     <a href="#" id="toggleGestao">
                         <i class="fas fa-map-marked-alt"></i> Mapa de Doações
                     </a>
                 </li>
+                
                 <li>
-                    <a href="/cadastrarExcedentes.html">
-                        <i class="fas fa-plus-circle"></i> Cadastrar Excedentes
+                    <a href="/minhasSolicitacoes.html" class="active">
+                        <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
                     </a>
                 </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas
-                    </a>
-                </li>
-                <li>
-                    <a href="/HistoricoDoacoesEmpresa.html" class="active">
+
+                 <li>
+                    <a href="/HistoricoDoacoesONG.html">
                         <i class="fas fa-history"></i> Histórico de Doações
                     </a>
                 </li>
+               
                 <li>
+                    
                     <a href="#">
-                        <i class="fas fa-chart-line"></i> Relatórios de Impacto
+                        <i class="fas fa-chart-line"></i> Relatórios de Consumo
                     </a>
                 </li>
                 <li>
@@ -92,18 +90,18 @@
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
+                        <input type="text" id="searchInputOng" placeholder="Pesquisar alimentos...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
                 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="doacoesTableEmpresa">
+                        <table id="doacoesTableOng">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Produto Doado</th>
+                                    <th>Produto Recebido</th>
                                     <th>Quantidade (Gramas)</th>
                                     
                                 </tr>
@@ -116,10 +114,10 @@
                     
                     <div class="pagination">
                         <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
-                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
+                            Total de Páginas: <span id="totalPaginasOng">2</span>
+                            | Itens encontrados: <span id="totalItensOng">10</span>
                         </div>
-                        <div class="pagination-controls" id="paginationControlsEmpresa">
+                        <div class="pagination-controls" id="paginationControlsOng">
                             <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
                             <button class="page-btn active" data-page="1">1</button>
                             <button class="page-btn" data-page="2">2</button>
