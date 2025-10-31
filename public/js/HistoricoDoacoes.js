@@ -1,10 +1,17 @@
 document.addEventListener('DOMContentLoaded', function() {
 
+let nomeUsuario = document.getElementById('textNomeUsuario')
+let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
     const res = await fetch('/api/usuario');
     const dados = await res.json();
+
+    
+
+    nomeUsuario.innerHTML = dados.nome
+    nomeInstituicao.innerHTML = dados.nomeInstituicao
 
     let email_usuario = dados.email;
     let tipo_usuario = dados.tipo;

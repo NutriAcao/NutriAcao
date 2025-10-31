@@ -34,6 +34,7 @@ const publicPath = path.join(__dirname, '..', 'public');
 app.use(express.urlencoded({ extended: true })); // Middleware para ler forms
 app.use(express.json()); // Middleware para ler JSON
 import { verificarToken } from './src/routes/authMiddleware.js';
+import { verificarEmpresa, verificarOng} from './src/routes/tipoAuthMiddleware.js'
 //Middleware para ler cookies
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
@@ -63,41 +64,45 @@ app.get('/api/usuario', verificarToken, (req, res) => {
 });
 
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
-app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
+app.get('/visualizacaoOngs.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'visualizacaoOngs.html'));
   
 })
 
-app.get('/cadastrarExcedentes.html', verificarToken, (req,res) => {
+app.get('/cadastrarExcedentes.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'cadastrarExcedentes.html'));
   
 })
-app.get('/HistoricoDoacoesEmpresa.html', verificarToken, (req,res) => {
+app.get('/HistoricoDoacoesEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
   
 })
-app.get('/suporteEmpresa.html', verificarToken, (req,res) => {
+app.get('/suporteEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'suporteEmpresa.html'));
   
 })
 
 
 // ==============ROTAS PROTEGIDAS PARA ONG====================
-app.get('/visualizacaoDoacoes.html', verificarToken, (req,res) => {
+app.get('/visualizacaoDoacoes.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'visualizacaoDoacoes.html'));
   
 })
-app.get('/minhasSolicitacoes.html', verificarToken, (req,res) => {
+app.get('/minhasSolicitacoes.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
   
 })
-app.get('/HistoricoDoacoesONG.html', verificarToken, (req,res) => {
+app.get('/HistoricoDoacoesONG.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'HistoricoDoacoesONG.html'));
   
 })
+app.get('/cadastrarDoacoesONG.html', verificarToken, verificarOng, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'cadastrarDoacoesONG.html'));
+  
+})
 
-app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes); // Prefixo opcional
-app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes); // Prefixo opcional
+app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
+app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
 
 
 

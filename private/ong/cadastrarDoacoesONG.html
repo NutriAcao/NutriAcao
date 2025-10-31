@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
   <title>Painel de Empresas - NutriAção</title>
   <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
+  <link rel="stylesheet" href="/styles/cadastrarExcedentes.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+  <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
@@ -30,8 +31,8 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
+                 <li>
+                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao" class="active">
                         <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
                     </a>
                 </li>
@@ -43,7 +44,7 @@
                 </li>
 
                  <li>
-                    <a href="/HistoricoDoacoesONG.html" class="active">
+                    <a href="/HistoricoDoacoesONG.html">
                         <i class="fas fa-history"></i> Histórico de Doações
                     </a>
                 </li>
@@ -76,8 +77,8 @@
         <main class="main-content">
             <div class="header">
                
-    
-                <h2>Histórico de Doações</h2> 
+
+                <h2>Cadastrar Doações</h2> 
                 <div class="user-info">
                     <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
                     <div>
@@ -85,54 +86,42 @@
                         <p id="textNomeInstituicao">ONG Fome Zero</p>
                     </div>
                 </div>
-            
-
-</div>
+        </div>
             
             <div class="card" id="historicoEmpresa">
-                <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInputOng" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
                 
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="doacoesTableOng">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Produto Recebido</th>
-                                    <th>Quantidade (Kilos)</th>
-                                    
-                                </tr>
-                            </thead>
-                            <tbody>
-                               
-                            </tbody>
-                        </table>
-                    </div>
+                
+                <main>
+<form id="form-cadastro-ong">
+<fieldset>
+                          <legend>Dados da Doação</legend>
+                          <label for="nome_alimento">Nome do produto requisitado:</label>
+                          <input type="text" id="nome_alimento" name="nome_alimento" placeholder="Ex: Arroz" required>
+                          
+                          <label for="quantidade">Quantidade em kg (Máximo de 500kg por doação):</label>
+                          <input type="number" id="quantidade" name="quantidade" placeholder="" required>
+                          
+                          
+                          <label for="telefone">Telefone para contato:</label>
+                          <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
+                          
+                          <label for="email">E-mail para contato:</label>
+                          <input type="email" id="email" name="email" placeholder="Ex: exemplo@gmail.com" required>
+                      </fieldset>
+
+                      <button type="submit" id="enviar">Adicionar item</button>
+                      </form>
+
+
+        </main>
                     
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasOng">2</span>
-                            | Itens encontrados: <span id="totalItensOng">10</span>
-                        </div>
-                        <div class="pagination-controls" id="paginationControlsOng">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 
-        </main>
-    </div>
 
     
-    <script src="/js/HistoricoDoacoes.js"></script>
+    
+    <script src="/js/cadastroDoacoesOng.js"></script>
 </body>
 </html>

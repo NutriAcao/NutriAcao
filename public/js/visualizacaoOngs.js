@@ -1,20 +1,28 @@
 // pesquisa de alimentos
 document.addEventListener('DOMContentLoaded', function() {
 
-//Essa função carrega os dados do usuário logado
-   async function carregarUsuario() {
-  try {
-    const res = await fetch('/api/usuario');
-    const dados = await res.json();
-    console.log(dados); // Aqui sim: dados reais do usuário
-  } catch (erro) {
-    console.error('Erro ao buscar usuário:', erro);
-  }
+    let nomeUsuario = document.getElementById('textNomeUsuario')
+    let nomeInstituicao = document.getElementById('textNomeInstituicao')
+    
+    
+    //Essa função carrega os dados do usuário logado
+    async function carregarUsuario() {
+        try {
+            const res = await fetch('/api/usuario');
+            const dados = await res.json();
+            
+            dadosUsuario = dados
+            
+            nomeUsuario.innerHTML = dadosUsuario.nome
+            nomeInstituicao.innerHTML = dadosUsuario.nomeInstituicao
+            
+            
+        } catch (erro) {
+            console.error('Erro ao buscar usuário:', erro);
+        }
 }
 
-carregarUsuario();
-
-
+carregarUsuario()
     
 
 

@@ -17,6 +17,11 @@ document.addEventListener('DOMContentLoaded', function() {
     let nomeInstituicao = dados.nomeInstituicao
     let nomeUsuario = dados.nome
     
+    let txtnomeUsuario = document.getElementById('textNomeUsuario')
+    let txtnomeInstituicao = document.getElementById('textNomeInstituicao')
+    
+    txtnomeUsuario.innerText = nomeUsuario
+    txtnomeInstituicao.innerText = nomeInstituicao
 
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
@@ -27,9 +32,3 @@ carregarUsuario();
 
 });
 
-
-let txtnomeUsuario = document.getElementById('textNomeUsuario')
-let txtnomeInstituicao = document.getElementById('textNomeInstituicao')
-
-txtnomeUsuario.innerText = nomeUsuario
-txtnomeInstituicao.innerText = nomeInstituicao
