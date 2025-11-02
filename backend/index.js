@@ -60,7 +60,7 @@ app.get('/loginpage', (req,res) => {
 })
 
 // Rota auxiliar para obter dados do usuário autenticado
-app.get('/api/usuario', verificarToken, (req, res) => {
+app.get('/api/usuarioToken', verificarToken, (req, res) => {
   res.json(req.usuario);
 });
 

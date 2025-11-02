@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', function() {
     //Essa função carrega os dados do usuário logado
     async function carregarUsuario() {
         try {
-            const res = await fetch('/api/usuario');
+            const res = await fetch('/api/usuarioToken');
             const dados = await res.json();
             
             dadosUsuario = dados
