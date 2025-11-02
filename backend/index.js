@@ -100,6 +100,10 @@ app.get('/cadastrarDoacoesONG.html', verificarToken, verificarOng, (req,res) => 
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'cadastrarDoacoesONG.html'));
   
 })
+app.get('/relatorioOng.html', verificarToken, verificarOng, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'relatorioOng.html'));
+  
+})
 
 app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);

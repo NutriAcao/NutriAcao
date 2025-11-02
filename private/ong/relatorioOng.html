@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
   <title>Painel de Empresas - NutriAção</title>
   <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link rel="stylesheet" href="/styles/cadastrarExcedentes.css">
+  <link rel="stylesheet" href="/styles/style-relatorio.css">
+  
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
@@ -32,7 +33,7 @@
                 </li>
 
                  <li>
-                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao" class="active">
+                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
                         <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
                     </a>
                 </li>
@@ -51,7 +52,7 @@
                
                 <li>
                     
-                    <a href="/relatorioOng.html">
+                    <a href="/relatorioOng.html" class="active">
                         <i class="fas fa-chart-line"></i> Relatórios de Consumo
                     </a>
                 </li>
@@ -77,8 +78,7 @@
         <main class="main-content">
             <div class="header">
                
-
-                <h2>Cadastrar Doações</h2> 
+<h2>Relatórios</h2> 
                 <div class="user-info">
                     <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
                     <div>
@@ -86,42 +86,60 @@
                         <p id="textNomeInstituicao">ONG Fome Zero</p>
                     </div>
                 </div>
+               
         </div>
             
-            <div class="card" id="historicoOng">
+            
                 
                 
-                <main>
-<form id="form-cadastro-ong">
-<fieldset>
-                          <legend>Dados da Doação</legend>
-                          <label for="nome_alimento">Nome do produto requisitado:</label>
-                          <input type="text" id="nome_alimento" name="nome_alimento" placeholder="Ex: Arroz" required>
-                          
-                          <label for="quantidade">Quantidade em kg (Máximo de 500kg por doação):</label>
-                          <input type="number" id="quantidade" name="quantidade" placeholder="" required>
-                          
-                          
-                          <label for="telefone">Telefone para contato:</label>
-                          <input type="tel" id="telefone" name="telefone" placeholder="(00) 00000-0000" required>
-                          
-                          <label for="email">E-mail para contato:</label>
-                          <input type="email" id="email" name="email" placeholder="Ex: exemplo@gmail.com" required>
-                      </fieldset>
+        <main>
+           
+    <section class="top-row" aria-label="Principais informações">
+      <article class="card" role="region" aria-labelledby="info1">
+        <div>
+          <h3 id="info1" class="label">Total em Doações (kg)</h3>
+          <div id="doacoesKg">1200</div>
+        </div>
+      </article>
 
-                      <button type="submit" id="enviar">Adicionar item</button>
-                      </form>
+      <article class="card" role="region" aria-labelledby="info2">
+        <div>
+          <h3 id="info2" class="label">Total de Empresas Contribuidoras</h3>
+          <div id="totalEmpresas">R$ 74.200</div>
+        </div>
+      </article>
 
+      <article class="card" role="region" aria-labelledby="info3">
+        <div>
+          <h3 id="info3" class="label">Doações Atendidas</h3>
+          <div id="doacoesAtendidas">3.8%</div>
+        </div>
+      </article>
+    </section>
+
+    <section class="charts" aria-label="Gráficos">
+      <div class="chart-box" aria-hidden="false">
+ 
+        <img src="grafico1.png" alt="Gráfico de usuários por dia" />
+        
+      </div>
+
+      <div class="chart-box" aria-hidden="false">
+       
+        <img src="grafico2.png" alt="Gráfico de receita por produto" />
+     
+      </div>
+    </section>
 
         </main>
                     
                     
-                </div>
+                
             </div>
 
 
     
     
-    <script src="/js/cadastroDoacoesOng.js"></script>
+    
 </body>
 </html>
