@@ -9,6 +9,7 @@ import './src/config/dbPool.js';
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
+import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import nodemailer from 'nodemailer'
 
 
@@ -44,6 +45,7 @@ app.use('/', testeBDRoute)
 app.use('/', dbRoutes); 
 app.use('/api/cadastro', cadastroRoutes)
 app.use('/api/login', login)
+app.use("/api", usuarioRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
@@ -59,6 +61,9 @@ app.get('/loginpage', (req,res) => {
 app.get('/api/usuario', verificarToken, (req, res) => {
   res.json(req.usuario);
 });
+
+
+
 
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
 app.get('/visualizacaoOngs.html', verificarToken, (req,res) => {
