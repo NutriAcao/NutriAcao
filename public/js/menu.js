@@ -1,4 +1,4 @@
-function initMenu() {
+export function initMenu() {
     const menuButton = document.getElementById('menu-button');
     const navMenu = document.getElementById('menu');
     const navLinks = document.querySelectorAll('#nav-list .nav-link, #nav-list .btn-login, #nav-list .btn-cadastro');

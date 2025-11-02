@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
   <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="../../styles/style-visualizacaoEmpresas.css">
+  <link rel="stylesheet" href="../styles/style-visualizarDoacoes.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
@@ -12,16 +12,16 @@
 </head>
 <body>
     <div class="container">
-        <div id="divSideLine"><img src="../assets/Logo-white.png" alt=""></div>
+        <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-               
+                
                 <li>
-                    <a href="visualizacaoDoacoes.html" class="active">
+                    <a href="/visualizacaoDoacoes.html" class="active">
                         <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
                     </a>
                 </li>
@@ -30,17 +30,26 @@
                         <i class="fas fa-map-marked-alt"></i> Mapa de Doações
                     </a>
                 </li>
-                
+
                 <li>
-                    <a href="minhasSolicitacoes.html">
-                        <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
+                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
+                        <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
                     </a>
                 </li>
                 
                 <li>
-                    
-                    <a href="#">
-                        <i class="fas fa-chart-line"></i> Relatórios de Consumo
+                    <a href="/minhasSolicitacoes.html">
+                        <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
+                    </a>
+                </li>
+                <li>
+                    <a href="/HistoricoDoacoesONG.html">
+                        <i class="fas fa-history"></i> Histórico de Doações
+                    </a>
+                </li>
+                <li>
+                    <a href="/relatorioOng.html">
+                        <i class="fas fa-chart-line"></i> Relatórios de Impacto
                     </a>
                 </li>
                 <li>
@@ -60,219 +69,85 @@
                 </li>
             </ul>
         </aside>
-        
-        <!-- Main Content -->
+
+        <!-- Conteúdo Principal -->
         <main class="main-content">
-            <div class="header">
-                <h2>Painel de Empresas</h2>
-                <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=Usuario&background=3498db&color=fff" alt="Usuário">
-                    <div>
-                        <h4>Magnata da Silva</h4>
-                        <p>Empresa ABC</p>
-                    </div>
+            <div class="page-header">
+                <h1><i class="fas fa-list-alt"></i> Visualizar Doações</h1>
+                <p>Acompanhe todas as doações de alimentos disponíveis</p>
+            </div>
+
+            <!-- Estatísticas -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalDoacoes">0</div>
+                    <div class="stat-label">Total de Doações</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="doacoesAtivas">0</div>
+                    <div class="stat-label">Doações Ativas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="kgDoados">0</div>
+                    <div class="stat-label">Kg Doados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="empresasParticipantes">0</div>
+                    <div class="stat-label">Empresas Participantes</div>
                 </div>
             </div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
+
+            <!-- Busca e Filtros -->
+            <div class="search-filters">
+                <div class="search-box">
+                    <input type="text" id="searchInput" placeholder="Pesquisar alimentos, empresas, etc...">
+                    <i class="fas fa-search search-icon"></i>
                 </div>
-                
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table id="doacoesTable">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Doação Disponivel</th>
-                                    <th>Quantidade (Gramas)</th>
-                                    <th>Empresa</th>
-                                    <th>CNPJ</th>
-                                    <th>Doações Realizadas</th>
-                                    <th>Status da Doação</th>
-                                    <th>Ver doação</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>1</td>
-                                    <td>Arroz Integral</td>
-                                    <td>50.000</td>
-                                    <td>Supermercado Preço Bom</td>
-                                    <td>12.345.678/0001-90</td>
-                                    <td>28</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>2</td>
-                                    <td>Feijão Carioca</td>
-                                    <td>25.000</td>
-                                    <td>Distribuidora Alimentar</td>
-                                    <td>23.456.789/0001-91</td>
-                                    <td>45</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>3</td>
-                                    <td>Macarrão Espaguete</td>
-                                    <td>15.000</td>
-                                    <td>Indústria Massas Finas</td>
-                                    <td>34.567.890/0001-92</td>
-                                    <td>32</td>
-                                    <td><span class="status pendente">Pendente</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>4</td>
-                                    <td>Óleo de Soja</td>
-                                    <td>10.000</td>
-                                    <td>Óleos Vegetais Ltda</td>
-                                    <td>45.678.901/0001-93</td>
-                                    <td>19</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>5</td>
-                                    <td>Açúcar Cristal</td>
-                                    <td>30.000</td>
-                                    <td>Doces e Açúcares S.A.</td>
-                                    <td>56.789.012/0001-94</td>
-                                    <td>37</td>
-                                    <td><span class="status concluida">Concluída</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>                                
-                                <tr>
-                                    <td>6</td>
-                                    <td>Farinha de Trigo</td>
-                                    <td>20.000</td>
-                                    <td>Moinho Farináceo</td>
-                                    <td>67.890.123/0001-95</td>
-                                    <td>41</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>                                
-                                <tr>
-                                    <td>7</td>
-                                    <td>Café em Grãos</td>
-                                    <td>8.000</td>
-                                    <td>Café Seleto Importadora</td>
-                                    <td>78.901.234/0001-96</td>
-                                    <td>23</td>
-                                    <td><span class="status pendente">Pendente</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>                                
-                                <tr>
-                                    <td>8</td>
-                                    <td>Leite em Pó</td>
-                                    <td>12.000</td>
-                                    <td>Laticínios Premium</td>
-                                    <td>89.012.345/0001-97</td>
-                                    <td>51</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>                                
-                                <tr>
-                                    <td>9</td>
-                                    <td>Extrato de Tomate</td>
-                                    <td>5.000</td>
-                                    <td>Conservas Naturais</td>
-                                    <td>90.123.456/0001-98</td>
-                                    <td>14</td>
-                                    <td><span class="status concluida">Concluída</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>                                
-                                <tr>
-                                    <td>10</td>
-                                    <td>Sal Refinado</td>
-                                    <td>7.000</td>
-                                    <td>Salinas do Litoral</td>
-                                    <td>01.234.567/0001-99</td>
-                                    <td>29</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>11</td>
-                                    <td>Sal Refinado</td>
-                                    <td>7.000</td>
-                                    <td>Salinas do Litoral</td>
-                                    <td>01.234.567/0001-99</td>
-                                    <td>29</td>
-                                    <td><span class="status ativa">Ativa</span></td>
-                                    <td>
-                                        <button class="">
-                                            <i class="fas fa-eye"></i> Ver
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginas">2</span>
-                            | Itens encontrados: <span id="totalItens">10</span>
-                        </div>
-                        <div class="pagination-controls">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                    </div>
+                <div class="filters-row">
+                    <select class="filter-select" id="filterStatus">
+                        <option value="">Todos os status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Andamento">Andamento</option>
+                        <option value="Concluído">Concluído</option>
+                    </select>
+                    <select class="filter-select" id="filterEmpresa">
+                        <option value="">Todas as empresas</option>
+                    </select>
+                    <select class="filter-select" id="filterOrdenacao">
+                        <option value="recentes">Mais recentes</option>
+                        <option value="antigos">Mais antigos</option>
+                        <option value="quantidade">Maior quantidade</option>
+                    </select>
                 </div>
+            </div>
+
+            <!-- Tabela de Doações -->
+            <div class="table-container">
+                <table class="doacoes-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Doação Disponível</th>
+                            <th>Quantidade (kg)</th>
+                            <th>Empresa</th>
+                            <th>CNEA</th>
+                            <th>Doações Realizadas</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- Dados carregados via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginação -->
+            <div class="pagination" id="pagination">
+                <!-- Paginação gerada via JavaScript -->
             </div>
         </main>
-    </div>
-
-    <script src="../js/visualizacaoOngs.js"></script>
-</body>
+    </div> 
+   </body>
+    <script src="/js/visualizacaoDoacoes.js"></script>
 </html>
