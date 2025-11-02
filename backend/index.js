@@ -9,9 +9,9 @@ import './src/config/dbPool.js';
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
+import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import nodemailer from 'nodemailer'
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
-
 
 
 
@@ -47,6 +47,7 @@ app.use('/', testeBDRoute)
 app.use('/', dbRoutes); 
 app.use('/api/cadastro', cadastroRoutes)
 app.use('/api/login', login)
+app.use("/api", usuarioRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
@@ -63,6 +64,9 @@ app.get('/api/usuario', verificarToken, (req, res) => {
   res.json(req.usuario);
 });
 
+
+
+
 // ==============ROTAS PROTEGIDAS PARA EMPRESA====================
 app.get('/visualizacaoOngs.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'visualizacaoOngs.html'));
@@ -75,6 +79,10 @@ app.get('/cadastrarExcedentes.html', verificarToken, verificarEmpresa, (req,res)
 })
 app.get('/HistoricoDoacoesEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
+  
+})
+app.get('/minhaContaEmpresa.html', verificarToken, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'minhaContaEmpresa.html'));
   
 })
 app.get('/suporteEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
@@ -90,7 +98,6 @@ app.get('/visualizacaoDoacoes.html', verificarToken, verificarOng, (req,res) => 
 })
 app.get('/minhasSolicitacoes.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhasSolicitacoes.html'));
-  
 })
 app.get('/HistoricoDoacoesONG.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'HistoricoDoacoesONG.html'));
