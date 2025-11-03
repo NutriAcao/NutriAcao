@@ -12,7 +12,7 @@ import testeBDRoute from './src/routes/testeBDRoute.js';
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
-
+import rateLimit from 'express-rate-limit';
 
 
 // configuração de Variáveis
@@ -23,11 +23,22 @@ const PORT = process.env.PORT || 5501;
 const DATABASE_URL = process.env.DATABASE_URL;
 sgMail.setApiKey(process.env.EMAIL_RENDER_SENDGRID_KEY);
 
-// checagem de Erro Essencial
+// checagem de Erro
 if (!DATABASE_URL) {
     console.error('ERRO FATAL: DATABASE_URL não está configurada...');
     process.exit(1); 
 }
+
+const contactLimiter = rateLimit({
+  windowMs: 30 * 60 * 1000,
+  max: 5,
+  message: {
+    message: "Muitas requisições desta origem. Tente novamente após 30 minutos.",
+    status: 429
+  },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
 
 // inicializa o Express
 const app = express();
@@ -122,15 +133,13 @@ app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
 
 
 // Rota de Contato
-app.post('/enviar-contato', async (req, res) => {
+app.post('/enviar-contato',contactLimiter, async (req, res) => {
   try {
-    // Certifique-se de que os campos nome, email, assunto, descricao estão sendo enviados corretamente
     const { nome, email, assunto, descricao } = req.body; 
 
-    // O objeto de mensagem do SendGrid
     const msg = {
-      to: process.env.EMAIL_RECIPIENT, // Seu e-mail de destino
-      from: process.env.EMAIL_REMETENTE, // Seu e-mail verificado no SendGrid
+      to: process.env.EMAIL_RECIPIENT,
+      from: process.env.EMAIL_REMETENTE,
       subject: `[Contato NutriAção] - ${assunto || 'Mensagem de Suporte'}`,
       html: `
         <h2>Nova Mensagem de Contato Recebida</h2>
@@ -149,7 +158,6 @@ app.post('/enviar-contato', async (req, res) => {
 
   } catch (error) {
     console.error('Erro ao enviar e-mail via SendGrid:', error);
-    // Retorna a mensagem de erro que o frontend estava pegando
     res.status(500).json({ message: 'Erro ao enviar a mensagem. Tente novamente.' }); 
   }
 });
