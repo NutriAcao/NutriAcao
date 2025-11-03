@@ -145,7 +145,7 @@ app.post('/enviar-contato', async (req, res) => {
 
     await sgMail.send(msg);
 
-    res.status(200).json({ message: 'Mensagem enviada com sucesso!' });
+    res.status(200).json({ message: 'Mensagem enviada com sucesso! Responderemos em até 3 dias úteis, lembre-se de verificar a caixa de Spam' });
 
   } catch (error) {
     console.error('Erro ao enviar e-mail via SendGrid:', error);
