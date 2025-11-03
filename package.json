@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/amoras1601/NutriAcao#readme",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.6",
     "@supabase/supabase-js": "^2.74.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",

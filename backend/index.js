@@ -10,7 +10,7 @@ import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
 import testeBDRoute from './src/routes/testeBDRoute.js';
 import usuarioRoutes from "./src/routes/usuarioRoutes.js";
-import nodemailer from 'nodemailer'
+import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 
 
@@ -21,6 +21,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 5501; 
 const DATABASE_URL = process.env.DATABASE_URL;
+sgMail.setApiKey(process.env.EMAIL_RENDER_SENDGRID_KEY);
 
 // checagem de Erro Essencial
 if (!DATABASE_URL) {
@@ -116,60 +117,36 @@ app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
 
 
-
-
-// Configuração do Nodemailer
-const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST,
-  port: process.env.EMAIL_PORT,
-  secure: process.env.EMAIL_SECURE === 'true',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false 
-  }
-});
-
 // Rota de Contato
 app.post('/enviar-contato', async (req, res) => {
   try {
-    const { email, assunto, descricao } = req.body;
+    // Certifique-se de que os campos nome, email, assunto, descricao estão sendo enviados corretamente
+    const { nome, email, assunto, descricao } = req.body; 
 
-    if (!email || !assunto || !descricao) {
-      return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
-    }
-
-    console.log('Recebendo solicitação de contato de:', email);
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER, 
-      to: process.env.EMAIL_RECIPIENT, 
-      replyTo: email,
-      subject: `[Contato NutriAção] - ${assunto}`,
-      
+    // O objeto de mensagem do SendGrid
+    const msg = {
+      to: process.env.EMAIL_RECIPIENT, // Seu e-mail de destino
+      from: process.env.EMAIL_REMETENTE, // Seu e-mail verificado no SendGrid
+      subject: `[Contato NutriAção] - ${assunto || 'Mensagem de Suporte'}`,
       html: `
         <h2>Nova Mensagem de Contato Recebida</h2>
+        <p><strong>Nome:</strong> ${nome}</p>
         <p><strong>De:</strong> ${email}</p>
         <p><strong>Assunto:</strong> ${assunto}</p>
         <hr>
         <p><strong>Mensagem:</strong></p>
         <p>${descricao}</p>
       `,
-      
-      text: `Nova Mensagem de Contato Recebida\n\nDe: ${email}\nAssunto: ${assunto}\n\nMensagem:\n${descricao}`
     };
 
-    // Envio do E-mail
-    await transporter.sendMail(mailOptions);
+    await sgMail.send(msg);
 
-    console.log('E-mail enviado com sucesso!');
     res.status(200).json({ message: 'Mensagem enviada com sucesso!' });
 
   } catch (error) {
-    console.error('Erro ao enviar o e-mail:', error);
-    res.status(500).json({ message: 'Erro ao enviar a mensagem. Tente novamente.', error: error.message });
+    console.error('Erro ao enviar e-mail via SendGrid:', error);
+    // Retorna a mensagem de erro que o frontend estava pegando
+    res.status(500).json({ message: 'Erro ao enviar a mensagem. Tente novamente.' }); 
   }
 });
 
