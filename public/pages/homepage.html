@@ -305,17 +305,22 @@
       </div>
     </section>
     <section class="contact" id="contact">
-        <form action="/enviar_contato" method="POST" class="contact-container"> 
-            <img src="/../assets/logo-blue.png" alt="">
-            <div class="center-container">
-                <h1>CONTATE-NOS</h1>
-                <input type="text" name="nome" placeholder="Digite seu nome" required>
-                <input type="email" name="email" placeholder="Digite um email valido" required>
-                <textarea name="assunto" placeholder="Assunto/Mensagem" id="contact-subject" rows="5" required></textarea>
-                <button type="submit">Enviar</button>
-            </div>
-            </form>
-    </section>
+        <form id="contactForm" class="contact-container"> 
+          <img src="/../assets/logo-blue.png" alt="">
+          <div class="center-container">
+              <h1>CONTATE-NOS</h1>
+              <input type="text" name="nome" placeholder="Digite seu nome" required>
+              <input type="email" name="email" placeholder="Digite um email valido" required>
+              
+              <input type="text" name="assunto" placeholder="Assunto do Contato" required>
+              <textarea name="descricao" placeholder="Sua Mensagem" id="contact-subject" rows="5" required></textarea>
+              
+              <button type="submit">Enviar</button>
+              
+              <p id="feedbackMessage" style="margin-top: 15px; font-weight: bold;"></p>
+          </div>
+       </form>
+      </section>
   </main>
 
   <footer>
@@ -331,6 +336,8 @@
 <script type="module" src="/js/ongs.js"></script>
 <script type="module" src="/js/map.js"></script>
 <script src="/js/main.js"></script>
+<script src="/js/suporte.js"></script>
+
 
 </body>
 </html>
