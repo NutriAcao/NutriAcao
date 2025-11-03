@@ -18,9 +18,10 @@
 - **dotenv**
 - **bcrypt**
 - **Render**
+- **SendGrid**
 
 ## 🔗 Acesse o site
-- **Acesse a página:** https://nutriacao.onrender.com/pages/homepage.html
+- **Acesse a página:** https://nutriacao.onrender.com
 
 ## 🔗 Infraestrutura & Integração
 
@@ -36,7 +37,9 @@ Este projeto é um sistema *full-stack*.
 
 ###  é necessário possuir o Node.js
 
-1. Clone o repositório:
+1.  Execute no terminal: npm install
+2.  Clone o repositório:
    ```bash
       git clone https://github.com/NutriAcao/NutriAcao.git
+
   
