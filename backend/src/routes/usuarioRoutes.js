@@ -1,35 +1,39 @@
+// src/routes/usuarioRoutes.js
 import express from "express";
 import { verificarToken } from "./authMiddleware.js";
-import { buscarUsuarioPorId } from "../model/minhaContaEmpresaModel.js";
+import { buscarUsuarioPorId, atualizarResponsavelEmpresa } from "../model/minhaContaEmpresaModel.js";
 
 const router = express.Router();
 
-/**
- * Rota protegida para retornar os dados completos do usuário logado
- */
+
 router.get("/usuario", verificarToken, async (req, res) => {
   try {
     const { id, tipo } = req.usuario;
 
-    if (!id || !tipo) {
+    if (!id || !tipo)
       return res.status(400).json({ success: false, message: "Token inválido." });
-    }
 
     const dados = await buscarUsuarioPorId(id, tipo);
-
-    if (!dados) {
+    if (!dados)
       return res.status(404).json({ success: false, message: "Usuário não encontrado." });
-    }
 
-    return res.json({
-      success: true,
-      message: "Dados do usuário retornados com sucesso.",
-      data: dados
-    });
-
+    res.json({ success: true, message: "Dados retornados com sucesso.", data: dados });
   } catch (erro) {
     console.error("Erro ao buscar usuário:", erro);
-    return res.status(500).json({ success: false, message: "Erro interno ao buscar dados." });
+    res.status(500).json({ success: false, message: "Erro interno no servidor." });
+  }
+});
+
+router.put("/usuario", verificarToken, async (req, res) => {
+  try {
+    const userId = req.usuario.id;
+
+    await atualizarResponsavelEmpresa(userId, req.body);
+
+    res.status(200).json({ success: true, message: "Dados atualizados com sucesso!" });
+  } catch (erro) {
+    console.error("Erro ao atualizar usuário:", erro);
+    res.status(400).json({ success: false, message: erro.message });
   }
 });
 

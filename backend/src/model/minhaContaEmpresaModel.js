@@ -1,27 +1,18 @@
+// src/model/minhaContaEmpresaModel.js
 import { supabase } from "../config/supabaseClient.js";
 
 /**
- * Busca os dados completos da empresa pelo ID
- * @param {number} 
- * @returns {object|null} 
+ * Buscar usuário por ID e tipo (empresa ou ong)
  */
-export async function buscarEmpresaPorId(id) {
+export async function buscarUsuarioPorId(id, tipo) {
   const { data, error } = await supabase
-    .from('empresa')
-    .select(`
-      id,
-      email,
-      nome_responsavel_empresa,
-      cpf_responsavel_empresa,
-      cargo_responsavel_empresa,
-      email_responsavel_empresa,
-      telefone_responsavel_empresa
-    `)
-    .eq('id', id)
+    .from(tipo)
+    .select("*")
+    .eq("id", id)
     .single();
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Erro ao buscar empresa:', error);
+  if (error) {
+    console.error("Erro ao buscar usuário:", error);
     return null;
   }
 
@@ -29,46 +20,18 @@ export async function buscarEmpresaPorId(id) {
 }
 
 /**
- * Busca os dados completos da ONG pelo ID
-*/
-export async function buscarOngPorId(id) {
-  const { data, error } = await supabase
-    .from('ong')
-    .select(`
-      id,
-      email,
-      nome_responsavel_ong,
-      cpf_responsavel_ong,
-      cargo_responsavel_ong,
-      email_responsavel_ong,
-      telefone_responsavel_ong
-    `)
-    .eq('id', id)
-    .single();
+ * Atualizar informações do responsável da empresa
+ */
+export async function atualizarResponsavelEmpresa(id, novosDados) {
+  const { error } = await supabase
+    .from("empresa")
+    .update(novosDados)
+    .eq("id", id);
 
-  if (error && error.code !== 'PGRST116') {
-    console.error('Erro ao buscar ONG:', error);
-    return null;
+  if (error) {
+    console.error("Erro ao atualizar responsável:", error);
+    throw error;
   }
 
-  return data;
-}
-
-/**
- * Função genérica — tenta buscar tanto empresa quanto ONG
- * @param {number} id - ID do usuário
- * @param {string} tipo - "empresa" ou "ong"
- */
-export async function buscarUsuarioPorId(id, tipo = null) {
-  if (tipo === 'empresa') return buscarEmpresaPorId(id);
-  if (tipo === 'ong') return buscarOngPorId(id);
-
-  // tenta nas duas tabelas
-  const empresa = await buscarEmpresaPorId(id);
-  if (empresa) return { ...empresa, tipo: 'empresa' };
-
-  const ong = await buscarOngPorId(id);
-  if (ong) return { ...ong, tipo: 'ong' };
-
-  return null;
+  return true;
 }
