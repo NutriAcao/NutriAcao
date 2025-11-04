@@ -1,14 +1,16 @@
 document.addEventListener("DOMContentLoaded", async () => {
   try {
+    const token = localStorage.getItem("token");
+
     const res = await fetch("/api/usuario", {
       method: "GET",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
       }
     });
 
     const resposta = await res.json();
-    console.log("Resposta completa:", resposta);
 
     if (!resposta.success) {
       alert("Erro: " + resposta.message);
@@ -16,22 +18,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const dados = resposta.data;
+    window.dadosEmpresa = dados; // Armazena para uso posterior
 
-    // Preenche os dados na tela
-    document.getElementById("email").textContent = dados.email;
+    // Dados do responsável
     document.getElementById("nome").textContent = dados.nome_responsavel_empresa || "Não informado";
-    document.getElementById("cpf").textContent = dados.cpf_responsavel_empresa || "Não informado";
     document.getElementById("cargo").textContent = dados.cargo_responsavel_empresa || "Não informado";
+    document.getElementById("cpf").textContent = dados.cpf_responsavel_empresa || "Não informado";
     document.getElementById("emailResp").textContent = dados.email_responsavel_empresa || "Não informado";
     document.getElementById("telefone").textContent = dados.telefone_responsavel_empresa || "Não informado";
 
-    window.dadosEmpresa = dados;
+    // Dados da empresa
+    document.getElementById("nomeEmpresa").textContent = dados.nome || "Não informado";
+    document.getElementById("cnpj").textContent = dados.cnpj || "Não informado";
+    document.getElementById("enderecoEmpresa").textContent = dados.endereco || "Não informado";
+    document.getElementById("emailContato").textContent = dados.email || "Não informado";
+    document.getElementById("telefoneComercial").textContent = dados.telefone || "Não informado";
+
+    // Dados de segurança / login
+    document.getElementById("email").textContent = dados.email || "Não informado";
+
   } catch (erro) {
     console.error("Erro ao buscar usuário:", erro);
   }
 });
 
-// Elementos principais do modal
+
 const modal = document.getElementById("modal-edicao");
 const modalTitulo = document.getElementById("modal-titulo");
 const formEdicao = document.getElementById("form-edicao");
@@ -39,7 +50,10 @@ const btnFechar = document.querySelector(".close");
 const btnCancelar = document.getElementById("cancelar-edicao");
 const btnSalvar = document.getElementById("salvar-edicao");
 
-// Abrir modal ao clicar no botão
+// Fechar modal
+btnFechar.addEventListener("click", () => (modal.style.display = "none"));
+btnCancelar.addEventListener("click", () => (modal.style.display = "none"));
+
 document.getElementById("editar-informacoes").addEventListener("click", () => {
   const dados = window.dadosEmpresa;
 
@@ -62,110 +76,101 @@ document.getElementById("editar-informacoes").addEventListener("click", () => {
   `;
 
   modal.style.display = "flex";
-});
 
-// Fechar modal
-btnFechar.addEventListener("click", () => modal.style.display = "none");
-btnCancelar.addEventListener("click", () => modal.style.display = "none");
-
-// Salvar alterações
-btnSalvar.addEventListener("click", async () => {
-  const payload = {
-    nome_responsavel_empresa: document.getElementById("nome-editar").value,
-    cpf_responsavel_empresa: document.getElementById("cpf-editar").value,
-    cargo_responsavel_empresa: document.getElementById("cargo-editar").value,
-    email_responsavel_empresa: document.getElementById("emailResp-editar").value,
-    telefone_responsavel_empresa: document.getElementById("telefone-editar").value
-  };
-
-  try {
-    const res = await fetch("/api/usuario", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
-
-    const resposta = await res.json();
-
-    if (resposta.success) {
-      alert("Informações atualizadas com sucesso!");
-      modal.style.display = "none";
-      location.reload();
-    } else {
-      alert("Erro ao atualizar: " + resposta.message);
-    }
-  } catch (erro) {
-    console.error("Erro ao salvar alterações:", erro);
-  }
-});
-
-document.getElementById("atualizar-contato").addEventListener("click", async () => {
-  const modal = document.getElementById("modal-edicao");
-  const form = document.getElementById("form-edicao");
-  const titulo = document.getElementById("modal-titulo");
-
-  // muda o título
-  titulo.textContent = "Atualizar Dados de Contato da Empresa";
-
-  // conteúdo do formulário
-  form.innerHTML = `
-    <div class="form-group">
-      <label for="email_responsavel_empresa">E-mail corporativo:</label>
-      <input type="email" id="email_responsavel_empresa" name="email_responsavel_empresa" required>
-    </div>
-    <div class="form-group">
-      <label for="telefone_responsavel_empresa">Telefone:</label>
-      <input type="text" id="telefone_responsavel_empresa" name="telefone_responsavel_empresa" required>
-    </div>
-  `;
-
-  // exibe o modal
-  modal.style.display = "block";
-
-  // fecha o modal
-  document.querySelector(".close").onclick = () => modal.style.display = "none";
-  document.getElementById("cancelar-edicao").onclick = () => modal.style.display = "none";
-
-  // evento do botão "Salvar"
-  document.getElementById("salvar-edicao").onclick = async (event) => {
-    event.preventDefault();
-
-    const email = document.getElementById("email_responsavel_empresa").value;
-    const telefone = document.getElementById("telefone_responsavel_empresa").value;
-
-    if (!email || !telefone) {
-      alert("Preencha todos os campos!");
-      return;
-    }
+  // Salvar alterações
+  btnSalvar.onclick = async () => {
+    const payload = {
+      nome_responsavel_empresa: document.getElementById("nome-editar").value,
+      cpf_responsavel_empresa: document.getElementById("cpf-editar").value,
+      cargo_responsavel_empresa: document.getElementById("cargo-editar").value,
+      email_responsavel_empresa: document.getElementById("emailResp-editar").value,
+      telefone_responsavel_empresa: document.getElementById("telefone-editar").value
+    };
 
     try {
       const token = localStorage.getItem("token");
-
-      const resposta = await fetch("/api/empresa/contato", {
+      const res = await fetch("/api/usuario", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`
         },
-        body: JSON.stringify({
-          email_responsavel_empresa: email,
-          telefone_responsavel_empresa: telefone
-        })
+        body: JSON.stringify(payload)
       });
 
-      const dados = await resposta.json();
+      const resposta = await res.json();
 
-      if (dados.success) {
-        alert("Dados de contato atualizados com sucesso!");
+      if (resposta.success) {
+        alert("Informações do responsável atualizadas com sucesso!");
         modal.style.display = "none";
         location.reload();
       } else {
-        alert("Erro: " + dados.message);
+        alert("Erro ao atualizar: " + resposta.message);
       }
-
     } catch (erro) {
-      console.error("Erro ao atualizar contato:", erro);
-      alert("Erro ao atualizar contato da empresa.");
+      console.error("Erro ao salvar alterações:", erro);
+      alert("Erro ao atualizar informações do responsável.");
+    }
+  };
+});
+
+
+document.getElementById("atualizar-contato").addEventListener("click", () => {
+  const dados = window.dadosEmpresa;
+
+  modalTitulo.textContent = "Atualizar Dados de Contato da Empresa";
+  formEdicao.innerHTML = `
+    <label>Nome da Empresa:</label>
+    <input type="text" id="nomeEmpresa-editar" value="${dados.nome || ""}" required>
+
+    <label>CNPJ:</label>
+    <input type="text" id="cnpj-editar" value="${dados.cnpj || ""}" required>
+
+    <label>Endereço:</label>
+    <input type="text" id="endereco-editar" value="${dados.endereco || ""}" required>
+
+    <label>E-mail de Contato:</label>
+    <input type="email" id="emailContato-editar" value="${dados.email || ""}" required>
+
+    <label>Telefone Comercial:</label>
+    <input type="text" id="telefoneComercial-editar" value="${dados.telefone || ""}" required>
+  `;
+
+  modal.style.display = "flex";
+
+  // Salvar alterações
+  btnSalvar.onclick = async () => {
+    const payload = {
+      nome: document.getElementById("nomeEmpresa-editar").value,
+      cnpj: document.getElementById("cnpj-editar").value,
+      endereco: document.getElementById("endereco-editar").value,
+      email: document.getElementById("emailContato-editar").value,
+      telefone: document.getElementById("telefoneComercial-editar").value
+    };
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/empresa", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const resposta = await res.json();
+
+      if (resposta.success) {
+        alert("Dados da empresa atualizados com sucesso!");
+        modal.style.display = "none";
+        location.reload();
+      } else {
+        alert("Erro ao atualizar: " + resposta.message);
+      }
+    } catch (erro) {
+      console.error("Erro ao atualizar dados da empresa:", erro);
+      alert("Erro ao atualizar dados da empresa.");
     }
   };
 });
