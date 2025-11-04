@@ -1,5 +1,4 @@
 // backend/src/routes/dbRoutes.js
-// VERSÃO FINAL CORRIGIDA (Baseada nos esquemas CREATE TABLE)
 
 import { Router } from 'express';
 import { pool } from '../config/dbPool.js'; 
@@ -193,3 +192,4 @@ router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (r
 });
 
 export default router;
+//commit teste
