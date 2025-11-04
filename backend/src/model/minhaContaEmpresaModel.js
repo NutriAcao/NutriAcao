@@ -35,3 +35,22 @@ export async function atualizarResponsavelEmpresa(id, novosDados) {
 
   return true;
 }
+
+export async function atualizarContatoEmpresa(id, dados) {
+  const { email_responsavel_empresa, telefone_responsavel_empresa } = dados;
+
+  const { error } = await supabase
+    .from("empresa")
+    .update({
+      email_responsavel_empresa,
+      telefone_responsavel_empresa
+    })
+    .eq("id", id);
+
+  if (error) {
+    console.error("Erro no Supabase (atualizarContatoEmpresa):", error);
+    throw new Error("Erro ao atualizar dados de contato da empresa.");
+  }
+
+  return true;
+}

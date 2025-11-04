@@ -1,7 +1,7 @@
 // src/routes/usuarioRoutes.js
 import express from "express";
 import { verificarToken } from "./authMiddleware.js";
-import { buscarUsuarioPorId, atualizarResponsavelEmpresa } from "../model/minhaContaEmpresaModel.js";
+import { buscarUsuarioPorId, atualizarResponsavelEmpresa, atualizarContatoEmpresa } from "../model/minhaContaEmpresaModel.js";
 
 const router = express.Router();
 
@@ -33,6 +33,20 @@ router.put("/usuario", verificarToken, async (req, res) => {
     res.status(200).json({ success: true, message: "Dados atualizados com sucesso!" });
   } catch (erro) {
     console.error("Erro ao atualizar usuário:", erro);
+    res.status(400).json({ success: false, message: erro.message });
+  }
+});
+
+router.put("/empresa/contato", verificarToken, async (req, res) => {
+  try {
+    const userId = req.usuario.id;
+
+    // chama a função do model (você criará logo abaixo)
+    await atualizarContatoEmpresa(userId, req.body);
+
+    res.status(200).json({ success: true, message: "Dados de contato atualizados com sucesso!" });
+  } catch (erro) {
+    console.error("Erro ao atualizar contato da empresa:", erro);
     res.status(400).json({ success: false, message: erro.message });
   }
 });

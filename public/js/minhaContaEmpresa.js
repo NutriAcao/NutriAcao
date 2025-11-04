@@ -98,3 +98,74 @@ btnSalvar.addEventListener("click", async () => {
     console.error("Erro ao salvar alterações:", erro);
   }
 });
+
+document.getElementById("atualizar-contato").addEventListener("click", async () => {
+  const modal = document.getElementById("modal-edicao");
+  const form = document.getElementById("form-edicao");
+  const titulo = document.getElementById("modal-titulo");
+
+  // muda o título
+  titulo.textContent = "Atualizar Dados de Contato da Empresa";
+
+  // conteúdo do formulário
+  form.innerHTML = `
+    <div class="form-group">
+      <label for="email_responsavel_empresa">E-mail corporativo:</label>
+      <input type="email" id="email_responsavel_empresa" name="email_responsavel_empresa" required>
+    </div>
+    <div class="form-group">
+      <label for="telefone_responsavel_empresa">Telefone:</label>
+      <input type="text" id="telefone_responsavel_empresa" name="telefone_responsavel_empresa" required>
+    </div>
+  `;
+
+  // exibe o modal
+  modal.style.display = "block";
+
+  // fecha o modal
+  document.querySelector(".close").onclick = () => modal.style.display = "none";
+  document.getElementById("cancelar-edicao").onclick = () => modal.style.display = "none";
+
+  // evento do botão "Salvar"
+  document.getElementById("salvar-edicao").onclick = async (event) => {
+    event.preventDefault();
+
+    const email = document.getElementById("email_responsavel_empresa").value;
+    const telefone = document.getElementById("telefone_responsavel_empresa").value;
+
+    if (!email || !telefone) {
+      alert("Preencha todos os campos!");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      const resposta = await fetch("/api/empresa/contato", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          email_responsavel_empresa: email,
+          telefone_responsavel_empresa: telefone
+        })
+      });
+
+      const dados = await resposta.json();
+
+      if (dados.success) {
+        alert("Dados de contato atualizados com sucesso!");
+        modal.style.display = "none";
+        location.reload();
+      } else {
+        alert("Erro: " + dados.message);
+      }
+
+    } catch (erro) {
+      console.error("Erro ao atualizar contato:", erro);
+      alert("Erro ao atualizar contato da empresa.");
+    }
+  };
+});
