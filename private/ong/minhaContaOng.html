@@ -3,29 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Minha Conta - NutriAção</title>
+    <title>Minha Conta - ONG</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    <link rel="stylesheet" href="/styles/minhaContaEmpresa.css">
+    <link rel="stylesheet" href="/styles/minhaContaOng.css">
 </head>
 <body>
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
+        
         <!-- Barra lateral -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-                <li><a href="/visualizacaoOngs.html"><i class="fas fa-building"></i> Visualizar ONGs</a></li>
-                <li><a href="/cadastrarExcedentes.html"><i class="fas fa-plus-circle"></i> Cadastrar Excedentes</a></li>
-                <li><a href="#"><i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas</a></li>
-                <li><a href="/HistoricoDoacoesEmpresa.html"><i class="fas fa-history"></i> Histórico de Doações</a></li>
+                <li><a href="/visualizacaoEmpresas.html"><i class="fas fa-building"></i> Visualizar Empresas</a></li>
+                <li><a href="/solicitarDoacao.html"><i class="fas fa-hand-holding-heart"></i> Solicitar Doações</a></li>
+                <li><a href="#"><i class="fas fa-box"></i> Minhas Solicitações</a></li>
+                <li><a href="/HistoricoDoacoesOng.html"><i class="fas fa-history"></i> Histórico de Doações</a></li>
                 <li><a href="#"><i class="fas fa-chart-line"></i> Relatórios de Impacto</a></li>
-                <li><a href="/minhaContaEmpresa.html" class="active"><i class="fas fa-user-circle"></i> Minha Conta</a></li>
-                <li><a href="/suporteEmpresa.html"><i class="fas fa-headset"></i> Suporte</a></li>
+                <li><a href="/minhaContaOng.html" class="active"><i class="fas fa-user-circle"></i> Minha Conta</a></li>
+                <li><a href="/suporteOng.html"><i class="fas fa-headset"></i> Suporte</a></li>
                 <li><a href="#"><i class="fas fa-question-circle"></i> Ajuda / FAQ</a></li>
             </ul>
         </aside>
@@ -34,11 +34,12 @@
         <main class="main-content">
             <div class="page-header">
                 <h2>Minha Conta</h2>
-                <p>Gerencie as informações do responsável e da sua empresa</p>
+                <p>Gerencie as informações do responsável e da sua ONG</p>
             </div>
 
             <div class="account-sections">
 
+                <!-- Dados do Responsável -->
                 <section class="account-section">
                     <div class="section-header">
                         <h3>Dados do Responsável</h3>
@@ -46,61 +47,71 @@
                     <div class="section-content">
                         <div class="info-item">
                             <span class="label">Nome do responsável:</span>
-                            <span class="value" id="nome"></span>
+                            <span class="value" id="nomeResponsavel"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">Cargo:</span>
-                            <span class="value" id="cargo"></span>
+                            <span class="value" id="cargoResponsavel"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">CPF:</span>
-                            <span class="value" id="cpf"></span>
+                            <span class="value" id="cpfResponsavel"></span>
                         </div>
                         <div class="info-item">
-                            <span class="label">E-mail corporativo:</span>
-                            <span class="value" id="emailResp"></span>
+                            <span class="label">E-mail do responsável:</span>
+                            <span class="value" id="emailResponsavel"></span>
                         </div>
                         <div class="info-item">
-                            <span class="label">Telefone:</span>
-                            <span class="value" id="telefone"></span>
+                            <span class="label">Telefone do responsável:</span>
+                            <span class="value" id="telefoneResponsavel"></span>
                         </div>
                         <div class="action-item">
-                            <button class="btn-action" id="editar-informacoes">Editar informações do responsável</button>
+                            <button class="btn-action" id="editar-responsavel">Editar informações do responsável</button>
                         </div>
                     </div>
                 </section>
 
+                <!-- Dados da ONG -->
                 <section class="account-section">
                     <div class="section-header">
-                        <h3>Dados da Empresa</h3>
+                        <h3>Dados da ONG</h3>
                     </div>
                     <div class="section-content">
                         <div class="info-item">
-                            <span class="label">Nome da empresa:</span>
-                            <span class="value" id="nomeEmpresa"></span>
+                            <span class="label">Nome da ONG:</span>
+                            <span class="value" id="nomeOng"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">CNPJ:</span>
-                            <span class="value" id="cnpj"></span>
+                            <span class="value" id="cnpjOng"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Área de Atuação:</span>
+                            <span class="value" id="areaAtuacao"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">Endereço:</span>
-                            <span class="value" id="enderecoEmpresa"></span>
+                            <span class="value" id="enderecoOng"></span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">CEP:</span>
+                            <span class="value" id="cepOng"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">E-mail de contato:</span>
-                            <span class="value" id="emailContato"></span>
+                            <span class="value" id="emailOng"></span>
                         </div>
                         <div class="info-item">
                             <span class="label">Telefone de contato:</span>
-                            <span class="value" id="telefoneComercial"></span>
+                            <span class="value" id="telefoneOng"></span>
                         </div>
                         <div class="action-item">
-                            <button class="btn-action" id="atualizar-contato">Atualizar dados da empresa</button>
+                            <button class="btn-action" id="atualizar-dados-ong">Atualizar dados da ONG</button>
                         </div>
                     </div>
                 </section>
 
+                <!-- Segurança -->
                 <section class="account-section">
                     <div class="section-header">
                         <h3>Segurança e Acesso</h3>
@@ -108,7 +119,7 @@
                     <div class="section-content">
                         <div class="info-item">
                             <span class="label">E-mail de login:</span>
-                            <span class="value" id="email">email</span>
+                            <span class="value" id="emailLogin"></span>
                         </div>
                         <div class="action-item">
                             <span class="label">Alterar senha:</span>
@@ -117,13 +128,14 @@
                     </div>
                 </section>
 
+                <!-- Gerenciamento -->
                 <section class="account-section">
                     <div class="section-header">
                         <h3>Gerenciamento</h3>
                     </div>
                     <div class="section-content">
                         <div class="action-item">
-                            <button class="btn-action btn-danger" id="excluir-conta">Excluir conta da empresa</button>
+                            <button class="btn-action btn-danger" id="excluir-conta">Excluir conta da ONG</button>
                         </div>
                     </div>
                 </section>
@@ -131,6 +143,7 @@
         </main>
     </div>
 
+    <!-- Modal de edição -->
     <div id="modal-edicao" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -147,6 +160,6 @@
         </div>
     </div>
 
-    <script src="/js/minhaContaEmpresa.js"></script>
+    <script src="/js/minhaContaOng.js"></script>
 </body>
 </html>

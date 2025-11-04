@@ -4,7 +4,7 @@ let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
-    const res = await fetch('/api/usuario');
+    const res = await fetch('/api/usuarioToken');
     const dados = await res.json();
 
     dadosUsuario = dados

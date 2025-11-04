@@ -2,7 +2,7 @@
 import { inserirONG } from '../model/ongModel.js';
 
 export async function cadastrarONG(req, res) {
-    const { nome, cnpj, area_atuacao, cep, endereco, telefone, email, senha } = req.body;
+    const { nome, cnpj, area_atuacao, cep, endereco, telefone, email, nome_responsavel_ong, cpf_responsavel_ong, cargo_responsavel_ong, email_responsavel_ong, telefone_responsavel_ong, senha } = req.body;
 
     // Validação básica
     if (!senha || !nome || !cnpj || !email) {
@@ -10,7 +10,7 @@ export async function cadastrarONG(req, res) {
     }
 
     try {
-        const dados = await inserirONG({ nome, cnpj, area_atuacao, cep, endereco, telefone, email, senha });
+        const dados = await inserirONG({ nome, cnpj, area_atuacao, cep, endereco, telefone, email, nome_responsavel_ong, cpf_responsavel_ong, cargo_responsavel_ong, email_responsavel_ong, telefone_responsavel_ong, senha });
 
         return res.status(201).json({
             status: 'OK',
