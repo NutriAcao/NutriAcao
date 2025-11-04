@@ -125,8 +125,11 @@ app.get('/relatorioOng.html', verificarToken, verificarOng, (req,res) => {
 })
 app.get('/suporteONG.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'suporteONG.html'));
-  
 })
+app.get('/minhaContaOng.html', verificarToken, verificarOng, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'ong', 'minhaContaOng.html'));
+})
+
 
 app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
