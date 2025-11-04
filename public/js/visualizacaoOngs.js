@@ -1,4 +1,5 @@
 // public/js/visualizacaoOngs.js
+// VERSÃO FINAL CORRIGIDA
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Configura os listeners de pesquisa e paginação
     setupSearch();
-    setupPaginationListeners();
+    // setupPaginationListeners(); // Você precisa implementar a lógica completa de paginação
 });
 
 // Carrega dados do usuário logado (Empresa)
@@ -40,7 +41,8 @@ async function loadPedidosDisponiveis() {
         const response = await fetch('/api/pedidos-disponiveis-empresa'); 
         
         if (!response.ok) {
-            throw new Error(`Erro no servidor: ${response.status}`);
+            const err = await response.json();
+            throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
         
         const pedidos = await response.json();
@@ -65,21 +67,23 @@ function renderizarTabela(pedidos) {
         return;
     }
     
-    // Filtra os pedidos para a página atual
+    // Filtra os pedidos para a página atual (Simplificado)
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pedidosPaginados = pedidos.slice(startIndex, endIndex);
 
     pedidosPaginados.forEach(pedido => {
+        // Usando os nomes de coluna corrigidos que vêm do ALIAS do SQL
+        const dataFormatada = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
+        
         const row = `
             <tr>
                 <td>${pedido.id}</td>
                 <td>${pedido.nome_alimento}</td>
-                <td>${pedido.quantidade} ${pedido.unidade || 'kg'}</td>
+                <td>${pedido.quantidade}</td> 
                 <td>${pedido.nome_ong}</td>
-                <td>${new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR')}</td>
-                <td><span class="status ${pedido.status.toLowerCase()}">${pedido.status}</span></td>
-                
+                <td>${dataFormatada}</td>
+                <td><span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span></td>
                 <td><button onclick="openModal(${pedido.id})">Visualizar Pedido</button></td>
             </tr>
         `;
@@ -94,7 +98,6 @@ function renderizarTabela(pedidos) {
 // Abre a modal com dados REAIS
 function openModal(pedidoId) {
     const modal = document.getElementById('orderModal');
-    // Busca o pedido real pelo ID na variável global
     const pedido = pedidosReais.find(p => p.id === pedidoId);
     
     if (pedido) {
@@ -102,27 +105,27 @@ function openModal(pedidoId) {
         document.getElementById('orderId').textContent = pedido.id;
         document.getElementById('orderDate').textContent = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
         document.getElementById('institution').textContent = pedido.nome_ong;
-        document.getElementById('contact').textContent = pedido.telefone_contato;
-        document.getElementById('address').textContent = pedido.endereco_retirada || 'Entrar em contato com a ONG';
+        document.getElementById('contact').textContent = pedido.telefone_contato; // Usando o ALIAS
+        document.getElementById('address').textContent = 'Entrar em contato com a ONG';
         
         // Status
         const statusElement = document.getElementById('orderStatus');
-        statusElement.innerHTML = `<span class="status ${pedido.status.toLowerCase()}">${pedido.status}</span>`;
+        statusElement.innerHTML = `<span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span>`;
 
-        // Itens (Simplificado - Ajuste se tiver tabela de itens separada)
+        // Itens
         const itemsList = document.getElementById('itemsList');
         itemsList.innerHTML = `
             <tr>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td>
-                <td>${pedido.unidade || 'kg'}</td>
+                <td>N/A</td>
                 <td>-</td>
             </tr>
         `;
 
         // Botão de Ação
         const actionButton = document.getElementById('actionButton');
-        if (pedido.status === 'Reservado') {
+        if (String(pedido.status).toLowerCase() === 'reservado') {
             actionButton.textContent = 'Cancelar Pedido';
             actionButton.style.backgroundColor = '#e74c3c';
             // Chama handleAction com tipo 'solicitacao' (definido no dbRoutes.js)
@@ -173,41 +176,30 @@ async function handleAction(pedidoId, tipoDoacao, actionType) {
 
 // === PESQUISA E PAGINAÇÃO (Lógica existente) ===
 
-// Atualiza a contagem de itens
 function updateItemCount(total) {
     document.getElementById('totalItens').textContent = total;
 }
 
-// Configura o listener de pesquisa
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     searchInput.addEventListener('input', function() {
         const searchText = this.value.toLowerCase();
         
-        // Filtra os dados REAIS
         const pedidosFiltrados = pedidosReais.filter(pedido => 
             pedido.nome_alimento.toLowerCase().includes(searchText) ||
             pedido.nome_ong.toLowerCase().includes(searchText)
         );
         
-        currentPage = 1; // Reseta para a primeira página
+        currentPage = 1; 
         renderizarTabela(pedidosFiltrados);
         setupPagination(pedidosFiltrados.length);
     });
 }
 
-// Configura os botões de paginação (Simplificado)
 function setupPagination(totalItems) {
     const totalPaginas = Math.ceil(totalItems / itemsPerPage);
     document.getElementById('totalPaginas').textContent = totalPaginas;
-    
-    // (O ideal é gerar os botões dinamicamente, mas vamos manter a lógica de 1 e 2 por enquanto)
-    // TODO: Ajustar a lógica de paginação para ser dinâmica com base no totalPaginas
-}
-
-function setupPaginationListeners() {
-    // (Adapte seus listeners 'prevPage', 'nextPage' e 'page-btn'
-    // para chamar 'renderizarTabela(pedidosReais)' com a 'currentPage' correta)
+    // (A lógica de paginação avançada precisa ser implementada se necessário)
 }
 
 // Fechar modal clicando fora
