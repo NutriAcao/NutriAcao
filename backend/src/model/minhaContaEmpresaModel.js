@@ -1,4 +1,3 @@
-// src/model/minhaContaEmpresaModel.js
 import { supabase } from "../config/supabaseClient.js";
 
 /**
@@ -19,9 +18,6 @@ export async function buscarUsuarioPorId(id, tipo) {
   return data;
 }
 
-/**
- * Atualizar informações do responsável da empresa
- */
 export async function atualizarResponsavelEmpresa(id, novosDados) {
   const { error } = await supabase
     .from("empresa")
@@ -36,20 +32,39 @@ export async function atualizarResponsavelEmpresa(id, novosDados) {
   return true;
 }
 
-export async function atualizarContatoEmpresa(id, dados) {
-  const { email_responsavel_empresa, telefone_responsavel_empresa } = dados;
+export async function atualizarDadosEmpresa(id, dados) {
+  const {
+    email,
+    senha_hash,
+    nome_responsavel_empresa,
+    cpf_responsavel_empresa,
+    cargo_responsavel_empresa,
+    email_responsavel_empresa,
+    telefone_responsavel_empresa,
+    nome,
+    telefone,
+    endereco
+  } = dados;
 
   const { error } = await supabase
     .from("empresa")
     .update({
+      email,
+      senha_hash,
+      nome_responsavel_empresa,
+      cpf_responsavel_empresa,
+      cargo_responsavel_empresa,
       email_responsavel_empresa,
-      telefone_responsavel_empresa
+      telefone_responsavel_empresa,
+      nome,
+      telefone,
+      endereco
     })
     .eq("id", id);
 
   if (error) {
-    console.error("Erro no Supabase (atualizarContatoEmpresa):", error);
-    throw new Error("Erro ao atualizar dados de contato da empresa.");
+    console.error("Erro ao atualizar dados da empresa:", error);
+    throw new Error("Erro ao atualizar informações da empresa.");
   }
 
   return true;
