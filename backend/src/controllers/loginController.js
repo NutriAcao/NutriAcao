@@ -2,7 +2,7 @@ import { buscarUsuarioPorEmail } from '../model/loginModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-//funçãozinha pra logar bota fé, ela puxa o email e a senha la do formulario
+// funçãozinha pra logar bota fé, ela puxa o email e a senha la do formulario
 export async function login(req, res) {
     const { email, senha } = req.body;
 
@@ -22,7 +22,7 @@ export async function login(req, res) {
             return res.status(401).json({ message: 'Senha incorreta.' });
         }
 
-//Criação do Token JWT e envio como cookie
+//criação do Token JWT e envio como cookie
 const token = jwt.sign(
             {
                 id: usuario.id,
@@ -35,19 +35,19 @@ const token = jwt.sign(
                 
             },
             process.env.JWT_SECRET,
-            { expiresIn: '1h' } // Token expira em 1 hora
+            { expiresIn: '1h' } // token expira em 1 hora
         );
-// Configura o cookie com o token
+// configura o cookie com o token
          res.cookie('token', token, {
     httpOnly: true,
     secure: true, // use HTTPS em produção
     sameSite: 'Strict',
-    maxAge: 3600000 //Cookie também expira em 1 hora
+    maxAge: 3600000 //cookie também expira em 1 hora
   });
 
 
-        // Retorna sucesso e tipo do usuário
-        // Também envia o token JWT no corpo da resposta
+        // retorna sucesso e tipo do usuário
+        // também envia o token JWT no corpo da resposta
         return res.status(200).json({ 
             message: 'Login bem-sucedido!',
             userId: usuario.id,

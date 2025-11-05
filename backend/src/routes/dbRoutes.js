@@ -7,7 +7,7 @@ import { verificarOng } from './tipoAuthMiddleware.js';
 
 const router = Router();
 
-// Rota de Teste (OK)
+// rota de Teste pra saber se o banco de dados está conectado "(OK)"
 router.get("/db-test", async (req, res) => {
     try {
         const result = await pool.query('SELECT 1 as is_connected');

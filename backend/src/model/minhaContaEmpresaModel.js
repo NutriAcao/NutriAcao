@@ -3,6 +3,7 @@ import { supabase } from "../config/supabaseClient.js";
 /**
  * Buscar usuário por ID e tipo (empresa ou ong)
  */
+
 export async function buscarUsuarioPorId(id, tipo) {
   const { data, error } = await supabase
     .from(tipo)

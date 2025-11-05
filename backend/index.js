@@ -15,7 +15,7 @@ import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
 
 
-// configuração de Variáveis
+// configuração de variáveis
 dotenv.config(); 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -79,7 +79,7 @@ app.get('/api/usuarioToken', verificarToken, (req, res) => {
 
 
 
-// ==============ROTAS PROTEGIDAS PARA EMPRESA====================
+// ROTAS PROTEGIDAS PARA EMPRESA
 app.get('/visualizacaoOngs.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'visualizacaoOngs.html'));
   
@@ -103,7 +103,7 @@ app.get('/suporteEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
 })
 
 
-// ==============ROTAS PROTEGIDAS PARA ONG====================
+//ROTAS PROTEGIDAS PARA ONG
 app.get('/visualizacaoDoacoes.html', verificarToken, verificarOng, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'ong', 'visualizacaoDoacoes.html'));
   
@@ -135,7 +135,7 @@ app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
 
 
-// Rota de Contato
+// rota de contato/suporte
 app.post('/enviar-contato',contactLimiter, async (req, res) => {
   try {
     const { nome, email, assunto, descricao } = req.body; 

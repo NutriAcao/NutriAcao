@@ -40,7 +40,7 @@ export async function cadastrarDoacaoEmpresa(req, res) {
                     id_empresa: id_empresa
                 } 
             ])
-            .select(); // Retorna o registro para confirmação
+            .select(); // retorna o registro para confirmação
 
         if (error) {
             

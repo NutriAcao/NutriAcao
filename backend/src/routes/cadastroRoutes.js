@@ -6,7 +6,7 @@ import { cadastrarDoacaoOng } from '../controllers/doacaoOngController.js';
 
 const router = Router();
 
-// Rota de POST que o formulário deve enviar
+// rota de POST que o formulário deve enviar
 router.post('/ong', cadastrarONG);
 router.post('/empresa', cadastrarEmpresa);
 router.post('/doacaoEmpresa', cadastrarDoacaoEmpresa)

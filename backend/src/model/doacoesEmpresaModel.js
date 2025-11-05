@@ -2,8 +2,8 @@ import { supabase } from "../config/supabaseClient.js";
 
 export async function buscarDoacoesConcluidasPorEmailEmpresa(email) {
     const { data, error } = await supabase
-        .from('doacoesDisponiveis') // Corrigido: nome da tabela como string
-        .select('id, nome_alimento, quantidade') // Corrigido: campos como string única
+        .from('doacoesDisponiveis') 
+        .select('id, nome_alimento, quantidade')
         .eq('email_Institucional', email);
 
     if (error) {

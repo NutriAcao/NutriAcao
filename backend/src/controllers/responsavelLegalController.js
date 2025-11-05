@@ -1,7 +1,7 @@
 // backend/src/controllers/responsavelLegalController.js
 
 import { supabase } from '../config/supabaseClient.js';
-// Não precisa mais de bcrypt aqui!
+// não precisa mais de bcrypt aqui!
 
 export async function cadastrarResponsavelLegal(req, res) {
     const { 
