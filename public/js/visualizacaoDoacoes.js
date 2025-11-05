@@ -84,13 +84,12 @@ function renderizarTabela(doacoes) {
                 <td>${doacao.nome_alimento}</td>
                 <td>${doacao.quantidade}</td> 
                 <td>${doacao.nome_empresa}</td> 
-                <td>${doacao.cnae_empresa}</td>
-                <td>N/A</td> <td>${dataValidadeFormatada}</td>
-                <td><span class="status-badge status-${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
-                <td><button class="btn-action" onclick="openModal(${doacao.id})">Ver</button></td>
+                <td>${dataValidadeFormatada}</td>
+                <td><span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
+                <td><button onclick="openModal(${doacao.id})">Ver</button></td>
             </tr>
         `;
-        tbody.innerHTML += row;
+                tbody.innerHTML += row;
     });
 
     // Você precisará adaptar a atualização de contagem, se necessário.

@@ -8,12 +8,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
@@ -63,7 +61,6 @@
             </ul>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <h2>Painel de Doações</h2>
@@ -98,59 +95,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody></tbody>
+                            <tbody id="tableBody"></tbody>
                         </table>
-                        
-                        <dialog id="orderModal">
-                        <div class="modal-header">
-                            <h2>Detalhes do Pedido #<span id="orderId"></span></h2>
-                            <button class="modal-close" onclick="closeModal()">&times;</button>
-                        </div>
-                        <div class="modal-content">
-                            <h3 class="section-title">Informações do Pedido</h3>
-                            <table class="info-table">
-                                <tr>
-                                    <th>Data do Pedido</th>
-                                    <td id="orderDate">04/02/2025</td>
-                                </tr>
-                                <tr>
-                                    <th>Instituição</th>
-                                    <td id="institution">Fome Do Cão</td>
-                                </tr>
-                                <tr>
-                                    <th>Status</th>
-                                    <td id="orderStatus"><span class="status reservado">Reservado</span></td>
-                                </tr>
-                                <tr>
-                                    <th>Contato</th>
-                                    <td id="contact">(11) 99999-9999</td>
-                                </tr>
-                                <tr>
-                                    <th>Endereço</th>
-                                    <td id="address">Rua das Flores, 123 - Centro, São Paulo - SP</td>
-                                </tr>
-                            </table>
-
-                            <h3 class="section-title">Itens do Pedido</h3>
-                            <table class="items-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Quantidade</th>
-                                        <th>Unidade</th>
-                                        <th>Observações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="itemsList">
-                                </tbody>
-                            </table>
-
-                            <div class="modal-actions">
-                                <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-                                <button id="actionButton" onclick="handleAction()">Reservar Pedido</button>
-                            </div>
-                        </div>
-                    </dialog>
                     </div>
                     
                     <div class="pagination">
@@ -169,6 +115,41 @@
             </div>
         </main>
     </div>
+
+    <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3>Detalhes do Pedido #<span id="orderId"></span></h3>
+            <button class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações do Pedido</h3>
+            <div class="order-info">
+                <p><strong>Data do Pedido:</strong> <span id="orderDate">...</span></p>
+                <p><strong>Instituição (ONG):</strong> <span id="institution">...</span></p>
+                <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
+                <p><strong>Contato:</strong> <span id="contact">...</span></p>
+                <p><strong>Endereço:</strong> <span id="address">...</span></p>
+            </div>
+
+            <h3 class="section-title">Itens do Pedido</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+            <button id="actionButton" onclick="handleAction()">Reservar Pedido</button>
+        </div>
+    </dialog>
 
     <script src="/js/visualizacaoOngs.js"></script>
 </body>
