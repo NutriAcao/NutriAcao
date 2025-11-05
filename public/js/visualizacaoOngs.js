@@ -94,17 +94,18 @@ function renderizarTabela(pedidos) {
 }
 
 // === MODAL E AÇÕES (RESERVAR / CANCELAR) ===
-
-// Abre a modal com dados REAIS
-function openModal(pedidoId) {
-    const modal = document.getElementById('orderModal');
+// Abre a modal com dados REAIS 
+function openModal(pedidoId) {  
+    console.log(pedidosReais)
+    const modal = document.getElementById('orderModal').style.display = "block";
     const pedido = pedidosReais.find(p => p.id === pedidoId);
-    
+    console.log("var global: "+pedidosReais)
+    console.log("teste: "+pedido)
     if (pedido) {
         // Preenche a modal
         document.getElementById('orderId').textContent = pedido.id;
         document.getElementById('orderDate').textContent = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
-        document.getElementById('institution').textContent = pedido.nome_ong;
+        document.getElementById('institution').textContent = pedidosReais.nome_ong;
         document.getElementById('contact').textContent = pedido.telefone_contato; // Usando o ALIAS
         document.getElementById('address').textContent = 'Entrar em contato com a ONG';
         
@@ -142,7 +143,7 @@ function openModal(pedidoId) {
 
 // Fecha a modal
 function closeModal() {
-    document.getElementById('orderModal').close();
+    document.getElementById('orderModal').style.display = "none";
 }
 
 // Função de Ação (Reserva/Cancela) que chama o BACKEND
