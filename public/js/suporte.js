@@ -51,3 +51,48 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+// --- JavaScript (Funcionalidade do Acordeão) ---
+document.addEventListener('DOMContentLoaded', function() {
+    const accordionLinks = document.querySelectorAll('.accordion-link');
+
+    accordionLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const item = this.closest('.accordion-item');
+            const answer = item.querySelector('.answer');
+            
+            // Verifica se o item atual já está ativo
+            const isActive = item.classList.contains('active');
+
+            // --- Lógica para fechar todos os outros itens (Comportamento de 'Single Open') ---
+            document.querySelectorAll('.accordion-item').forEach(otherItem => {
+                if (otherItem !== item && otherItem.classList.contains('active')) {
+                    otherItem.classList.remove('active');
+                    const otherAnswer = otherItem.querySelector('.answer');
+                    // Zera as propriedades de altura e padding para fechar
+                    otherAnswer.style.maxHeight = '0';
+                    otherAnswer.style.paddingTop = '0';
+                    otherAnswer.style.paddingBottom = '0';
+                }
+            });
+            // ---------------------------------------------------------------------------------
+
+            // Alterna a classe 'active' no item clicado
+            item.classList.toggle('active');
+
+            // Abre ou fecha a resposta
+            if (item.classList.contains('active')) {
+                // Abre: Define a altura máxima como a altura real do conteúdo (scrollHeight)
+                answer.style.maxHeight = answer.scrollHeight + "px";
+                // Garante que o padding seja aplicado ao abrir (necessário para o efeito visual)
+                answer.style.paddingTop = "15px";
+                answer.style.paddingBottom = "15px";
+            } else {
+                // Fecha: Redefine a altura máxima para 0
+                answer.style.maxHeight = '0';
+                answer.style.paddingTop = '0';
+                answer.style.paddingBottom = '0';
+            }
+        });
+    });
+});
