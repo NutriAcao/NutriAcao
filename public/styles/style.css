@@ -582,20 +582,22 @@ main {
   padding: 2rem 0;
 }
 .answer{
-  display: none;
-  position:relative;
+  max-height: 0;
   overflow: hidden;
-  transition: 1s;
+  transition: max-height 0.5s ease, padding 0.5s ease;
+  padding: 0;
   border-top: 1px solid;
+  color: #004AAD;
 }
 .answer::before{
+  content: "";
+  position: absolute;
   display: block;
   width: .6rem;
   height: 90%;
-  background-color: #004AAD;
   top: 50%;
   left: 0;
-  transform: translate(-50%);
+  transform: translate(-50%, -50%);
   transition: 1s;
 }
 .answer p {
@@ -603,9 +605,7 @@ main {
   font-size: 1.4rem;
   padding: 2rem;
 }
-.accordion-item .answer {
-  display: none;
-}
+
 .accordion-item.active .answer {
   display: block;
 }
