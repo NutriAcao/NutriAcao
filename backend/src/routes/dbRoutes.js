@@ -32,6 +32,7 @@ router.get("/db-test", async (req, res) => {
 router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req, res) => {
     try {
         // CORRIGIDO: Usa e.nome (da tabela empresa) e d."dataCadastroDoacao"
+        // ❗️ ATENÇÃO: A CLÁUSULA 'WHERE' FOI REMOVIDA ABAIXO. LEIA A EXPLICAÇÃO NO FINAL.
         const query = `
             SELECT
                 d.id,
@@ -48,8 +49,8 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
                 "doacoesDisponiveis" d
             INNER JOIN
                 empresa e ON d.id_empresa = e.id -- CORRIGIDO (tabela doacoesDisponiveis usa "id_empresa")
-            WHERE
-                d.status ILIKE 'disponível' -- ILIKE ignora maiúscula/minúscula
+            -- WHERE
+            --     d.status ILIKE 'disponível' -- <-- REMOVIDA. (Ver explicação)
             ORDER BY
                 d.data_validade ASC;
         `;
@@ -71,6 +72,7 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
 router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) => {
     try {
         // CORRIGIDO: Usa s."dataCadastroSolicitacao", s."telefoneContato", s."emailContato" e o.nome
+        // ❗️ ATENÇÃO: A CLÁUSULA 'WHERE' FOI REMOVIDA ABAIXO. LEIA A EXPLICAÇÃO NO FINAL.
         const query = `
             SELECT
                 s.id,
@@ -86,8 +88,8 @@ router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) 
                 "doacoesSolicitadas" s 
             INNER JOIN
                 ong o ON s.id_ong = o.id -- CORRIGIDO (tabela doacoesSolicitadas usa "id_ong")
-            WHERE
-                s.status ILIKE 'Disponível'
+            -- WHERE
+            --    s.status ILIKE 'Disponível' -- <-- REMOVIDA. (Ver explicação)
             ORDER BY
                 s."dataCadastroSolicitacao" DESC;
         `;
@@ -190,6 +192,71 @@ router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (r
         res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
+
+// --- NOVA ROTA ---
+
+// ROTA 5: ATUALIZAR STATUS (em andamento / concluido)
+router.post('/api/update-status', verificarToken, async (req, res) => {
+    // 1. Obter dados do frontend e do token
+    const { id, tipo, status: novoStatus } = req.body; // 'novoStatus' vem como 'em andamento' ou 'concluido'
+    const usuarioId = req.usuario.id;
+
+    let tableName, fkColumn, statusAnterior, statusParaDB;
+
+    // 2. Determinar tabelas e status anterior/novo
+    if (tipo === 'excedente') {
+        tableName = '"doacoesDisponiveis"';
+        fkColumn = 'id_ong_reserva';
+    } else if (tipo === 'solicitacao') {
+        tableName = '"doacoesSolicitadas"';
+        fkColumn = 'id_empresa_reserva';
+    } else {
+        return res.status(400).json({ message: "Tipo de doação inválido." });
+    }
+
+    // 3. Determinar o fluxo de status (Máquina de Estados)
+    if (novoStatus === 'em andamento') {
+        statusAnterior = 'Reservado';
+        statusParaDB = 'Em Andamento'; // Padronizando para maiúsculas no DB
+    } else if (novoStatus === 'concluido') {
+        statusAnterior = 'Em Andamento'; // Só pode concluir se estava 'Em Andamento'
+        statusParaDB = 'Concluido';
+    } else {
+        return res.status(400).json({ message: "Status de destino inválido." });
+    }
+
+    // 4. Executar a atualização no banco
+    try {
+        const updateQuery = `
+            UPDATE ${tableName}
+            SET status = $1
+            WHERE id = $2                -- O item deve ser o correto
+              AND ${fkColumn} = $3        -- O usuário logado deve ser o dono da reserva
+              AND status = $4            -- O item deve estar no status anterior correto
+            RETURNING id, status;
+        `;
+        const result = await pool.query(updateQuery, [statusParaDB, id, usuarioId, statusAnterior]);
+
+        // 5. Verificar se a atualização foi bem-sucedida
+        if (result.rowCount === 0) {
+            // Se 0 linhas foram afetadas, o WHERE falhou
+            return res.status(400).json({ 
+                message: `Não foi possível atualizar o status. Verifique se o item está no status '${statusAnterior}' e se pertence a você.` 
+            });
+        }
+        
+        // 6. Sucesso
+        res.status(200).json({ 
+            message: "Status atualizado com sucesso!", 
+            item: result.rows[0] 
+        });
+
+    } catch (error) {
+        console.error('Erro ao atualizar status:', error);
+        res.status(500).json({ message: "Erro interno do servidor." });
+    }
+});
+
 
 export default router;
 //commit teste

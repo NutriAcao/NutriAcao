@@ -1,79 +1,62 @@
 // public/js/visualizacaoOngs.js
-// VERSÃO FINAL CORRIGIDA
+// VERSÃO COM MODAL DE MÚLTIPLOS STATUS (FINALMENTE CORRIGIDA)
+console.log(">>> ARQUIVO visualizacaoOngs.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
-let pedidosReais = []; // Armazena os dados reais vindos do backend
+let pedidosReais = []; 
 const itemsPerPage = 10;
 let currentPage = 1;
 
 // === CARREGAMENTO INICIAL ===
 document.addEventListener('DOMContentLoaded', function() {
     carregarUsuario();
-    loadPedidosDisponiveis(); // Carrega os dados reais do backend
-
-    // Configura os listeners de pesquisa e paginação
+    loadPedidosDisponiveis(); 
     setupSearch();
-    // setupPaginationListeners(); // Você precisa implementar a lógica completa de paginação
 });
 
-// Carrega dados do usuário logado (Empresa)
 async function carregarUsuario() {
     try {
         const res = await fetch('/api/usuarioToken');
         if (!res.ok) throw new Error('Falha ao buscar usuário');
-        
         dadosUsuario = await res.json();
-        
         document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
         document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'Empresa';
-        
     } catch (erro) {
         console.error('Erro ao buscar usuário:', erro);
     }
 }
 
-// === CARREGAMENTO DE DADOS (BACKEND) ===
-// Busca os pedidos das ONGs no backend
 async function loadPedidosDisponiveis() {
     try {
-        // Rota que criamos no dbRoutes.js para a Empresa ver pedidos de ONGs
         const response = await fetch('/api/pedidos-disponiveis-empresa'); 
-        
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
-        
-        const pedidos = await response.json();
-        pedidosReais = pedidos; // Salva os dados globalmente
-        
-        renderizarTabela(pedidos); // Desenha a tabela com dados reais
-        setupPagination(pedidos.length); // Configura a paginação com base nos dados reais
-        
+        pedidosReais = await response.json();
+        renderizarTabela(pedidosReais); 
+        setupPagination(pedidosReais.length); 
     } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
         alert('Falha ao carregar pedidos de doação. Tente novamente.');
     }
 }
 
-// Desenha a tabela no HTML
 function renderizarTabela(pedidos) {
     const tbody = document.querySelector('#doacoesTable tbody');
-    tbody.innerHTML = ''; // Limpa a tabela (remove os dados fictícios do HTML)
+    tbody.innerHTML = ''; 
 
     if (pedidos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
         return;
     }
     
-    // Filtra os pedidos para a página atual (Simplificado)
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pedidosPaginados = pedidos.slice(startIndex, endIndex);
 
     pedidosPaginados.forEach(pedido => {
-        // Usando os nomes de coluna corrigidos que vêm do ALIAS do SQL
         const dataFormatada = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
         
         const row = `
@@ -93,51 +76,105 @@ function renderizarTabela(pedidos) {
     updateItemCount(pedidos.length);
 }
 
-// === MODAL E AÇÕES (RESERVAR / CANCELAR) ===
+// === MODAL E AÇÕES (LÓGICA CORRIGIDA E COMPLETADA) ===
 
-// Abre a modal com dados REAIS
+// Função auxiliar para preencher o conteúdo do modal com segurança
+const fillElement = (id, content) => {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = content;
+    } else {
+        // Agora que o modal está abrindo, este erro serve apenas como aviso!
+        console.error(`AVISO: Elemento com ID '${id}' não encontrado no modal!`);
+    }
+};
+
 function openModal(pedidoId) {
     const modal = document.getElementById('orderModal');
-    const pedido = pedidosReais.find(p => p.id === pedidoId);
-    
-    if (pedido) {
-        // Preenche a modal
-        document.getElementById('orderId').textContent = pedido.id;
-        document.getElementById('orderDate').textContent = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
-        document.getElementById('institution').textContent = pedido.nome_ong;
-        document.getElementById('contact').textContent = pedido.telefone_contato; // Usando o ALIAS
-        document.getElementById('address').textContent = 'Entrar em contato com a ONG';
-        
-        // Status
-        const statusElement = document.getElementById('orderStatus');
-        statusElement.innerHTML = `<span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span>`;
+    if (!modal) return;
 
-        // Itens
-        const itemsList = document.getElementById('itemsList');
+    if (!pedidosReais || pedidosReais.length === 0) return;
+
+    // CORREÇÃO: Usando == para igualar String e Number
+    const pedido = pedidosReais.find(p => p.id == pedidoId);
+    
+    if (!pedido) return;
+    console.log("DEBUG 4: Pedido encontrado!", pedido);
+
+    // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
+    modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
+
+    fillElement('orderId', pedido.id);
+    fillElement('orderDate', new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR'));
+    fillElement('institution', pedido.nome_ong);
+    fillElement('contact', pedido.telefone_contato); 
+    fillElement('address', 'Entrar em contato com a ONG');
+
+    const statusElement = document.getElementById('orderStatus');
+    if (statusElement) {
+        statusElement.innerHTML = `<span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span>`;
+    }
+
+    const itemsList = document.getElementById('itemsList');
+    if (itemsList) {
         itemsList.innerHTML = `
             <tr>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td>
-                <td>N/A</td>
-                <td>-</td>
+                <td>N/A</td> <td>-</td>
             </tr>
         `;
-
-        // Botão de Ação
-        const actionButton = document.getElementById('actionButton');
-        if (String(pedido.status).toLowerCase() === 'reservado') {
-            actionButton.textContent = 'Cancelar Pedido';
-            actionButton.style.backgroundColor = '#e74c3c';
-            // Chama handleAction com tipo 'solicitacao' (definido no dbRoutes.js)
-            actionButton.onclick = () => handleAction(pedido.id, 'solicitacao', 'cancelar'); 
-        } else {
-            actionButton.textContent = 'Reservar Pedido';
-            actionButton.style.backgroundColor = '#3498db';
-            actionButton.onclick = () => handleAction(pedido.id, 'solicitacao', 'reservar'); 
-        }
-        
-        modal.showModal();
     }
+    // ----------------------------------------
+    
+    // --- 2. CONTROLAR AÇÕES COM BASE NO STATUS ---
+    const status = String(pedido.status).toLowerCase();
+    const actionButton = document.getElementById('actionButton');
+    const statusUpdateSection = document.getElementById('statusUpdateSection');
+    const statusSelect = document.getElementById('statusSelect');
+    const updateStatusButton = document.getElementById('updateStatusButton');
+    const tipoDoacao = 'solicitacao'; 
+
+    // Resetar visibilidade
+    actionButton.style.display = 'none';
+    statusUpdateSection.style.display = 'none';
+    statusSelect.innerHTML = '';
+
+
+    // LÓGICA DE STATUS
+    if (status === 'disponivel') {
+        // ESTA É A LÓGICA FALTANDO NO SEU MODAL ATUAL
+        actionButton.textContent = 'Reservar Pedido';
+        actionButton.style.backgroundColor = '#3498db';
+        actionButton.style.display = 'inline-block';
+        actionButton.onclick = () => handleAction(pedido.id, tipoDoacao, 'reservar'); 
+        statusUpdateSection.style.display = 'none'; // Garantir que a seção de status está escondida
+
+    } else if (status === 'reservado') {
+        actionButton.textContent = 'Cancelar Reserva';
+        actionButton.style.backgroundColor = '#e74c3c';
+        actionButton.style.display = 'inline-block';
+        actionButton.onclick = () => handleAction(pedido.id, tipoDoacao, 'cancelar'); 
+        
+        statusUpdateSection.style.display = 'block';
+        statusSelect.innerHTML = '<option value="em andamento">Mover para "Em Andamento"</option>';
+        updateStatusButton.onclick = () => updateStatus(pedido.id, tipoDoacao);
+
+    } else if (status === 'em andamento') {
+        actionButton.style.display = 'none';
+
+        statusUpdateSection.style.display = 'block';
+        statusSelect.innerHTML = '<option value="concluido">Mover para "Concluído"</option>';
+        updateStatusButton.onclick = () => updateStatus(pedido.id, tipoDoacao);
+
+    } else if (status === 'concluido') {
+        actionButton.style.display = 'none';
+        statusUpdateSection.style.display = 'none';
+    }
+    
+    // --- 3. Abrir o Modal ---
+    modal.showModal();
+    console.log("DEBUG 7: Modal aberto com SUCESSO. ---");
 }
 
 // Fecha a modal
@@ -145,13 +182,13 @@ function closeModal() {
     document.getElementById('orderModal').close();
 }
 
-// Função de Ação (Reserva/Cancela) que chama o BACKEND
+// Função de Ação (Reserva/Cancela) 
 async function handleAction(pedidoId, tipoDoacao, actionType) {
     const endpoint = actionType === 'reservar' 
         ? '/api/reservar-doacao' 
         : '/api/cancelar-reserva-e-devolver-estoque';
     
-    closeModal(); // Fecha a modal
+    closeModal(); 
 
     try {
         const response = await fetch(endpoint, {
@@ -163,10 +200,10 @@ async function handleAction(pedidoId, tipoDoacao, actionType) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message); // Exibe "Item reservado com sucesso!"
-            loadPedidosDisponiveis(); // Recarrega os dados da tabela
+            alert(result.message);
+            loadPedidosDisponiveis(); 
         } else {
-            alert(`Falha: ${result.message}`); // Exibe "Não foi possível reservar..."
+            alert(`Falha: ${result.message}`);
         }
     } catch (error) {
         console.error('Erro de rede:', error);
@@ -174,14 +211,52 @@ async function handleAction(pedidoId, tipoDoacao, actionType) {
     }
 }
 
-// === PESQUISA E PAGINAÇÃO (Lógica existente) ===
+// Atualiza o status para "em andamento" ou "concluído"
+async function updateStatus(id, tipoDoacao) {
+    const statusSelect = document.getElementById('statusSelect');
+    const novoStatus = statusSelect.value;
 
+    if (!novoStatus) {
+        alert('Nenhum novo status selecionado.');
+        return;
+    }
+
+    const endpoint = '/api/update-status'; 
+    
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                id: id,
+                tipo: tipoDoacao,
+                status: novoStatus
+            }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message);
+            closeModal();
+            loadPedidosDisponiveis();
+        } else {
+            alert(`Falha: ${result.message}`);
+        }
+    } catch (error) {
+        console.error('Erro de rede:', error);
+        alert('Erro de rede. Tente novamente.');
+    }
+}
+
+// === PESQUISA E PAGINAÇÃO ===
 function updateItemCount(total) {
     document.getElementById('totalItens').textContent = total;
 }
 
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
     searchInput.addEventListener('input', function() {
         const searchText = this.value.toLowerCase();
         
@@ -199,7 +274,6 @@ function setupSearch() {
 function setupPagination(totalItems) {
     const totalPaginas = Math.ceil(totalItems / itemsPerPage);
     document.getElementById('totalPaginas').textContent = totalPaginas;
-    // (A lógica de paginação avançada precisa ser implementada se necessário)
 }
 
 // Fechar modal clicando fora

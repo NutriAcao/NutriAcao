@@ -110,42 +110,50 @@
             </div>
         </main>
     </div>
-
-    <dialog id="orderModal" class="modal">
-        <div class="modal-header">
-            <h3>Detalhes do Pedido #<span id="orderId"></span></h3>
-            <button class="btn-close" onclick="closeModal()">&times;</button>
+<dialog id="orderModal" class="modal">
+    <div class="modal-header">
+        <h3>Detalhes #<span id="orderId"></span></h3> 
+        <button class="btn-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+        <h3 class="section-title">Informações</h3>
+        <div class="order-info">
+            <p><strong>Instituição:</strong> <span id="institution">...</span></p>
+            <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
+            <p><strong>Data:</strong> <span id="orderDate">...</span></p> 
+            <p><strong>Contato:</strong> <span id="contact">...</span></p>
+            <p><strong>Endereço/CEP:</strong> <span id="address">...</span></p>
         </div>
-        <div class="modal-body">
-            <h3 class="section-title">Informações do Pedido</h3>
-            <div class="order-info">
-                <p><strong>Data do Pedido:</strong> <span id="orderDate">...</span></p>
-                <p><strong>Instituição (ONG):</strong> <span id="institution">...</span></p>
-                <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
-                <p><strong>Contato:</strong> <span id="contact">...</span></p>
-                <p><strong>Endereço:</strong> <span id="address">...</span></p>
+
+        <h3 class="section-title">Itens</h3>
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantidade</th>
+                    <th>Unidade</th>
+                    <th>Observações</th>
+                </tr>
+            </thead>
+            <tbody id="itemsList">
+            </tbody>
+        </table>
+
+        <div id="statusUpdateSection" style="display: none; margin-top: 20px;">
+            <h3 class="section-title">Avançar Status</h3>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <select id="statusSelect" class="form-control" style="flex: 1;">
+                    </select>
+                <button id="updateStatusButton" class="btn-primary">Atualizar</button>
             </div>
-
-            <h3 class="section-title">Itens do Pedido</h3>
-            <table class="items-table">
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantidade</th>
-                        <th>Unidade</th>
-                        <th>Observações</th>
-                    </tr>
-                </thead>
-                <tbody id="itemsList">
-                </tbody>
-            </table>
         </div>
-        <div class="modal-actions">
-            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-            <button id="actionButton" onclick="handleAction()">Reservar Pedido</button>
         </div>
-    </dialog>
-
+    <div class="modal-actions">
+        <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+        
+        <button id="actionButton" >Aguardando...</button>
+    </div>
+</dialog>
     <script src="/js/visualizacaoOngs.js"></script>
 </body>
 </html>
