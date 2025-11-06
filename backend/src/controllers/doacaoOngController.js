@@ -13,7 +13,7 @@ export async function cadastrarDoacaoOng(req, res) {
       id_ong
     } = req.body;
 
-    // verificação de Segurança e Validação Simples
+    // verificação de segurança e validação Simples
     if (!nome_alimento || !nome || !email_Institucional || !email) {
         return res.status(400).json({message: "Campos essenciais não podem estar vazios."});
     }
@@ -36,7 +36,7 @@ export async function cadastrarDoacaoOng(req, res) {
                     id_ong: id_ong
                 } 
             ])
-            .select(); // Retorna o registro para confirmação
+            .select(); // retorna o registro para confirmação
 
         if (error) {
             

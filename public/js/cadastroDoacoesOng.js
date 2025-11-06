@@ -43,13 +43,13 @@ if (formDoacaoOng) {
 function validarDados(dados) {
   const erros = [];
 
-  // Validação da quantidade
+  //validação da quantidade
   const quantidade = Number(dados.quantidade);
   if (isNaN(quantidade) || quantidade < 0 || quantidade > 500) {
     erros.push("A quantidade deve ser um número entre 0 e 500.");
   }
 
-  // Validação do telefone (formato brasileiro: (XX) XXXXX-XXXX ou similar)
+  //validação do telefone
   const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone);
   if (!telefoneValido) {
     erros.push("O número de telefone informado é inválido.");

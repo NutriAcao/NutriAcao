@@ -16,16 +16,16 @@ async function carregarUsuario() {
     let email_usuario = dados.email;
     let tipo_usuario = dados.tipo;
 
-    const doacoes = await carregarDoacoesUsuario(email_usuario, tipo_usuario); // ← Aguarda a execução
+    const doacoes = await carregarDoacoesUsuario(email_usuario, tipo_usuario);
 
-  // Define os IDs com base no tipo
+  // define os IDs com base no tipo
     const tableId = tipo_usuario === 'empresa' ? 'doacoesTableEmpresa' : 'doacoesTableOng';
     const searchInputId = tipo_usuario === 'empresa' ? 'searchInputEmpresa' : 'searchInputOng';
     const totalItensId = tipo_usuario === 'empresa' ? 'totalItensEmpresa' : 'totalItensOng';
     const totalPaginasId = tipo_usuario === 'empresa' ? 'totalPaginasEmpresa' : 'totalPaginasOng';
     const paginationControlsId = tipo_usuario === 'empresa' ? 'paginationControlsEmpresa' : 'paginationControlsOng';
 
-    // Exibe apenas a tabela correspondente
+    // exibe apenas a tabela correspondente
     document.getElementById(tableId).style.display = 'table';
     preencherTabelaComDoacoes(doacoes, tableId);
     setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
@@ -52,7 +52,7 @@ async function carregarDoacoesUsuario(email, tipo) {
     return doacoes; // ← Aqui está certo!
   } catch (erro) {
     console.error('Erro ao carregar doações do usuário:', erro);
-    return []; // ← Retorna array vazio em caso de erro
+    return []; // ← retorna array vazio em caso de erro
   }
 }
 

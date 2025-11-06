@@ -8,7 +8,7 @@ export async function inserirONG(dados) {
     // hash da senha
     const senhaHash = await bcrypt.hash(dados.senha, saltRounds);
 
-    // Prepara os dados para inserir no Supabase
+    // preparando os dados para inserir no Supabase
     const novoRegistro = {
         nome: dados.nome,
         cnpj: dados.cnpj,
@@ -19,7 +19,6 @@ export async function inserirONG(dados) {
         email: dados.email,
         senha_hash: senhaHash,
         
-        // NOVOS CAMPOS DO RESPONSÁVEL (Com sufixo)
         nome_responsavel_ong: dados.nome_responsavel_ong,
         cpf_responsavel_ong: dados.cpf_responsavel_ong,
         cargo_responsavel_ong: dados.cargo_responsavel_ong,
@@ -29,7 +28,6 @@ export async function inserirONG(dados) {
     };
     //HAHAHAHAHAHAHAHAHAHAHAHAHAHAHA
 
-    // Insere no Supabase
     const { data, error } = await supabase
         .from('ong')
         .insert([novoRegistro])
@@ -37,7 +35,7 @@ export async function inserirONG(dados) {
 
     if (error) throw error;
 
-    // Remove a senha antes de retornar
+    // pra remover a senha antes de retornar
     const resultado = { ...data[0] };
     delete resultado.senha_hash;
     return resultado;

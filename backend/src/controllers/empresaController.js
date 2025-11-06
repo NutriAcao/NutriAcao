@@ -1,6 +1,6 @@
 // backend/src/controllers/empresaController.js
 
-// Os controllers tem o objetivo de estabelecer funções especificas, 
+// os controllers tem o objetivo de estabelecer funções especificas, 
 // nesse caso essa função é responsável por receber os dados de uma nova empresa a ser registrada, processá-los com segurança e
 // salvar essas informações no banco de dados, utilizando o Supabase como serviço de backend.
 
@@ -60,7 +60,7 @@ export async function cadastrarEmpresa(req, res) {
                     telefone_responsavel_empresa: telefone_responsavel_empresa,
                 } 
             ])
-            .select(); // Retorna o registro para confirmação
+            .select(); // retorna o registro para confirmação
 
         if (error) {
             
@@ -73,7 +73,7 @@ export async function cadastrarEmpresa(req, res) {
             return res.status(500).send("Falha no cadastro da Empresa. Erro: " + error.message);
         }
 
-        // Cria uma cópia dos dados e remove o hash antes de enviar ao cliente
+        // cria uma cópia dos dados e remove o hash antes de enviar ao cliente
         const dadosResposta = { ...data[0] };
         delete dadosResposta.senha_hash; 
 

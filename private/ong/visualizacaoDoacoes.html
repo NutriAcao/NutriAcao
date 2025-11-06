@@ -8,12 +8,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
@@ -54,18 +52,12 @@
                 </li>
                 <li>
                     <a href="/suporteONG.html">
-                        <i class="fas fa-headset"></i> Suporte
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-question-circle"></i> Ajuda / FAQ
+                        <i class="fas fa-headset"></i> Suporte / FAQ
                     </a>
                 </li>
             </ul>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
                 <h2>Painel de Doações</h2>
@@ -100,159 +92,8 @@
                                     <th>Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                            <tr>
-                                <td>1</td>
-                                <td>Pão Francês</td>
-                                <td>1000</td>
-                                <td>Fome Do Cão</td>
-                                <td>04/02/2025</td>
-                                <td><span class="status reservado">Reservado</span></td>
-                                <td><button onclick="openModal(1)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>2</td>
-                                <td>Pão Francês</td>
-                                <td>1000</td>
-                                <td>Fone Do Cão</td>
-                                <td>04/02/2025</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(2)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>3</td>
-                                <td>Arroz</td>
-                                <td>500</td>
-                                <td>Amor Animal</td>
-                                <td>15/12/2024</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(3)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>4</td>
-                                <td>Feijão</td>
-                                <td>300</td>
-                                <td>Casa do Caminho</td>
-                                <td>20/11/2024</td>
-                                <td><span class="status reservado">Reservado</span></td>
-                                <td><button onclick="openModal(4)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>5</td>
-                                <td>Leite</td>
-                                <td>200</td>
-                                <td>Lar São Francisco</td>
-                                <td>10/01/2025</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(5)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>6</td>
-                                <td>Macarrão</td>
-                                <td>400</td>
-                                <td>Fone Do Cão</td>
-                                <td>22/03/2025</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(6)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>7</td>
-                                <td>Óleo</td>
-                                <td>150</td>
-                                <td>Amor Animal</td>
-                                <td>30/06/2024</td>
-                                <td><span class="status reservado">Reservado</span></td>
-                                <td><button onclick="openModal(7)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>8</td>
-                                <td>Açúcar</td>
-                                <td>250</td>
-                                <td>Casa do Caminho</td>
-                                <td>15/09/2024</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(8)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>9</td>
-                                <td>Café</td>
-                                <td>180</td>
-                                <td>Lar São Francisco</td>
-                                <td>10/11/2024</td>
-                                <td><span class="status reservado">Reservado</span></td>
-                                <td><button onclick="openModal(9)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>10</td>
-                                <td>Farinha</td>
-                                <td>320</td>
-                                <td>Fone Do Cão</td>
-                                <td>05/05/2025</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(10)">Visualizar Doação</button></td>
-                            </tr>
-                            <tr>
-                                <td>11</td>
-                                <td>Farinha</td>
-                                <td>320</td>
-                                <td>Fone Do Cão</td>
-                                <td>05/05/2025</td>
-                                <td><span class="status disponivel">Disponível</span></td>
-                                <td><button onclick="openModal(11)">Visualizar Doação</button></td>
-                            </tr>
-                        </tbody>
+                            <tbody id="tableBody"></tbody>
                         </table>
-                        
-                        <dialog id="orderModal">
-                        <div class="modal-header">
-                            <h2>Detalhes da Doação #<span id="orderId"></span></h2>
-                            <button class="modal-close" onclick="closeModal()">&times;</button>
-                        </div>
-                        <div class="modal-content">
-                            <h3 class="section-title">Informações da Doação</h3>
-                            <table class="info-table">
-                                <tr>
-                                    <th>Data da Doação</th>
-                                    <td id="orderDate">04/02/2025</td>
-                                </tr>
-                                <tr>
-                                    <th>Instituição</th>
-                                    <td id="institution">Fome Do Cão</td>
-                                </tr>
-                                <tr>
-                                    <th>Status</th>
-                                    <td id="orderStatus"><span class="status reservado">Reservado</span></td>
-                                </tr>
-                                <tr>
-                                    <th>Contato</th>
-                                    <td id="contact">(11) 99999-9999</td>
-                                </tr>
-                                <tr>
-                                    <th>Endereço</th>
-                                    <td id="address">Rua das Flores, 123 - Centro, São Paulo - SP</td>
-                                </tr>
-                            </table>
-
-                            <h3 class="section-title">Itens da Doação</h3>
-                            <table class="items-table">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Quantidade</th>
-                                        <th>Unidade</th>
-                                        <th>Observações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="itemsList">
-                                </tbody>
-                            </table>
-
-                            <div class="modal-actions">
-                                <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-                                <button id="actionButton" onclick="handleAction()">Reservar Doação</button>
-                            </div>
-                        </div>
-                    </dialog>
                     </div>
                     
                     <div class="pagination">
@@ -270,8 +111,44 @@
                 </div>
             </div>
         </main>
-    </div>
+    </div> 
+    
+    <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3>Detalhes da Doação #<span id="orderId"></span></h3> 
+            <button class="btn-close" onclick="closeModal()">X</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações da Doação</h3>
+            <div class="order-info">
+                <p><strong>Data de Validade:</strong> <span id="orderDate">...</span></p>
+                <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
+                <p><strong>Empresa Doadora:</strong> <span id="institution">...</span></p>
+                <p><strong>Contato (Telefone):</strong> <span id="contact">...</span></p>
+                <p><strong>Endereço (CEP Retirada):</strong> <span id="address">...</span></p>
+            </div>
+            
+            <h3 class="section-title">Itens da Doação</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+            <button id="actionButton" onclick="handleAction()">Reservar Doação</button>
+        </div>
+    </dialog>
 
-    <script src="/js/visualizacaoOngs.js"></script>
+
+    <script src="/js/visualizacaoDoacoes.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@ import { inserirONG } from '../model/ongModel.js';
 export async function cadastrarONG(req, res) {
     const { nome, cnpj, area_atuacao, cep, endereco, telefone, email, nome_responsavel_ong, cpf_responsavel_ong, cargo_responsavel_ong, email_responsavel_ong, telefone_responsavel_ong, senha } = req.body;
 
-    // Validação básica
+    // validação básica
     if (!senha || !nome || !cnpj || !email) {
         return res.status(400).send("Campos essenciais (Nome, CNPJ, E-mail e Senha) não podem estar vazios.");
     }
@@ -21,7 +21,7 @@ export async function cadastrarONG(req, res) {
     } catch (error) {
         console.error('Erro ao cadastrar ONG:', error);
 
-        // Lida com erro de duplicidade (ex: CNPJ ou e-mail)
+        // lida com erro de duplicidade (ex: CNPJ ou e-mail)
         if (error.code === '23505') {
             return res.status(409).send("CNPJ ou E-mail institucional já cadastrado.");
         }

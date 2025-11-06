@@ -1,4 +1,3 @@
-// --- FUNCIONALIDADE 1: LÓGICA DO MENU DE NAVEGAÇÃO ---
 export function initMenu() {
     const menuButton = document.getElementById('menu-button');
     const navMenu = document.getElementById('menu');
@@ -18,10 +17,6 @@ export function initMenu() {
     }
 }
 
-// --- FUNCIONALIDADE 2: LÓGICA DAS OPÇÕES DE CADASTRO ORIGINAIS ---
-// (MANTIDA COMENTADA)
-
-// --- FUNCIONALIDADE 3: LÓGICA DOS POPUPS DE CADASTRO E ENVIO ---
 document.addEventListener('DOMContentLoaded', () => {
     // Seleciona os elementos do DOM para o cadastro de ONG
     const btnCadastrarOng = document.getElementById('btn-cadastrar-ong');
@@ -57,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // submissão da ONG
     if (formOng) {
-        formOng.addEventListener('submit', async (event) => { // ADICIONADO 'async'
+        formOng.addEventListener('submit', async (event) => { 
             event.preventDefault(); 
             
             const senha = document.getElementById('senha').value;
@@ -72,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dadosCompletos = Object.fromEntries(formData.entries());
             
             const dadosONG = {
-                // Dados da Instituição
+                // dados da Instituição
                 nome: dadosCompletos.nome,
                 cnpj: dadosCompletos.cnpj,
                 area_atuacao: dadosCompletos.area_atuacao,
@@ -85,31 +80,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 cargo_responsavel_ong: dadosCompletos.cargo_responsavel_ong,
                 email_responsavel_ong: dadosCompletos.email_responsavel_ong,
                 telefone_responsavel_ong: dadosCompletos.telefone_responsavel_ong,
-                // Credenciais
-                login: dadosCompletos.login, // Adicionado 'login'
+            
+                login: dadosCompletos.login,
                 senha: dadosCompletos.senha 
             };
 
             try {
-                // 3. Envia a requisição HTTP POST para o backend
                 const response = await fetch('/api/cadastro/ong', { 
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json' // Informa ao Express o formato
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(dadosONG) // Envia o JSON
+                    body: JSON.stringify(dadosONG)
                 });
 
                 const resultado = await response.json();
                 
-                // 4. Trata a resposta do Express
-                if (response.ok) { // 200-299 Status code
-                    alert(`✅ SUCESSO!`); 
+                if (response.ok) {
+                    alert(` SUCESSO!`); 
                     modalOng.style.display = 'none';
                     formOng.reset();
                 } else {
-                    // Erros 400, 409, 500 retornados pelo seu Controller
-                    alert('❌ FALHA: Erro de servidor desconhecido.');
+                    alert('FALHA: Erro de servidor desconhecido.');
                 }
 
             } catch (error) {
@@ -123,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formEmpresa.addEventListener('submit', async (event) => {
             event.preventDefault(); 
             
-            // Validação de senha
+            //validação de senha
             const senha = document.getElementById('senha-empresa').value;
             const confirmaSenha = document.getElementById('confirma-senha-empresa').value;
 
@@ -132,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // 1. Coleta dos dados do formulário
+            // coleta dos dados do formulário
             const formData = new FormData(formEmpresa);
             const dadosCompletos = Object.fromEntries(formData.entries());
 
@@ -154,8 +146,8 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             try {
-                // 3. Envio da Requisição HTTP POST
-                const response = await fetch('/api/cadastro/empresa', { // Rota para Empresa
+                //envio da Requisição HTTP POST
+                const response = await fetch('/api/cadastro/empresa', { // rota para Empresa
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json' 
@@ -167,11 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // 4. Tratamento da Resposta
                 if (response.ok) { 
-                    alert(`✅ SUCESSO! Empresa cadastrada com sucesso!`); 
+                    alert(`SUCESSO! Empresa cadastrada com sucesso!`); 
                     document.getElementById('modal-empresa').style.display = 'none';
                     formEmpresa.reset();
                 } else {
-                    alert(`❌ FALHA'}`);
+                    alert(`FALHA'}`);
                 }
 
             } catch (error) {

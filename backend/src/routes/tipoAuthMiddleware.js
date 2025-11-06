@@ -9,7 +9,7 @@ export function verificarEmpresa(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.tipo !== 'empresa') {
-      //return res.status(403).send('Acesso restrito a empresas.');
+      // return res.status(403).send('Acesso restrito a empresas.');
       return res.redirect('/loginpage');
     }
     req.usuario = decoded;
@@ -26,7 +26,7 @@ export function verificarOng(req, res, next) {
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
     if (decoded.tipo !== 'ong') {
-      //return res.status(403).send('Acesso restrito a ONGs.');
+      // return res.status(403).send('Acesso restrito a ONGs.');
       return res.redirect('/loginpage');
     }
     req.usuario = decoded;

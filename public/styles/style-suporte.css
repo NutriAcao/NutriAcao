@@ -1,7 +1,126 @@
-body {
-    overflow-x: hidden;
+/* Variáveis de Cores (Mantidas do seu código original)
+ */
+:root {
+  --color-background:#333333 ;   /* Cor de fundo geral do site */
+  --color-text: #1b1b1b ;         /* Cor do texto comum (Escuro) */
+  --color-secondary-text: #fff ;         /* Cor do texto secundário/invertido (Branco) */
+  --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+  --color-main: #004AAD;         /* Cor Principal (Azul Forte) */
+  --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções */
+  --color-active: #003172;       /* Tom mais escuro da cor principal (usado em bordas e hover) */
+  --color-hover-bg: #d4edda;     /* Fundo suave para items ativos (Verde claro para contraste suave) */
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    background-color: #f5f7f9;
+    color: var(--color-text);
+    line-height: 1.6;
+    height: 100%;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    flex-direction: column;
+    scroll-behavior: smooth;
+    overflow-x: hidden; /* Mantido do seu código */
+}
+
+/* --- SEÇÃO FAQ (Estilo Acordeão Adaptado) --- */
+.faq-section {
+    padding: 5vh 10vw;
+    background-color: #fff;
+    margin-bottom: 30px;
+}
+
+.faq-section h2 {
+    text-align: center;
+    color: var(--color-active);
+    font-size: 2.5em;
+    margin-bottom: 40px;
+    font-weight: 700;
+}
+
+.accordion-item {
+    border: 1px solid #e0e0e0;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: box-shadow 0.3s ease;
+}
+
+.accordion-item:hover {
+    box-shadow: 0 2px 10px rgba(0, 74, 173, 0.1);
+}
+
+.accordion-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    text-decoration: none;
+    color: var(--color-text);
+    font-weight: 600;
+    background-color: #f9f9f9;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+/* Estado ativo do item (pergunta) */
+.accordion-item.active .accordion-link {
+    background-color: var(--color-main);
+    color: var(--color-secondary-text);
+}
+
+/* Ícone de seta/indicador */
+.accordion-link::after {
+    content: '+';
+    font-size: 1.5em;
+    font-weight: 300;
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.accordion-item.active .accordion-link::after {
+    content: '−'; /* Sinal de menos para indicar aberto */
+    transform: rotate(0deg); /* Garante que fique reto */
+}
+
+.answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+    background-color: #fff;
+}
+
+.answer p {
+    padding: 15px 20px;
+    margin: 0;
+    line-height: 1.6;
+    color: #555;
+    border-top: 1px solid #e0e0e0;
+}
+/* --- FIM SEÇÃO FAQ --- */
+
+
+/* --- SEÇÕES DO SEU LAYOUT (Mantido e Adaptado com variáveis) --- */
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+/* ... (Outras classes como #divSideLine, .sidebar, .menu, etc., que parecem ser de um dashboard e não são diretamente usadas em uma página de contato/faq, mas são mantidas aqui para integridade do seu código) ... */
+
+/* Main Content */
+.main-content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+/* Seção de Contato */
 .contact {
     display: flex;
     justify-content: center; 
@@ -13,7 +132,6 @@ body {
 .contact-container {
   display: flex;
   align-items: center;
-
   width: 95%; 
   justify-content: flex-start; 
 }
@@ -31,12 +149,12 @@ body {
   font-weight: 700;
   font-size: xxx-large;
   margin: 2vh 0 10vh;
-  color: #003172;
+  color: var(--color-active); /* Adaptação de cor */
 } 
 .center-container input{
   background-color: transparent;
   border: none;
-  border-bottom:#003172 solid 2px;
+  border-bottom:var(--color-active) solid 2px; /* Adaptação de cor */
   height: 5vh;
   text-decoration: none;
   margin-top: 2vh;
@@ -49,7 +167,7 @@ input::placeholder{
   resize: none;
   height: 20vh;
   border: none;
-  border-bottom:#003172 solid 2px;
+  border-bottom:var(--color-active) solid 2px; /* Adaptação de cor */
   margin: 0 0 6vh;
 }
 .center-container textarea::placeholder{
@@ -58,9 +176,9 @@ input::placeholder{
 }
 .center-container button{
   display: flex;
-  border: #003172 solid 2px;
-  background-color:#004AAD;
-  color: #ffffff;
+  border: var(--color-active) solid 2px; /* Adaptação de cor */
+  background-color:var(--color-main); /* Adaptação de cor */
+  color: var(--color-secondary-text);
   align-items: center;
   justify-content: center;
   margin: 0 0 1vw;
@@ -77,7 +195,7 @@ input::placeholder{
 .right-contact-container h1{
   font-size: large;
   margin: 1vh 0;
-  color: #003172;
+  color: var(--color-active); /* Adaptação de cor */
 }
 .right-contact-container h1 i{
   margin: 0 1vh;
@@ -85,22 +203,23 @@ input::placeholder{
 .right-contact-container h2{
   font-size:medium;
   margin: 0 1vh;
-  color: #004AAD;
+  color: var(--color-main); /* Adaptação de cor */
 }
 
-  footer {
+/* Footer */
+footer {
     background-color: var(--color-main); 
     color: var(--color-secondary-text);
     text-align: center;
     padding: 15px;
-  }
+}
   
-
-  .footer-text {
-    color: #fff;
+.footer-text {
+    color: var(--color-secondary-text); /* Adaptação de cor */
     font-size: 16px;
-  }
+}
   
+/* Media Queries (Mantidas e adaptadas) */
 @media screen and (max-width: 1280px) {
     #top-page {
         padding-left: 10vh;

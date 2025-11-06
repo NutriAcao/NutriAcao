@@ -29,7 +29,7 @@ if (formDoacaoEmpresa) {
     const dadosCompletos = Object.fromEntries(formData.entries());
 
     const dadosEmpresa = {
-      // Dados da Empresa
+      // dados da Empresa
       nome: dadosUsuario.nomeInstituicao,
       email_Institucional: dadosUsuario.email,
       nome_alimento: dadosCompletos.nome_alimento,
@@ -44,25 +44,25 @@ if (formDoacaoEmpresa) {
     function validarDados(dados) {
   const erros = [];
 
-  // Validação da quantidade
+  // validação da quantidade
   const quantidade = Number(dados.quantidade);
   if (isNaN(quantidade) || quantidade < 1 || quantidade > 500) {
     erros.push("A quantidade deve ser um número entre 1 e 500.");
   }
 
-  // Validação do CEP (formato brasileiro: 00000-000 ou 00000000)
+  // validação do CEP (formato brasileiro: 00000-000 ou 00000000)
   const cepValido = /^\d{5}-?\d{3}$/.test(dados.cep_retirada);
   if (!cepValido) {
     erros.push("O CEP informado é inválido.");
   }
 
-  // Validação do telefone (formato brasileiro: (XX) XXXXX-XXXX ou similar)
+  // validação do telefone (formato brasileiro: (XX) XXXXX-XXXX ou similar)
   const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone);
   if (!telefoneValido) {
     erros.push("O número de telefone informado é inválido.");
   }
 
-  // Validação da data (não pode ser passada)
+  // validação da data (não pode ser passada)
   const hoje = new Date();
   const dataValidade = new Date(dados.data_validade);
   if (isNaN(dataValidade.getTime()) || dataValidade < hoje) {

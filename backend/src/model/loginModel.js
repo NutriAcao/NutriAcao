@@ -14,14 +14,14 @@ export async function buscarUsuarioPorEmail(email, tipo = null) {
             .single(); // retorna apenas 1 registro
 
         if (error && error.code !== 'PGRST116') { 
-            // PGRST116 = no rows returned, ignoramos
+            // PGRST116 = no rows returned, ai ignora
             console.error(`Erro ao buscar na tabela ${tabela}:`, error);
         }
 
         if (data) {
-            return { ...data, tipo: tabela }; // Retorna dados do usuário e de qual tabela veio
+            return { ...data, tipo: tabela }; // retorna dados do usuário e de qual tabela veio
         }
     }
 
-    return null; // Se não encontrou em nenhuma tabela
+    return null; // se não encontrou em nenhuma tabela
 }

@@ -1,195 +1,184 @@
-const doacoes = [
-            {
-                id: 1,
-                alimento: "Arroz integral",
-                quantidade: 50000,
-                empresa: "Supermercado Fresco Bom",
-                cnea: "12.345.678/0001-90",
-                doacoesRealizadas: 28,
-                status: "Ativo",
-                data: "2024-01-15"
-            },
-            {
-                id: 2,
-                alimento: "Feijão Carioca",
-                quantidade: 25000,
-                empresa: "Distribuidora Alimentar",
-                cnea: "23.456.789/0001-91",
-                doacoesRealizadas: 45,
-                status: "Ativo",
-                data: "2024-01-14"
-            },
-            {
-                id: 3,
-                alimento: "Macarrão Espaguete",
-                quantidade: 15000,
-                empresa: "Indústria Massa Fina",
-                cnea: "34.567.890/0001-92",
-                doacoesRealizadas: 32,
-                status: "Andamento",
-                data: "2024-01-13"
-            },
-            {
-                id: 4,
-                alimento: "Óleo de Soja",
-                quantidade: 10000,
-                empresa: "Óleos Vegetais Ltda",
-                cnea: "45.678.901/0001-93",
-                doacoesRealizadas: 19,
-                status: "Ativo",
-                data: "2024-01-12"
-            },
-            {
-                id: 5,
-                alimento: "Açúcar Cristal",
-                quantidade: 20000,
-                empresa: "Doces e Açúcares S.A.",
-                cnea: "56.789.012/0001-94",
-                doacoesRealizadas: 37,
-                status: "Concluído",
-                data: "2024-01-11"
-            }
-        ];
+// public/js/visualizacaoDoacoes.js
+// CÓDIGO FINAL DO PAINEL DA ONG (para ver Excedentes da Empresa)
 
-        // Variáveis de controle
-        let currentPage = 1;
-        const itemsPerPage = 5;
-        let filteredData = [...doacoes];
+// === VARIÁVEIS GLOBAIS ===
+let dadosUsuario = {};
+let doacoesReais = []; // Armazena os dados reais vindos do backend
+const itemsPerPage = 10;
+let currentPage = 1;
 
-        // Elementos DOM
-        const tableBody = document.getElementById('tableBody');
-        const pagination = document.getElementById('pagination');
-        const searchInput = document.getElementById('searchInput');
-        const filterStatus = document.getElementById('filterStatus');
-        const filterEmpresa = document.getElementById('filterEmpresa');
-        const filterOrdenacao = document.getElementById('filterOrdenacao');
+// === CARREGAMENTO INICIAL ===
+document.addEventListener('DOMContentLoaded', function() {
+    carregarUsuario();
+    loadDoacoesDisponiveis(); // Carrega os dados reais do backend
 
-        // Inicialização
-        function init() {
-            updateStats();
-            renderTable();
-            renderPagination();
-            populateEmpresaFilter();
-            setupEventListeners();
+    // Se você tiver filtros e pesquisa (como no seu código anterior),
+    // você precisará reativar e adaptar estas funções.
+    // setupSearch(); 
+    // setupPaginationListeners(); 
+});
+
+// Carrega dados do usuário logado (ONG)
+async function carregarUsuario() {
+    try {
+        const res = await fetch('/api/usuarioToken');
+        if (!res.ok) throw new Error('Falha ao buscar usuário');
+        
+        dadosUsuario = await res.json();
+        
+        // Atualiza o nome do usuário/instituição no canto superior
+        document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
+        document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'ONG';
+        
+    } catch (erro) {
+        console.error('Erro ao buscar usuário:', erro);
+    }
+}
+
+// === CARREGAMENTO DE DADOS (BACKEND) ===
+// Busca os Excedentes das Empresas no backend (Rota 1 do dbRoutes.js)
+async function loadDoacoesDisponiveis() {
+    try {
+        const response = await fetch('/api/doacoes-disponiveis-ong'); 
+        
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
+        
+        const doacoes = await response.json();
+        doacoesReais = doacoes; // Salva os dados globalmente
+        
+        renderizarTabela(doacoes); // Desenha a tabela com dados reais
+        // setupPagination(doacoes.length); 
+        
+    } catch (error) {
+        console.error('Erro ao carregar doações:', error);
+        alert('Falha ao carregar doações disponíveis. Tente novamente.');
+    }
+}
 
-        // Atualizar estatísticas
-        function updateStats() {
-            document.getElementById('totalDoacoes').textContent = doacoes.length;
-            document.getElementById('doacoesAtivas').textContent = doacoes.filter(d => d.status === 'Ativo').length;
-            document.getElementById('kgDoados').textContent = doacoes.reduce((sum, d) => sum + d.quantidade, 0).toLocaleString();
-            document.getElementById('empresasParticipantes').textContent = new Set(doacoes.map(d => d.empresa)).size;
+// Desenha a tabela no HTML
+function renderizarTabela(doacoes) {
+    // Usando '#doacoesTable tbody' ou '#tableBody'. Vou usar tableBody pois estava no seu código
+    const tbody = document.getElementById('tableBody'); 
+    tbody.innerHTML = ''; 
+
+    if (doacoes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8">Nenhuma doação disponível no momento.</td></tr>';
+        return;
+    }
+    
+    // Filtra para paginação (simplificado)
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const doacoesPaginadas = doacoes.slice(startIndex, endIndex);
+
+    doacoesPaginadas.forEach(doacao => {
+        // Use os nomes de coluna do ALIAS do SQL (Rota 1)
+        const dataValidadeFormatada = new Date(doacao.data_validade).toLocaleDateString('pt-BR');
+        
+        const row = `
+            <tr>
+                <td>${doacao.id}</td>
+                <td>${doacao.nome_alimento}</td>
+                <td>${doacao.quantidade}</td> 
+                <td>${doacao.nome_empresa}</td> 
+                <td>${dataValidadeFormatada}</td>
+                <td><span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
+                <td><button onclick="openModal(${doacao.id})">Ver</button></td>
+            </tr>
+        `;
+                tbody.innerHTML += row;
+    });
+
+    // Você precisará adaptar a atualização de contagem, se necessário.
+    // document.getElementById('totalItens').textContent = doacoes.length;
+}
+
+// === MODAL E AÇÕES (RESERVAR / CANCELAR) ===
+
+// Abre a modal com dados REAIS
+function openModal(doacaoId) {
+    const modal = document.getElementById('orderModal'); // Ajuste o ID se for diferente no HTML da ONG
+    const doacao = doacoesReais.find(d => d.id === doacaoId);
+    
+    if (doacao) {
+        // Preenche a modal
+        document.getElementById('orderId').textContent = doacao.id;
+        document.getElementById('orderDate').textContent = new Date(doacao.data_validade).toLocaleDateString('pt-BR');
+        document.getElementById('institution').textContent = doacao.nome_empresa;
+        document.getElementById('contact').textContent = doacao.telefone_contato;
+        document.getElementById('address').textContent = doacao.cep_retirada; // Usando CEP de retirada
+
+        // Status
+        const statusElement = document.getElementById('orderStatus');
+        statusElement.innerHTML = `<span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span>`;
+
+        // Itens
+        const itemsList = document.getElementById('itemsList'); // Ajuste o ID se for diferente
+        itemsList.innerHTML = `
+            <tr>
+                <td>${doacao.nome_alimento}</td>
+                <td>${doacao.quantidade}</td>
+                <td>Kg</td> <td>-</td>
+            </tr>
+        `;
+
+        // Botão de Ação
+        const actionButton = document.getElementById('actionButton'); // Ajuste o ID se for diferente
+        if (String(doacao.status).toLowerCase() === 'reservado') {
+            actionButton.textContent = 'Cancelar Reserva';
+            actionButton.style.backgroundColor = '#e74c3c';
+            // Chama handleAction com tipo 'excedente' (para reservar da tabela doacoesDisponiveis)
+            actionButton.onclick = () => handleAction(doacao.id, 'excedente', 'cancelar'); 
+        } else {
+            actionButton.textContent = 'Reservar Doação';
+            actionButton.style.backgroundColor = '#3498db';
+            actionButton.onclick = () => handleAction(doacao.id, 'excedente', 'reservar'); 
         }
+        
+        modal.showModal();
+    }
+}
 
-        // Renderizar tabela
-        function renderTable() {
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const endIndex = startIndex + itemsPerPage;
-            const pageData = filteredData.slice(startIndex, endIndex);
+// Fecha a modal (Ajuste o ID se for diferente no HTML da ONG)
+function closeModal() {
+    document.getElementById('orderModal').close();
+}
 
-            if (pageData.length === 0) {
-                tableBody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="empty-state">
-                            <i class="fas fa-inbox"></i>
-                            <h3>Nenhuma doação encontrada</h3>
-                            <p>Tente ajustar os filtros de busca</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+// Função de Ação (Reserva/Cancela)
+async function handleAction(doacaoId, tipoDoacao, actionType) {
+    const endpoint = actionType === 'reservar' 
+        ? '/api/reservar-doacao' 
+        : '/api/cancelar-reserva-e-devolver-estoque';
+    
+    closeModal();
 
-            tableBody.innerHTML = pageData.map(doacao => `
-                <tr>
-                    <td>${doacao.id}</td>
-                    <td>${doacao.alimento}</td>
-                    <td>${doacao.quantidade.toLocaleString()}</td>
-                    <td>${doacao.empresa}</td>
-                    <td>${doacao.cnea}</td>
-                    <td>${doacao.doacoesRealizadas}</td>
-                    <td><span class="status-badge status-${doacao.status.toLowerCase()}">${doacao.status}</span></td>
-                    <td><button class="btn-action" onclick="verDoacao(${doacao.id})">Ver</button></td>
-                </tr>
-            `).join('');
+    try {
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ doacaoId: doacaoId, tipoDoacao: tipoDoacao }),
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            alert(result.message); 
+            loadDoacoesDisponiveis(); // Recarrega os dados da tabela
+        } else {
+            alert(`Falha: ${result.message}`);
         }
+    } catch (error) {
+        console.error('Erro de rede:', error);
+        alert('Erro de rede. Tente novamente.');
+    }
+}
 
-        // Renderizar paginação
-        function renderPagination() {
-            const totalPages = Math.ceil(filteredData.length / itemsPerPage);
-            pagination.innerHTML = '';
-
-            if (totalPages <= 1) return;
-
-            for (let i = 1; i <= totalPages; i++) {
-                const button = document.createElement('button');
-                button.textContent = i;
-                button.className = i === currentPage ? 'active' : '';
-                button.onclick = () => {
-                    currentPage = i;
-                    renderTable();
-                    renderPagination();
-                };
-                pagination.appendChild(button);
-            }
-        }
-
-        // Popular filtro de empresas
-        function populateEmpresaFilter() {
-            const empresas = [...new Set(doacoes.map(d => d.empresa))];
-            filterEmpresa.innerHTML = '<option value="">Todas as empresas</option>' +
-                empresas.map(empresa => `<option value="${empresa}">${empresa}</option>`).join('');
-        }
-
-        // Configurar event listeners
-        function setupEventListeners() {
-            searchInput.addEventListener('input', applyFilters);
-            filterStatus.addEventListener('change', applyFilters);
-            filterEmpresa.addEventListener('change', applyFilters);
-            filterOrdenacao.addEventListener('change', applyFilters);
-        }
-
-        // Aplicar filtros
-        function applyFilters() {
-            const searchTerm = searchInput.value.toLowerCase();
-            const statusFilter = filterStatus.value;
-            const empresaFilter = filterEmpresa.value;
-            const ordenacao = filterOrdenacao.value;
-
-            filteredData = doacoes.filter(doacao => {
-                const matchesSearch = 
-                    doacao.alimento.toLowerCase().includes(searchTerm) ||
-                    doacao.empresa.toLowerCase().includes(searchTerm) ||
-                    doacao.cnea.includes(searchTerm);
-
-                const matchesStatus = !statusFilter || doacao.status === statusFilter;
-                const matchesEmpresa = !empresaFilter || doacao.empresa === empresaFilter;
-
-                return matchesSearch && matchesStatus && matchesEmpresa;
-            });
-
-            // Ordenação
-            switch (ordenacao) {
-                case 'antigos':
-                    filteredData.sort((a, b) => new Date(a.data) - new Date(b.data));
-                    break;
-                case 'quantidade':
-                    filteredData.sort((a, b) => b.quantidade - a.quantidade);
-                    break;
-                default: // recentes
-                    filteredData.sort((a, b) => new Date(b.data) - new Date(a.data));
-            }
-
-            currentPage = 1;
-            renderTable();
-            renderPagination();
-        }
-
-        // Função para visualizar doação
-        function verDoacao(id) {
-            alert(`Visualizando doação ID: ${id}\n\nEm uma implementação real, isso abriria um modal ou redirecionaria para uma página de detalhes.`);
-            // Aqui você pode integrar com o backend para mostrar detalhes
-        }
-
-        // Inicializar a página
-        document.addEventListener('DOMContentLoaded', init);
+// Fechar modal clicando fora
+document.getElementById('orderModal').addEventListener('click', function(event) {
+    if (event.target === this) {
+        closeModal();
+    }
+});
