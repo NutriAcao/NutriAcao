@@ -101,6 +101,10 @@ app.get('/suporteEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
   res.sendFile(path.join(__dirname, '../','private', 'empresa', 'suporteEmpresa.html'));
   
 })
+app.get('/minhasDoacoesAtivasEmpresa.html', verificarToken, verificarEmpresa, (req,res) => {
+  res.sendFile(path.join(__dirname, '../','private', 'empresa', 'minhasDoacoesAtivasEmpresa.html'));
+  
+})
 
 
 //ROTAS PROTEGIDAS PARA ONG
