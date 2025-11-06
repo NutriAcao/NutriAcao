@@ -30,12 +30,12 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/minhasDoacoesAtivasEmpresa.html">
+                    <a href="/minhasDoacoesAtivasEmpresa.html" class="active">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas
                     </a>
                 </li>
                 <li>
-                    <a href="/HistoricoDoacoesEmpresa.html" class="active">
+                    <a href="/HistoricoDoacoesEmpresa.html">
                         <i class="fas fa-history"></i> Histórico de Doações
                     </a>
                 </li>
@@ -50,7 +50,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/suporteEmpresa.html">
+                    <a href="">
                         <i class="fas fa-headset"></i> Suporte / FAQ
                     </a>
                 </li>
@@ -60,7 +60,7 @@
         <!-- Main Content -->
         <main class="main-content">
             <div class="header">
-                <h2>Histórico de Doações</h2>
+                <h2>Doações Ativas</h2>
 
 
                 <div class="user-info">
@@ -72,7 +72,7 @@
                 </div>
     
 
-</div>
+            </div>
             
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
@@ -88,7 +88,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Produto Doado</th>
+                                    <th>Excedentes Cadastrados</th>
                                     <th>Quantidade (Kilos)</th>
                                     
                                 </tr>
@@ -113,11 +113,52 @@
                     </div>
                 </div>
             </div>
-
+                   
+              
+            <div class="card" id="historicoEmpresa">
+                <div class="card-header">
+                    <div class="search-container">
+                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTableEmpresa">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pedidos em Andamento</th>
+                                    <th>Quantidade (Kilos)</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
+                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
+                        </div>
+                        <div class="pagination-controls" id="paginationControlsEmpresa">
+                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active" data-page="1">1</button>
+                            <button class="page-btn" data-page="2">2</button>
+                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
+        
     </div>
 
     
-    <script src="/js/DoacoesAtivasEmpresa.js"></script>
+    <script src="/js/doacoesAtivasEmpresa.js"></script>
 </body>
 </html>

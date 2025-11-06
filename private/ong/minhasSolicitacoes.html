@@ -2,21 +2,22 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-  <title>Visualização de Doações - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css"> 
+  <title>Painel de Empresas - NutriAção</title>
+  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <div id="divSideLine"><img src="/assets/Logo-white.png" alt="Logo"></div>
+        <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
+        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
-            
             <ul class="menu">
                <li>
                     <a href="/visualizacaoDoacoes.html">
@@ -24,14 +25,15 @@
                     </a>
                 </li>
 
-                <li>
-                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
+
+                 <li>
+                    <a href="/cadastrarDoacoesONG.html" >
                         <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
                     </a>
                 </li>
                 
                 <li>
-                    <a href="/minhasSolicitacoes.html" class="active">
+                    <a href="/minhasSolicitacoes.html" id="toggleGestao" class="active">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
                     </a>
                 </li>
@@ -58,116 +60,110 @@
                         <i class="fas fa-headset"></i> Suporte / FAQ
                     </a>
                 </li>
-            </ul>
         </aside>
         
+        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
-                <h2>Doações de Alimentos Disponíveis</h2> 
+                <h2>Doações Ativas</h2>
+
+
                 <div class="user-info">
                     <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
                     <div>
                         <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">ONG Fome Zero</p>
+                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
                     </div>
                 </div>
+    
+
             </div>
             
-            <div class="card">
+            <div class="card" id="historicoEmpresa">
                 <div class="card-header">
-                    <form class="filters-rf09" id="formFiltrosDoacoes">
-                        <div class="filter-group">
-                            <label for="filtroCategoria">Categoria:</label>
-                            <select id="filtroCategoria" name="categoria">
-                                <option value="">Todas</option>
-                                <option value="perecivel">Perecível</option>
-                                <option value="nao-perecivel">Não Perecível</option>
-                                <option value="congelado">Congelado</option>
-                                </select>
-                        </div>
-                        <div class="filter-group">
-                            <label for="filtroData">Data de Cadastro (Após):</label>
-                            <input type="date" id="filtroData" name="dataMin">
-                        </div>
-                        <div class="filter-group">
-                            <label for="filtroLocalizacao">Localização:</label>
-                            <input type="text" id="filtroLocalizacao" name="localizacao" placeholder="Cidade ou CEP">
-                        </div>
-                        <button type="submit" class="btn-primary-filter"><i class="fas fa-filter"></i> Aplicar</button>
-                    </form>
-                    
                     <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Pesquisar alimento específico...">
+                        <input type="text" id="searchInputOng" placeholder="Pesquisar alimentos...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
                 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="doacoesTable">
+                        <table id="doacoesTableOng">
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Alimento</th>
-                                    <th>Quantidade</th>
-                                    <th>Validade</th>
-                                    <th>Tipo</th>
-                                    <th>Localização</th>
-                                    <th>Ações (RF10)</th>
+                                    <th>Produto Recebido</th>
+                                    <th>Quantidade (Kilos)</th>
+                                    
                                 </tr>
                             </thead>
                             <tbody>
-                            <tr>
-                                <td>101</td>
-                                <td>Pães Integrais</td>
-                                <td>50 Unidades</td>
-                                <td>02/06/2026</td>
-                                <td><span class="status disponivel">Não Perecível</span></td>
-                                <td>São Paulo - Centro</td>
-                                <td><button onclick="solicitarDoacao(101)">Solicitar (RF10)</button></td>
-                            </tr>
-                            <tr>
-                                <td>102</td>
-                                <td>Frutas (Mix)</td>
-                                <td>20 Kg</td>
-                                <td>15/10/2025</td>
-                                <td><span class="status reservado" style="background-color: #fce3e3; color: #e74c3c;">Perecível</span></td>
-                                <td>Campinas - Vila Nova</td>
-                                <td><button onclick="solicitarDoacao(102)" class="btn-detail">Detalhes</button></td>
-                            </tr>
-                            <tr>
-                                <td>103</td>
-                                <td>Leite Longa Vida</td>
-                                <td>100 Litros</td>
-                                <td>20/08/2026</td>
-                                <td><span class="status disponivel">Não Perecível</span></td>
-                                <td>Rio de Janeiro - Barra</td>
-                                <td><button onclick="solicitarDoacao(103)">Solicitar (RF10)</button></td>
-                            </tr>
+                               
                             </tbody>
                         </table>
-                        
-                        <dialog id="orderModal">
-                        </dialog>
                     </div>
+                    
                     <div class="pagination">
                         <div class="pagination-info">
-                            Doações na Página: <span id="itensPagina">3</span>
-                            | Total de Doações: <span id="totalItens">55</span>
+                            Total de Páginas: <span id="totalPaginasOng">2</span>
+                            | Itens encontrados: <span id="totalItensOng">10</span>
                         </div>
-                        <div class="pagination-controls">
+                        <div class="pagination-controls" id="paginationControlsOng">
                             <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
                             <button class="page-btn active" data-page="1">1</button>
                             <button class="page-btn" data-page="2">2</button>
-                            <button class="page-btn" data-page="3">3</button>
+                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+                   
+              
+            <div class="card" id="historicoEmpresa">
+                <div class="card-header">
+                    <div class="search-container">
+                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTableEmpresa">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Pedidos em Andamento</th>
+                                    <th>Quantidade (Kilos)</th>
+                                    
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
+                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
+                        </div>
+                        <div class="pagination-controls" id="paginationControlsEmpresa">
+                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active" data-page="1">1</button>
+                            <button class="page-btn" data-page="2">2</button>
                             <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
             </div>
         </main>
+        
     </div>
 
-    <script src="/js/visualizacaoDoacoesONG.js"></script> 
+    
+    <script src="/js/doacoesAtivasOng.js"></script>
 </body>
 </html>
