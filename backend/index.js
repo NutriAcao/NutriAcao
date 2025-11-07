@@ -13,7 +13,9 @@ import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
-
+import reservaRoutes from './routes/reservaRoutes.js';
+import doacaoRoutes from './routes/doacaoRoutes.js';
+import historicoRoutes from './routes/historicoRoutes.js';
 
 // configuração de variáveis
 dotenv.config(); 
@@ -60,6 +62,9 @@ app.use('/', dbRoutes);
 app.use('/api/cadastro', cadastroRoutes)
 app.use('/api/login', login)
 app.use("/api", usuarioRoutes);
+app.use('/api', reservaRoutes);
+app.use('/api', doacaoRoutes); 
+app.use('/api', historicoRoutes); 
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {

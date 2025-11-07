@@ -1,4 +1,5 @@
 import { supabase } from '../config/supabaseClient.js';
+import { supabase } from '../config/supabaseClient.js';
 
 export async function cadastrarDoacaoEmpresa(req, res) {
     console.log('Dados recebidos no req.body:', req.body); 
@@ -59,5 +60,68 @@ export async function cadastrarDoacaoEmpresa(req, res) {
     } catch (e) {
         console.error('Erro interno do servidor no cadastro da Empresa:', e);
         return res.status(500).json({message:"Erro fatal ao processar a requisição."});
+    }
+}
+export async function getMeusExcedentesDisponiveis(req, res) {
+    // Pega o ID da empresa logada (do middleware de autenticação)
+    const id_empresa_logada = req.user.id; 
+
+    if (!id_empresa_logada) {
+        return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('doacoesDisponiveis')
+            .select('*')
+            .eq('status', 'disponível') // Filtro 1: Status
+            .eq('id_empresa', id_empresa_logada); // Filtro 2: Somente os que EU criei
+
+        if (error) throw error;
+        return res.status(200).json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar excedentes:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
+    }
+}
+
+// -------------------------------------------------------------------
+// FUNÇÃO 2: Para a Tabela "Itens Reservados" (Status: Reservado)
+// -------------------------------------------------------------------
+export async function getMeusItensReservados(req, res) {
+    const id_empresa_logada = req.user.id;
+
+    if (!id_empresa_logada) {
+        return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    try {
+        // Query A: Doações que EU (Empresa) criei e foram reservadas por uma ONG
+        const { data: minhasDoacoesReservadas, error: errorA } = await supabase
+            .from('doacoesDisponiveis')
+            .select('*') // Pega tudo
+            .eq('status', 'reservado') // Filtro 1: Status
+            .eq('id_empresa', id_empresa_logada); // Filtro 2: Eu criei
+        
+        if (errorA) throw errorA;
+
+        // Query B: Pedidos de ONGs que EU (Empresa) reservei
+        const { data: pedidosQueReservei, error: errorB } = await supabase
+            .from('doacoesSolicitadas')
+            .select('*') // Pega tudo
+            .eq('status', 'reservado') // Filtro 1: Status
+            .eq('id_empresa_reserva', id_empresa_logada); // Filtro 2: Eu reservei
+
+        if (errorB) throw errorB;
+
+        // Junta os resultados das duas queries em uma única lista
+        const todosItensReservados = [...minhasDoacoesReservadas, ...pedidosQueReservei];
+        
+        return res.status(200).json(todosItensReservados);
+
+    } catch (error) {
+        console.error('Erro ao buscar itens reservados:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }

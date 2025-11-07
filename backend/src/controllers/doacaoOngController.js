@@ -59,3 +59,19 @@ export async function cadastrarDoacaoOng(req, res) {
         return res.status(500).json({message:"Erro fatal ao processar a requisição."});
     }
 }
+export async function getPedidosDisponiveis(req, res) {
+    try {
+        const { data, error } = await supabase
+            .from('doacoesSolicitadas')
+            .select('*') // Pega todas as colunas
+            .eq('status', 'disponível'); // O FILTRO MÁGICO!
+
+        if (error) throw error;
+
+        return res.status(200).json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar pedidos disponíveis:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
+    }
+}
