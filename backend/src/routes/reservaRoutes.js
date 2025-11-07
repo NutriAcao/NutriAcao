@@ -1,43 +1,78 @@
 // backend/routes/reservaRoutes.js
 import express from 'express';
-import { reservarDoacaoEmpresa, reservarPedidoOng } from '../controllers/reservaController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js'; // Assumindo que você tem um middleware de autenticação
+import { 
+    reservarDoacaoEmpresa, 
+    reservarPedidoOng,
+    concluirDoacao, 
+    concluirPedido
+} from '../controllers/reservaController.js';
+import { authMiddleware } from '../middleware/authMiddleware.js'; 
+import { cancelarReserva } from '../controllers/reservaController.js';
 
 const router = express.Router();
 
-// Rota para uma ONG reservar uma Doação de Empresa
-// A ONG (logada) envia o ID da doação que ela quer reservar
-router.put('/reservar-doacao', authMiddleware, async (req, res) => {
-    const { doacao_id } = req.body;
-    const id_ong_logada = req.user.id; // Pega o ID da ONG logada (do token/authMiddleware)
+// --- ROTAS DE RESERVA ---
 
-    // Passa os dados para a função do controller
-    await reservarDoacaoEmpresa(req, { ...req.body, doacao_id, id_ong_logada }, res);
+// Rota para uma ONG reservar uma Doação de Empresa
+// PUT /api/reservar-doacao
+router.put('/reservar-doacao', authMiddleware, async (req, res) => {
+    // 1. O ID da ONG logada é pego do token (authMiddleware)
+    const id_ong_logada = req.user.id; 
+    
+    // 2. Adiciona o ID da ONG ao corpo da requisição para o controller
+    req.body.id_ong_logada = id_ong_logada; 
+
+    // 3. Chama o controller com a assinatura padrão (req, res)
+    await reservarDoacaoEmpresa(req, res);
 });
 
 // Rota para uma Empresa reservar um Pedido de ONG
-// A Empresa (logada) envia o ID do pedido que ela quer reservar
+// PUT /api/reservar-pedido
 router.put('/reservar-pedido', authMiddleware, async (req, res) => {
-    const { pedido_id } = req.body;
-    const id_empresa_logada = req.user.id; // Pega o ID da Empresa logada
+    // 1. O ID da Empresa logada é pego do token (authMiddleware)
+    const id_empresa_logada = req.user.id; 
 
-    // Passa os dados para a função do controller
-    await reservarPedidoOng(req, { ...req.body, pedido_id, id_empresa_logada }, res);
+    // 2. Adiciona o ID da Empresa ao corpo da requisição para o controller
+    req.body.id_empresa_logada = id_empresa_logada; 
+
+    // 3. Chama o controller com a assinatura padrão (req, res)
+    await reservarPedidoOng(req, res);
 });
-// Em backend/routes/reservaRoutes.js
-// ... (depois das rotas 'reservar')
-import { concluirDoacao, concluirPedido } from '../controllers/reservaController.js';
 
+
+// --- ROTAS DE CONCLUSÃO ---
+
+// PUT /api/concluir-doacao
 router.put('/concluir-doacao', authMiddleware, async (req, res) => {
-    const { doacao_id } = req.body;
+    // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
     const id_usuario_logado = req.user.id;
-    await concluirDoacao(req, { ...req.body, doacao_id, id_usuario_logado }, res);
+    
+    // 2. Adiciona o ID ao corpo da requisição para que o controller possa verificar a permissão
+    req.body.id_usuario_logado = id_usuario_logado; 
+
+    // 3. Chama o controller com a assinatura padrão (req, res)
+    await concluirDoacao(req, res);
 });
 
+// PUT /api/concluir-pedido
 router.put('/concluir-pedido', authMiddleware, async (req, res) => {
-    const { pedido_id } = req.body;
+    // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
     const id_usuario_logado = req.user.id;
-    await concluirPedido(req, { ...req.body, pedido_id, id_usuario_logado }, res);
+    
+    // 2. Adiciona o ID ao corpo da requisição
+    req.body.id_usuario_logado = id_usuario_logado; 
+    
+    // 3. Chama o controller com a assinatura padrão (req, res)
+    await concluirPedido(req, res);
 });
-
+router.put('/cancelar-reserva', authMiddleware, async (req, res) => {
+    // O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
+    const id_usuario_logado = req.user.id;
+    
+    // Adiciona o ID ao corpo da requisição
+    req.body.id_usuario_logado = id_usuario_logado; 
+    
+    // Chama o controller
+    await cancelarReserva(req, res);
+});
 export default router;

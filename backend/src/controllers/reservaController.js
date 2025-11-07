@@ -124,3 +124,69 @@ export async function concluirPedido(req, res) {
 
     return res.status(200).json({ message: 'Pedido concluído com sucesso!' });
 }
+/**
+ * Cancela uma reserva, movendo o item de volta para 'disponível'.
+ * Esta função deve ser chamada por quem efetuou a reserva (ONG ou EMPRESA)
+ * ou por quem criou o item.
+ */
+export async function cancelarReserva(req, res) {
+    // item_id é o ID da doacaoDisponivel ou doacaoSolicitada
+    // tipo_item é 'doacao' ou 'pedido'
+    const { item_id, tipo_item, id_usuario_logado } = req.body; 
+
+    if (!item_id || !tipo_item || !id_usuario_logado) {
+        return res.status(400).json({ message: "ID do item e tipo são obrigatórios." });
+    }
+
+    try {
+        let tabela;
+        let campo_reserva; // Campo que indica quem reservou
+        let campo_criador; // Campo que indica quem criou
+
+        if (tipo_item === 'doacao') {
+            tabela = 'doacoesDisponiveis';
+            campo_reserva = 'id_ong_reserva'; // Reservado por ONG
+            campo_criador = 'id_empresa'; // Criado por Empresa
+        } else if (tipo_item === 'pedido') {
+            tabela = 'doacoesSolicitadas';
+            campo_reserva = 'id_empresa_reserva'; // Reservado por Empresa
+            campo_criador = 'id_ong'; // Criado por ONG
+        } else {
+             return res.status(400).json({ message: "Tipo de item inválido (esperado 'doacao' ou 'pedido')." });
+        }
+
+        // 1. O cancelamento exige a atualização de 3 campos:
+        //    a) status: 'disponível'
+        //    b) id_xxx_reserva: NULL (limpar o reservador)
+        //    c) Outros campos de contato de reserva (se houver, deve ser NULL)
+        
+        const { data, error } = await supabase
+            .from(tabela)
+            .update({ 
+                status: 'disponível',
+                [campo_reserva]: null, // Limpa o ID de quem reservou
+            })
+            .eq('id', item_id)
+            .eq('status', 'reservado') // Só cancela se estiver reservado
+
+            // Segurança: Apenas quem criou ou quem reservou pode cancelar
+            .or(`${campo_criador}.eq.${id_usuario_logado},${campo_reserva}.eq.${id_usuario_logado}`) 
+            .select();
+
+        if (error) throw error;
+
+        if (data.length === 0) {
+             return res.status(404).json({ message: "Reserva não encontrada, não está reservada, ou você não tem permissão para cancelar." });
+        }
+
+        return res.status(200).json({ 
+            status: 'OK', 
+            message: 'Reserva cancelada com sucesso! O item está novamente disponível.', 
+            dados: data
+        });
+
+    } catch (error) {
+        console.error('Erro ao cancelar reserva:', error.message);
+        return res.status(500).json({ message: "Falha ao cancelar a reserva. Erro: " + error.message });
+    }
+}
