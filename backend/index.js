@@ -13,9 +13,9 @@ import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
-import reservaRoutes from './routes/reservaRoutes.js';
-import doacaoRoutes from './routes/doacaoRoutes.js';
-import historicoRoutes from './routes/historicoRoutes.js';
+import reservaRoutes from './src/routes/reservaRoutes.js';
+import doacaoRoutes from './src/routes/doacoesRoutes.js';
+import historicoRoutes from './src/routes/historicoRoutes.js';
 
 // configuração de variáveis
 dotenv.config(); 

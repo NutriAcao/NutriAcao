@@ -6,7 +6,7 @@ import {
     concluirDoacao, 
     concluirPedido
 } from '../controllers/reservaController.js';
-import { authMiddleware } from '../middleware/authMiddleware.js'; 
+import { verificarToken } from '../routes/authMiddleware.js'; 
 import { cancelarReserva } from '../controllers/reservaController.js';
 
 const router = express.Router();
@@ -15,7 +15,7 @@ const router = express.Router();
 
 // Rota para uma ONG reservar uma Doação de Empresa
 // PUT /api/reservar-doacao
-router.put('/reservar-doacao', authMiddleware, async (req, res) => {
+router.put('/reservar-doacao', verificarToken, async (req, res) => {
     // 1. O ID da ONG logada é pego do token (authMiddleware)
     const id_ong_logada = req.user.id; 
     
@@ -28,7 +28,7 @@ router.put('/reservar-doacao', authMiddleware, async (req, res) => {
 
 // Rota para uma Empresa reservar um Pedido de ONG
 // PUT /api/reservar-pedido
-router.put('/reservar-pedido', authMiddleware, async (req, res) => {
+router.put('/reservar-pedido', verificarToken, async (req, res) => {
     // 1. O ID da Empresa logada é pego do token (authMiddleware)
     const id_empresa_logada = req.user.id; 
 
@@ -43,7 +43,7 @@ router.put('/reservar-pedido', authMiddleware, async (req, res) => {
 // --- ROTAS DE CONCLUSÃO ---
 
 // PUT /api/concluir-doacao
-router.put('/concluir-doacao', authMiddleware, async (req, res) => {
+router.put('/concluir-doacao', verificarToken, async (req, res) => {
     // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
     const id_usuario_logado = req.user.id;
     
@@ -55,7 +55,7 @@ router.put('/concluir-doacao', authMiddleware, async (req, res) => {
 });
 
 // PUT /api/concluir-pedido
-router.put('/concluir-pedido', authMiddleware, async (req, res) => {
+router.put('/concluir-pedido', verificarToken, async (req, res) => {
     // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
     const id_usuario_logado = req.user.id;
     
@@ -65,7 +65,7 @@ router.put('/concluir-pedido', authMiddleware, async (req, res) => {
     // 3. Chama o controller com a assinatura padrão (req, res)
     await concluirPedido(req, res);
 });
-router.put('/cancelar-reserva', authMiddleware, async (req, res) => {
+router.put('/cancelar-reserva', verificarToken, async (req, res) => {
     // O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
     const id_usuario_logado = req.user.id;
     
