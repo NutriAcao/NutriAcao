@@ -111,14 +111,13 @@ function openModal(doacaoId) {
     const updateStatusButton = document.getElementById('updateStatusButton');
 
     // Reseta/Esconde tudo por padrão
-    actionButton.style.display = 'none';
     statusUpdateSection.style.display = 'none';
     statusSelect.innerHTML = '';
     
     const status = String(doacao.status).toLowerCase();
     const tipoDoacao = 'excedente'; // Tipo para o backend
 
-    if (status === 'disponivel') {
+    if (status === 'disponível') {
         actionButton.textContent = 'Reservar Doação';
         actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';

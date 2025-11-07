@@ -101,6 +101,8 @@ function openModal(pedidoId) {
     if (!pedido) return;
     console.log("DEBUG 4: Pedido encontrado!", pedido);
 
+    console.log("STATUS DO PEDIDO:", pedido.status, String(pedido.status).toLowerCase());
+
     // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
     modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
 
@@ -135,14 +137,14 @@ function openModal(pedidoId) {
     const updateStatusButton = document.getElementById('updateStatusButton');
     const tipoDoacao = 'solicitacao'; 
 
+    actionButton.style.removeProperty('display');
     // Resetar visibilidade
-    actionButton.style.display = 'none';
     statusUpdateSection.style.display = 'none';
     statusSelect.innerHTML = '';
 
 
     // LÓGICA DE STATUS
-    if (status === 'disponivel') {
+    if (status === 'disponível') {
         // ESTA É A LÓGICA FALTANDO NO SEU MODAL ATUAL
         actionButton.textContent = 'Reservar Pedido';
         actionButton.style.backgroundColor = '#3498db';
@@ -167,7 +169,7 @@ function openModal(pedidoId) {
         statusSelect.innerHTML = '<option value="concluido">Mover para "Concluído"</option>';
         updateStatusButton.onclick = () => updateStatus(pedido.id, tipoDoacao);
 
-    } else if (status === 'concluido') {
+    } else if (status === 'concluído') {
         actionButton.style.display = 'none';
         statusUpdateSection.style.display = 'none';
     }
