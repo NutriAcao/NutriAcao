@@ -1,17 +1,24 @@
+/* arquivo: backend/src/model/doacoesEmpresaModel.js - modelo de dados do backend: representa a entidade doacoesempresamodel */
+
+/*
+    modelo de doações (empresa):
+    - comunicação com o supabase para operações relacionadas a doacoesDisponiveis
+    - função principal: buscarDoacoesConcluidasPorEmailEmpresa(email) retorna registros associados ao email institucional
+*/
 import { supabase } from "../config/supabaseClient.js";
 
 export async function buscarDoacoesConcluidasPorEmailEmpresa(email) {
-    const { data, error } = await supabase
-        .from('doacoesDisponiveis') 
-        .select('id, nome_alimento, quantidade')
-        .eq('email_Institucional', email);
+  const { data, error } = await supabase
+    .from("doacoesDisponiveis")
+    .select("id, nome_alimento, quantidade")
+    .eq("email_Institucional", email);
 
-    if (error) {
-        if (error.code !== 'PGRST116') {
-            console.error('Erro ao buscar doações:', error);
-        }
-        return null;
+  if (error) {
+    if (error.code !== "PGRST116") {
+      console.error("Erro ao buscar doações:", error);
     }
+    return null;
+  }
 
-    return data?.length ? data : null;
+  return data?.length ? data : null;
 }

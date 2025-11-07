@@ -1,15 +1,21 @@
-import jwt from 'jsonwebtoken';
+/* arquivo: backend/src/routes/authMiddleware.js - arquivo de rotas do backend: define endpoints relacionados a authmiddleware - funções/constantes: decoded, token, JWT_SECRET */
 
-const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+/*
+  middleware de autenticação:
+  - verifica se existe cookie 'token' na requisição
+  - valida o jwt usando a chave configurada
+  - em caso de sucesso anexa o objeto usuário em req.usuario e chama next()
+  - em caso de falha redireciona para a página de login
+*/
+import jwt from "jsonwebtoken";
 
-//Middleware para verificar o token JWT
+const JWT_SECRET = process.env.JWT_SECRET || "sua_chave_secreta";
+
 export function verificarToken(req, res, next) {
-    const token = req.cookies.token;
+  const token = req.cookies.token;
 
   if (!token) {
-    //redireciona o usuário para a página de login caso não tenha token
-    return res.redirect('/loginpage');
-    
+    return res.redirect("/loginpage");
   }
 
   try {
@@ -17,7 +23,6 @@ export function verificarToken(req, res, next) {
     req.usuario = decoded;
     next();
   } catch (err) {
-    //Se o token for inválido ou expirado, redireciona para a página de login
-    return res.redirect('/loginpage');
+    return res.redirect("/loginpage");
   }
 }

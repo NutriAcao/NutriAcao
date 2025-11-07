@@ -1,63 +1,79 @@
-import { supabase } from '../config/supabaseClient.js';
+/* arquivo: backend/src/controllers/doacaoEmpresaController.js - arquivo de controller do backend: controla rotinas relacionadas a doacaoempresacontroller */
+
+/*
+    controller de doações (empresa):
+    - recebe dados da doação no corpo da requisição
+    - valida campos essenciais (nome_alimento, nome, emails, data_validade)
+    - insere um registro na tabela doacoesDisponiveis via supabase
+    - trata erros da operação e retorna status apropriado (201 em sucesso)
+*/
+import { supabase } from "../config/supabaseClient.js";
 
 export async function cadastrarDoacaoEmpresa(req, res) {
-    console.log('Dados recebidos no req.body:', req.body); 
-    // receber e preparar os dados da doação da empresa do formulário
-    const { 
-       nome,
-      email_Institucional,
-      nome_alimento,
-      quantidade,
-      data_validade,
-      cep_retirada,
-      telefone,
-      email,
-      id_empresa
-    } = req.body; 
+  console.log("Dados recebidos no req.body:", req.body);
 
-    // verificação de Segurança e Validação Simples
-    if (!nome_alimento || !nome || !email_Institucional || !email || !data_validade) {
-        return res.status(400).json({message: "Campos essenciais não podem estar vazios."});
-    }
-    
-    try {
-       
+  const {
+    nome,
+    email_Institucional,
+    nome_alimento,
+    quantidade,
+    data_validade,
+    cep_retirada,
+    telefone,
+    email,
+    id_empresa,
+  } = req.body;
 
-        // insere dados na tabela 'Empresa'
-        const { data, error } = await supabase
-            .from('doacoesDisponiveis')
-            .insert([
-                { 
-                    NomeEmpresa: nome,
-                    email_Institucional: email_Institucional,
-                    nome_alimento: nome_alimento,
-                    quantidade: quantidade,
-                    data_validade: data_validade,
-                    cep_retirada: cep_retirada,
-                    telefone_contato: telefone,
-                    email_contato: email,
-                    status: 'disponível',
-                    id_empresa: id_empresa
-                } 
-            ])
-            .select(); // retorna o registro para confirmação
+  if (
+    !nome_alimento ||
+    !nome ||
+    !email_Institucional ||
+    !email ||
+    !data_validade
+  ) {
+    return res
+      .status(400)
+      .json({ message: "Campos essenciais não podem estar vazios." });
+  }
 
-        if (error) {
-            
-            console.error('Erro ao cadastrar a doação:', error.message);
-            
-            
-            return res.status(500).json({message:"Falha no cadastro da doação. Erro: " + error.message});
-        }
+  try {
+    const { data, error } = await supabase
+      .from("doacoesDisponiveis")
+      .insert([
+        {
+          NomeEmpresa: nome,
+          email_Institucional: email_Institucional,
+          nome_alimento: nome_alimento,
+          quantidade: quantidade,
+          data_validade: data_validade,
+          cep_retirada: cep_retirada,
+          telefone_contato: telefone,
+          email_contato: email,
+          status: "disponível",
+          id_empresa: id_empresa,
+        },
+      ])
+      .select();
 
-        return res.status(201).json({ 
-            status: 'OK', 
-            message: 'Doação cadastrada com sucesso !', 
-            dados: data
+    if (error) {
+      console.error("Erro ao cadastrar a doação:", error.message);
+
+      return res
+        .status(500)
+        .json({
+          message: "Falha no cadastro da doação. Erro: " + error.message,
         });
-
-    } catch (e) {
-        console.error('Erro interno do servidor no cadastro da Empresa:', e);
-        return res.status(500).json({message:"Erro fatal ao processar a requisição."});
     }
+
+    return res.status(201).json({
+      status: "OK",
+      message: "Doação cadastrada com sucesso !",
+      dados: data,
+    });
+  } catch (e) {
+    console.error("Erro interno do servidor no cadastro da Empresa:", e);
+    return res
+      .status(500)
+      .json({ message: "Erro fatal ao processar a requisição." });
+  }
 }

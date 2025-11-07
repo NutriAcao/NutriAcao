@@ -1,3 +1,5 @@
+/* arquivo: public/js/minhaContaOng.js - script do frontend: funcionalidades relacionadas a minhacontaong - funções/constantes: res, modalTitulo, token, btnCancelar, resposta */
+
 document.addEventListener("DOMContentLoaded", async () => {
   try {
     const token = localStorage.getItem("token");
@@ -6,8 +8,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`
-      }
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const resposta = await res.json();
@@ -18,34 +20,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const dados = resposta.data;
-    window.dadosOng = dados; // Armazena os dados da ONG globalmente
+    window.dadosOng = dados;
 
-    // --- Dados do responsável ---
-    document.getElementById("nomeResponsavel").textContent = dados.nome_responsavel_ong || "Não informado";
-    document.getElementById("cargoResponsavel").textContent = dados.cargo_responsavel_ong || "Não informado";
-    document.getElementById("cpfResponsavel").textContent = dados.cpf_responsavel_ong || "Não informado";
-    document.getElementById("emailResponsavel").textContent = dados.email_responsavel_ong || "Não informado";
-    document.getElementById("telefoneResponsavel").textContent = dados.telefone_responsavel_ong || "Não informado";
+    document.getElementById("nomeResponsavel").textContent =
+      dados.nome_responsavel_ong || "Não informado";
+    document.getElementById("cargoResponsavel").textContent =
+      dados.cargo_responsavel_ong || "Não informado";
+    document.getElementById("cpfResponsavel").textContent =
+      dados.cpf_responsavel_ong || "Não informado";
+    document.getElementById("emailResponsavel").textContent =
+      dados.email_responsavel_ong || "Não informado";
+    document.getElementById("telefoneResponsavel").textContent =
+      dados.telefone_responsavel_ong || "Não informado";
 
-    // --- Dados da ONG ---
-    document.getElementById("nomeOng").textContent = dados.nome || "Não informado";
-    document.getElementById("cnpjOng").textContent = dados.cnpj || "Não informado";
-    document.getElementById("areaAtuacao").textContent = dados.area_atuacao || "Não informado";
-    document.getElementById("cepOng").textContent = dados.cep || "Não informado";
-    document.getElementById("enderecoOng").textContent = dados.endereco || "Não informado";
-    document.getElementById("emailOng").textContent = dados.email || "Não informado";
-    document.getElementById("telefoneOng").textContent = dados.telefone || "Não informado";
+    document.getElementById("nomeOng").textContent =
+      dados.nome || "Não informado";
+    document.getElementById("cnpjOng").textContent =
+      dados.cnpj || "Não informado";
+    document.getElementById("areaAtuacao").textContent =
+      dados.area_atuacao || "Não informado";
+    document.getElementById("cepOng").textContent =
+      dados.cep || "Não informado";
+    document.getElementById("enderecoOng").textContent =
+      dados.endereco || "Não informado";
+    document.getElementById("emailOng").textContent =
+      dados.email || "Não informado";
+    document.getElementById("telefoneOng").textContent =
+      dados.telefone || "Não informado";
 
-    // --- Segurança / login ---
-    document.getElementById("emailLogin").textContent = dados.email || "Não informado";
-
+    document.getElementById("emailLogin").textContent =
+      dados.email || "Não informado";
   } catch (erro) {
     console.error("Erro ao buscar dados da ONG:", erro);
   }
 });
 
-
-// --- Seletores principais do modal ---
 const modal = document.getElementById("modal-edicao");
 const modalTitulo = document.getElementById("modal-titulo");
 const formEdicao = document.getElementById("form-edicao");
@@ -53,13 +62,9 @@ const btnFechar = document.querySelector(".close");
 const btnCancelar = document.getElementById("cancelar-edicao");
 const btnSalvar = document.getElementById("salvar-edicao");
 
-// Fechar modal
 btnFechar.addEventListener("click", () => (modal.style.display = "none"));
 btnCancelar.addEventListener("click", () => (modal.style.display = "none"));
 
-// ===============================
-// EDITAR DADOS DO RESPONSÁVEL
-// ===============================
 document.getElementById("editar-responsavel").addEventListener("click", () => {
   const dados = window.dadosOng;
 
@@ -83,14 +88,19 @@ document.getElementById("editar-responsavel").addEventListener("click", () => {
 
   modal.style.display = "flex";
 
-  // Salvar alterações
   btnSalvar.onclick = async () => {
     const payload = {
-      nome_responsavel_ong: document.getElementById("nomeResponsavel-editar").value,
-      cpf_responsavel_ong: document.getElementById("cpfResponsavel-editar").value,
-      cargo_responsavel_ong: document.getElementById("cargoResponsavel-editar").value,
-      email_responsavel_ong: document.getElementById("emailResponsavel-editar").value,
-      telefone_responsavel_ong: document.getElementById("telefoneResponsavel-editar").value
+      nome_responsavel_ong: document.getElementById("nomeResponsavel-editar")
+        .value,
+      cpf_responsavel_ong: document.getElementById("cpfResponsavel-editar")
+        .value,
+      cargo_responsavel_ong: document.getElementById("cargoResponsavel-editar")
+        .value,
+      email_responsavel_ong: document.getElementById("emailResponsavel-editar")
+        .value,
+      telefone_responsavel_ong: document.getElementById(
+        "telefoneResponsavel-editar",
+      ).value,
     };
 
     try {
@@ -99,9 +109,9 @@ document.getElementById("editar-responsavel").addEventListener("click", () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const resposta = await res.json();
@@ -120,10 +130,6 @@ document.getElementById("editar-responsavel").addEventListener("click", () => {
   };
 });
 
-
-// ===============================
-// ATUALIZAR DADOS DA ONG
-// ===============================
 document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
   const dados = window.dadosOng;
 
@@ -153,7 +159,6 @@ document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
 
   modal.style.display = "flex";
 
-  // Salvar alterações
   btnSalvar.onclick = async () => {
     const payload = {
       nome: document.getElementById("nomeOng-editar").value,
@@ -162,7 +167,7 @@ document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
       cep: document.getElementById("cepOng-editar").value,
       endereco: document.getElementById("enderecoOng-editar").value,
       email: document.getElementById("emailOng-editar").value,
-      telefone: document.getElementById("telefoneOng-editar").value
+      telefone: document.getElementById("telefoneOng-editar").value,
     };
 
     try {
@@ -171,9 +176,9 @@ document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const resposta = await res.json();

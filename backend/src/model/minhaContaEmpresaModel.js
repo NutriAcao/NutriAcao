@@ -1,8 +1,12 @@
-import { supabase } from "../config/supabaseClient.js";
+/* arquivo: backend/src/model/minhaContaEmpresaModel.js - modelo de dados do backend: representa a entidade minhacontaempresamodel */
 
-/**
- * Buscar usuário por ID e tipo (empresa ou ong)
- */
+/*
+  modelo para operações da 'minha conta' (empresa/usuário):
+  - buscarUsuarioPorId: consulta a tabela adequada (empresa/ong) pelo id
+  - atualizarResponsavelEmpresa / atualizarDadosEmpresa: atualizam campos na tabela 'empresa'
+  - usa supabase como cliente para operações de leitura/escrita
+*/
+import { supabase } from "../config/supabaseClient.js";
 
 export async function buscarUsuarioPorId(id, tipo) {
   const { data, error } = await supabase
@@ -44,7 +48,7 @@ export async function atualizarDadosEmpresa(id, dados) {
     telefone_responsavel_empresa,
     nome,
     telefone,
-    endereco
+    endereco,
   } = dados;
 
   const { error } = await supabase
@@ -59,7 +63,7 @@ export async function atualizarDadosEmpresa(id, dados) {
       telefone_responsavel_empresa,
       nome,
       telefone,
-      endereco
+      endereco,
     })
     .eq("id", id);
 

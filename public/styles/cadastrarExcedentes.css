@@ -1,139 +1,136 @@
+/* arquivo: public/styles/cadastrarExcedentes.css - arquivo de estilos: regras css para cadastrarexcedentes - regras css aprox.: 27 */
+
 :root {
-    --color-background:#333333 ;   /* Cor de fundo geral do site */
-    --color-text: #1b1b1b ;         /* Cor do texto comum */
-    --color-secondary-text: #fff ;         /* Cor do texto comum */
-    --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
-    --color-main: #004AAD;
-    --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções (main, etc) */
-  }
-
-  * {
-    padding: 0px;
-    margin: 0px;
-    font-family: Poppins;
-  }
-  
-
-  header {
-    display: flex;
-    flex-direction: row;
-justify-content: space-between;
-    align-items: center;
-    height: 20vw;
-    max-height: 7rem;
-    width: 100vw;
-    background-color: var(--color-main);
-  }
-
-  img#voltar {
-    padding-left: 1rem;
-    width: 4rem;
-    height: 4rem;
-    transition: 0.3s;
-    
-  }
-
-  img#logo {
-    margin-left: auto;
-height: 20vw;
-min-height: 5rem;
-
-    max-height: 7rem;
-    transition: 0.3s;
-  }
-
-  img#voltar:hover {
-filter: invert();
-  }
-
-  img#logo:hover {
-filter: invert();
-  }
-
-   main {
-    margin: auto;
-    width: 80%;
-    padding: 2rem;
-   }
-
-   button#enviar {
-    max-width: 10rem;
-    margin: auto;
-   }
-
-  #modal-empresa {
-    display: none; /* Esconde o modal por padrão */
-    position: fixed; /* Fixa o modal na tela */
-    z-index: 1000; /* Garante que o modal fique na frente de outros elementos */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto; /* Adiciona scroll se o conteúdo for maior que a tela */
-    background-color: rgba(0, 0, 0, 0.5); /* Fundo preto semi-transparente */
-    justify-content: center;
-    align-items: center;
+  --color-background: #333333;
+  --color-text: #1b1b1b;
+  --color-secondary-text: #fff;
+  --color-title: #161616;
+  --color-main: #004aad;
+  --color-section: rgb(230, 230, 230);
 }
 
-/* O conteúdo do formulário dentro do modal */
+* {
+  padding: 0px;
+  margin: 0px;
+  font-family: Poppins;
+}
+
+header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 20vw;
+  max-height: 7rem;
+  width: 100vw;
+  background-color: var(--color-main);
+}
+
+img#voltar {
+  padding-left: 1rem;
+  width: 4rem;
+  height: 4rem;
+  transition: 0.3s;
+}
+
+img#logo {
+  margin-left: auto;
+  height: 20vw;
+  min-height: 5rem;
+
+  max-height: 7rem;
+  transition: 0.3s;
+}
+
+img#voltar:hover {
+  filter: invert();
+}
+
+img#logo:hover {
+  filter: invert();
+}
+
+main {
+  margin: auto;
+  width: 80%;
+  padding: 2rem;
+}
+
+button#enviar {
+  max-width: 10rem;
+  margin: auto;
+}
+
+#modal-empresa {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
 #modal-empresa .modal-content {
-    background-color: #ffffff;
-    margin:5% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 90%;
-    max-width: 600px;
-    border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    position: relative;
+  background-color: #ffffff;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 600px;
+  border-radius: 10px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  position: relative;
 }
 
-/* Estilo para os botões de fechar "x" */
 #modal-empresa .close-button {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
-    cursor: pointer;
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 #modal-empresa .close-button:hover,
 #modal-empresa .close-button:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
 }
 
-/* Estilos para o formulário de Empresa */
 #form-cadastro-empresa fieldset {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
 }
 
 #form-cadastro-empresa legend {
-    font-weight: 600;
-    font-size: 1.1em;
-    padding: 0 10px;
-    color: #004d9c;
+  font-weight: 600;
+  font-size: 1.1em;
+  padding: 0 10px;
+  color: #004d9c;
 }
 
 #form-cadastro-empresa label {
-    display: block;
-    margin-top: 10px;
-    font-weight: 500;
+  display: block;
+  margin-top: 10px;
+  font-weight: 500;
 }
 #form-cadastro-empresa {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* mesmo espaçamento do form de ONG */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 #form-cadastro-empresa fieldset {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 #form-cadastro-empresa input {
@@ -145,40 +142,40 @@ filter: invert();
 #form-cadastro-empresa input[type="tel"],
 #form-cadastro-empresa input[type="email"],
 #form-cadastro-empresa input[type="password"] {
-    width: calc(100% - 22px);
-    padding: 10px;
-    margin-top: 5px;
-    margin-bottom: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: calc(100% - 22px);
+  padding: 10px;
+  margin-top: 5px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
-/* Estilos adicionais para os formulários de cadastro (ONG e Empresa) */
+
 form#form-cadastro-ong,
 form#form-cadastro-empresa {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 #form-cadastro-ong fieldset,
 #form-cadastro-empresa fieldset {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 #form-cadastro-ong legend,
 #form-cadastro-empresa legend {
-    font-weight: bold;
-    color: #004d9c;
-    padding: 0 10px;
+  font-weight: bold;
+  color: #004d9c;
+  padding: 0 10px;
 }
 
 #form-cadastro-ong label,
 #form-cadastro-empresa label {
-    margin-top: 10px;
-    font-weight: 500;
+  margin-top: 10px;
+  font-weight: 500;
 }
 
 #form-cadastro-ong input[type="text"],
@@ -189,27 +186,27 @@ form#form-cadastro-empresa {
 #form-cadastro-empresa input[type="email"],
 #form-cadastro-empresa input[type="password"],
 #form-cadastro-empresa input[type="tel"] {
-    width: 100%;
-    padding: 10px;
-    margin-top: 5px;
-    box-sizing: border-box;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+  width: 100%;
+  padding: 10px;
+  margin-top: 5px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
 #form-cadastro-ong button[type="submit"],
 #form-cadastro-empresa button[type="submit"] {
-    background-color: #004aad;
-    color: white;
-    padding: 15px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: background-color 0.3s;
+  background-color: #004aad;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s;
 }
 
 #form-cadastro-ong button[type="submit"]:hover,
 #form-cadastro-empresa button[type="submit"]:hover {
-    background-color: #003172;
+  background-color: #003172;
 }
