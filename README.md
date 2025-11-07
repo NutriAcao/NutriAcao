@@ -1,7 +1,3 @@
-# arquivo: README.md - documentação/nota: readme.md - primeira linha: # arquivo: /home/gustavo/nutriacao1558/NutriAcao/README.md -
-
-#
-
 # 🌱 NutriAção
 
 ## Transformando Excedentes em esperança!
