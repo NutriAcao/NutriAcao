@@ -1,6 +1,5 @@
-
 // public/js/visualizacaoOngs.js
-// VERSÃO ATUALIZADA com fluxo simplificado: Disponível -> Reservado -> Concluído
+// VERSÃO ATUALIZADA com fluxo padronizado: Empresa reserva Pedido de ONG
 console.log(">>> ARQUIVO visualizacaoOngs.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
@@ -126,6 +125,25 @@ function openModal(pedidoId) {
     if (!pedido) return;
     console.log("DEBUG 4: Pedido encontrado!", pedido);
 
+    // --- NOVO CÓDIGO: Lógica de Redirecionamento ---
+    // A variável 'dadosUsuario' é global e contém o ID da Empresa logada.
+    // pedido.id_empresa_reserva é a coluna na tabela doacoesSolicitadas (Pedidos)
+    const isReservedByMe = String(pedido.status).toLowerCase() === 'reservado' && pedido.id_empresa_reserva === dadosUsuario.id;
+
+    if (isReservedByMe) {
+        console.log(`DEBUG: Pedido #${pedido.id} reservado por você. Redirecionando...`);
+        // Caminho para a página "Minhas Doações Ativas" (ajuste o URL se for diferente)
+        window.location.href = '/minhasDoacoesAtivas.html'; 
+        return; // Impede que o modal abra
+    }
+    // --- FIM NOVO CÓDIGO (Redirecionamento) ---
+
+    // Oculta mensagem de sucesso antiga, se houver
+    const successMessage = document.getElementById('reservationSuccessMessage');
+    if (successMessage) {
+        successMessage.style.display = 'none';
+    }
+
     // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
     modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
     const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
@@ -169,18 +187,12 @@ function openModal(pedidoId) {
         actionButton.textContent = 'Reservar Pedido';
         actionButton.style.backgroundColor = '#3498db'; // Azul
         actionButton.style.display = 'inline-block';
-        // Chama a nova função 'handleAction' com a ação 'reservar-pedido'
+        // Chama a função 'handleAction' com a ação 'reservar-pedido'
         actionButton.onclick = () => handleAction(pedido.id, 'reservar-pedido'); 
 
     } else if (status === 'reservado') {
-        // Esta página (visualizacaoOngs) só deve mostrar itens 'disponíveis'.
-        // Mas, se por acaso um item 'reservado' for aberto (ex: cache),
-        // mostramos o botão de 'Concluir'.
-        actionButton.textContent = 'Concluir Pedido';
-        actionButton.style.backgroundColor = '#2ecc71'; // Verde
-        actionButton.style.display = 'inline-block';
-        // Chama a nova função 'handleAction' com a ação 'concluir-pedido'
-        actionButton.onclick = () => handleAction(pedido.id, 'concluir-pedido');
+        // *** NOVO FLUXO: Item reservado não tem ação nesta página ***
+        actionButton.style.display = 'none'; 
 
     } else if (status === 'concluído') {
         // Se está concluído, não há ações.
@@ -202,7 +214,6 @@ function closeModal() {
 
 /**
  * Função ÚNICA para lidar com todas as ações (Reservar, Concluir)
- * Substitui as antigas 'handleAction' e 'updateStatus'
  * @param {number} pedidoId - O ID do pedido (da tabela doacoesSolicitadas)
  * @param {string} actionType - A ação a ser executada ('reservar-pedido', 'concluir-pedido')
  */
@@ -210,21 +221,27 @@ async function handleAction(pedidoId, actionType) {
     let endpoint = '';
     const method = 'PUT'; // Usamos PUT para atualizações de status
     let body = { pedido_id: pedidoId }; // O corpo da requisição
+    const actionButton = document.getElementById('actionButton');
+    const modalBody = document.querySelector('#orderModal .modal-body');
 
     // Define o endpoint com base no tipo de ação
     switch (actionType) {
         case 'reservar-pedido':
             endpoint = '/api/reservar-pedido';
+            actionButton.disabled = true; // Desabilita para evitar clique duplo
             break;
         case 'concluir-pedido':
-            endpoint = '/api/concluir-pedido';
-            break;
+            // *** NOVO CÓDIGO: BLOQUEIA A CONCLUSÃO NESTA PÁGINA ***
+            alert('A conclusão de pedidos deve ser realizada apenas na página "Minhas Doações Ativas".');
+            closeModal();
+            return;
+            // *** FIM NOVO CÓDIGO ***
         default:
             alert('Ação desconhecida.');
             return;
     }
     
-    closeModal(); 
+    // Mantemos o modal aberto para mostrar a mensagem de sucesso da reserva
     console.log(`Enviando ${method} para ${endpoint} com ID: ${pedidoId}`);
 
     try {
@@ -241,16 +258,51 @@ async function handleAction(pedidoId, actionType) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message);
-            // Recarrega os dados da página para refletir a mudança
-            // (O item reservado/concluído deve sumir da lista de "disponíveis")
+            
+            // *** NOVA LÓGICA DE SUCESSO PÓS-RESERVA (PADRÃO ONG) ***
+            if (actionType === 'reservar-pedido') {
+                const statusElement = document.getElementById('orderStatus');
+                if (statusElement) {
+                    // Atualiza o status visual no modal
+                    statusElement.innerHTML = `<span class="status reservado">reservado</span>`;
+                }
+
+                // 1. Remove o botão de ação (Reservar)
+                actionButton.style.display = 'none';
+
+                // 2. Adiciona/Atualiza a mensagem de sucesso no modal
+                let successMessage = document.getElementById('reservationSuccessMessage');
+                if (!successMessage) {
+                    successMessage = document.createElement('p');
+                    successMessage.id = 'reservationSuccessMessage';
+                    // Adicionei um ícone para melhor feedback visual (assumindo Font Awesome)
+                    successMessage.innerHTML = '<strong><i class="fas fa-check-circle"></i> Pedido Reservado com Sucesso!</strong> Por favor, utilize o contato acima para negociar a entrega. Você pode acompanhar o processo e concluir o pedido na página **Minhas Doações Ativas**.';
+                    // Estilos de feedback visual
+                    successMessage.style.cssText = 'color: #155724; margin-top: 15px; padding: 10px; border: 1px solid #c3e6cb; background-color: #d4edda; border-radius: 5px;';
+                    
+                    // Insere logo abaixo dos detalhes básicos
+                    const detailsSection = modalBody.querySelector('.modal-details');
+                    if (detailsSection) {
+                         detailsSection.after(successMessage);
+                    } else {
+                        modalBody.prepend(successMessage);
+                    }
+                } else {
+                    successMessage.style.display = 'block'; // Garante que a mensagem apareça se já existir
+                }
+            }
+            
+            // 3. Recarrega a lista para que o item reservado suma da lista de "disponíveis"
             loadPedidosDisponiveis(); 
+
         } else {
             alert(`Falha: ${result.message}`);
         }
     } catch (error) {
         console.error('Erro de rede:', error);
         alert('Erro de rede. Tente novamente.');
+    } finally {
+        actionButton.disabled = false; // Reabilita o botão
     }
 }
 
