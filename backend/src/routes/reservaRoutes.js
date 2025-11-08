@@ -17,7 +17,7 @@ const router = express.Router();
 // PUT /api/reservar-doacao
 router.put('/reservar-doacao', verificarToken, async (req, res) => {
     // 1. O ID da ONG logada é pego do token (authMiddleware)
-    const id_ong_logada = req.user.id; 
+    const id_ong_logada = req.usuario.id; 
     
     // 2. Adiciona o ID da ONG ao corpo da requisição para o controller
     req.body.id_ong_logada = id_ong_logada; 
@@ -30,7 +30,7 @@ router.put('/reservar-doacao', verificarToken, async (req, res) => {
 // PUT /api/reservar-pedido
 router.put('/reservar-pedido', verificarToken, async (req, res) => {
     // 1. O ID da Empresa logada é pego do token (authMiddleware)
-    const id_empresa_logada = req.user.id; 
+    const id_empresa_logada = req.usuario.id; 
 
     // 2. Adiciona o ID da Empresa ao corpo da requisição para o controller
     req.body.id_empresa_logada = id_empresa_logada; 
@@ -45,7 +45,7 @@ router.put('/reservar-pedido', verificarToken, async (req, res) => {
 // PUT /api/concluir-doacao
 router.put('/concluir-doacao', verificarToken, async (req, res) => {
     // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
-    const id_usuario_logado = req.user.id;
+    const id_usuario_logado = req.usuario.id;
     
     // 2. Adiciona o ID ao corpo da requisição para que o controller possa verificar a permissão
     req.body.id_usuario_logado = id_usuario_logado; 
@@ -57,7 +57,7 @@ router.put('/concluir-doacao', verificarToken, async (req, res) => {
 // PUT /api/concluir-pedido
 router.put('/concluir-pedido', verificarToken, async (req, res) => {
     // 1. O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
-    const id_usuario_logado = req.user.id;
+    const id_usuario_logado = req.usuario.id;
     
     // 2. Adiciona o ID ao corpo da requisição
     req.body.id_usuario_logado = id_usuario_logado; 
@@ -67,7 +67,7 @@ router.put('/concluir-pedido', verificarToken, async (req, res) => {
 });
 router.put('/cancelar-reserva', verificarToken, async (req, res) => {
     // O ID do usuário logado é pego do token (funciona para ONG ou Empresa)
-    const id_usuario_logado = req.user.id;
+    const id_usuario_logado = req.usuario.id;
     
     // Adiciona o ID ao corpo da requisição
     req.body.id_usuario_logado = id_usuario_logado; 

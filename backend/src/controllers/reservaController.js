@@ -1,3 +1,4 @@
+import { supabase } from '../config/supabaseClient.js';
 // Para Empresa
 
 export async function reservarDoacaoEmpresa(req, res) {
