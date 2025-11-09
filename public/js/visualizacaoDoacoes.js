@@ -79,7 +79,7 @@ function renderizarTabela(doacoes) {
                 <td>${doacao.id}</td>
                 <td>${doacao.nome_alimento}</td>
                 <td>${doacao.quantidade}</td> 
-                <td>${doacao.nomeEmpresa}</td> 
+                <td>${doacao.nome_empresa}</td> 
                 <td>${dataValidadeFormatada}</td>
                 <td><span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
                 <td><button onclick="openModal(${doacao.id})">Ver</button></td>
