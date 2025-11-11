@@ -13,36 +13,50 @@ async function carregarUsuario() {
     nomeUsuario.innerHTML = dados.nome
     nomeInstituicao.innerHTML = dados.nomeInstituicao
 
-    let email_usuario = dados.email;
-    let tipo_usuario = dados.tipo;
+    let id_usuario = dados.id;
+   
 
-    const doacoes = await carregarDoacoesUsuario(email_usuario, tipo_usuario);
+    const excedentesEmpresa = await carregarExcedentesEmpresa(id_usuario);
+    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_usuario);
 
   // define os IDs com base no tipo
-    const tableId = tipo_usuario === 'empresa' ? 'doacoesTableEmpresa' : 'doacoesTableOng';
-    const searchInputId = tipo_usuario === 'empresa' ? 'searchInputEmpresa' : 'searchInputOng';
-    const totalItensId = tipo_usuario === 'empresa' ? 'totalItensEmpresa' : 'totalItensOng';
-    const totalPaginasId = tipo_usuario === 'empresa' ? 'totalPaginasEmpresa' : 'totalPaginasOng';
-    const paginationControlsId = tipo_usuario === 'empresa' ? 'paginationControlsEmpresa' : 'paginationControlsOng';
+    const tableId ='doacoesTableEmpresa';
+    const searchInputId = 'searchInputEmpresa';
+    const totalItensId ='totalItensEmpresa';
+    const totalPaginasId = 'totalPaginasEmpresa';
+    const paginationControlsId = 'paginationControlsEmpresa';
+
+    const tableIdSolicitacoes ='doacoesTableEmpresaSolicitacoes';
+    const searchInputIdSolicitacoes = 'searchInputEmpresaSolicitacoes';
+    const totalItensIdSolicitacoes ='totalItensEmpresaSolicitacoes';
+    const totalPaginasIdSolicitacoes = 'totalPaginasEmpresaSolicitacoes';
+    const paginationControlsIdSolicitacoes = 'paginationControlsEmpresaSolicitacoes';
 
     // exibe apenas a tabela correspondente
     document.getElementById(tableId).style.display = 'table';
-    preencherTabelaComDoacoes(doacoes, tableId);
+    document.getElementById(tableIdSolicitacoes).style.display = 'table';
+
+    preencherTabelaComExcedentes(excedentesEmpresa, tableId);
+    preencherTabelaComSolicitacoes(solicitacoesEmpresa, tableIdSolicitacoes);
+
+
     setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
+    setupTable(searchInputIdSolicitacoes, tableIdSolicitacoes, totalItensIdSolicitacoes, totalPaginasIdSolicitacoes, paginationControlsIdSolicitacoes);
+
 
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
   }
 }
 
-async function carregarDoacoesUsuario(email, tipo) {
+async function carregarExcedentesEmpresa(id) {
   try {
     
-    let res = await fetch(`/doacoesConcluidasONG/doacoesONG?email=${encodeURIComponent(email)}`);
+     const res = await fetch(`/doacoesConcluidasEmpresa/excedentesConcluidosEmpresa?id=${encodeURIComponent(id)}`);
 
     const doacoes = await res.json();
 
-    console.log('Doações concluídas:', doacoes);
+    console.log('Excedentes concluídos:', doacoes);
     return doacoes; // ← Aqui está certo!
   } catch (erro) {
     console.error('Erro ao carregar doações do usuário:', erro);
@@ -50,19 +64,65 @@ async function carregarDoacoesUsuario(email, tipo) {
   }
 }
 
-function preencherTabelaComDoacoes(doacoes, tableId) {
+async function carregarSolicitacoesEmpresa(id) {
+  try {
+    
+     const res = await fetch(`/doacoesConcluidasEmpresa/doacoesSolicitadasConcluidasEmpresa?id=${encodeURIComponent(id)}`);
+
+    const doacoes = await res.json();
+
+    console.log('Solicitações concluídas:', doacoes);
+    return doacoes; // ← Aqui está certo!
+  } catch (erro) {
+    console.error('Erro ao carregar doações do usuário:', erro);
+    return []; // ← retorna array vazio em caso de erro
+  }
+}
+
+function preencherTabelaComExcedentes(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = ''; // Limpa a tabela
 
-  doacoes.forEach(item => {
+  if (!doacoes.length) {
+    
+        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
+        return;
+    
+  } else {
+    doacoes.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.id}</td>
       <td>${item.nome_alimento}</td>
       <td>${item.quantidade}</td>
+      <td>${item.ong?.nome || 'ONG não identificada'}</td>
     `;
     tbody.appendChild(tr);
   });
+  }
+  
+}
+
+function preencherTabelaComSolicitacoes(doacoes, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = ''; // Limpa a tabela
+
+  if (!doacoes.length) {
+    
+        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
+        return;
+    
+  } else {
+    doacoes.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${item.nome_alimento}</td>
+      <td>${item.quantidade}</td>
+      <td>${item.nomeONG}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  }
+  
 }
 
 
