@@ -1,6 +1,6 @@
 import { supabase } from "../config/supabaseClient.js";
 
-export async function buscarDoacoesConcluidasPorEmailONG(email) {
+export async function buscarDoacoesConcluidasONG(email) {
     const { data, error } = await supabase
         .from('doacoesSolicitadas')
         .select('id, nome_alimento, quantidade')

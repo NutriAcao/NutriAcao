@@ -127,7 +127,7 @@ router.post('/api/reservar-doacao', verificarToken, async (req, res) => {
         const updateQuery = `
             UPDATE ${tableName}
             SET 
-                status = 'Reservado', 
+                status = 'reservado', 
                 ${fkColumn} = $1 
             WHERE id = $2 AND (status ILIKE 'Disponível' OR status ILIKE 'disponível')
             RETURNING id, status;
@@ -171,16 +171,16 @@ router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (r
         const updateQuery = `
             UPDATE ${tableName}
             SET 
-                status = 'Disponível', -- Padronizando para 'Disponível' (maiúsculo)
+                status = 'disponível', -- Padronizando para 'Disponível' (maiúsculo)
                 ${fkColumn} = NULL
-            WHERE id = $1 AND status = 'Reservado'
+            WHERE id = $1 AND status = 'reservado'
             RETURNING id, status;
         `;
         const result = await pool.query(updateQuery, [doacaoId]);
 
         if (result.rowCount === 0) {
             return res.status(400).json({ 
-                message: "Não foi possível cancelar. A doação não está em status 'Reservado'." 
+                message: "Não foi possível cancelar. A doação não está em status 'reservado'." 
             });
         }
         res.status(200).json({ 
@@ -216,7 +216,7 @@ router.post('/api/update-status', verificarToken, async (req, res) => {
 
     // 3. Determinar o fluxo de status (Máquina de Estados)
     if (novoStatus === 'em andamento') {
-        statusAnterior = 'Reservado';
+        statusAnterior = 'reservado';
         statusParaDB = 'Em Andamento'; // Padronizando para maiúsculas no DB
     } else if (novoStatus === 'concluido') {
         statusAnterior = 'Em Andamento'; // Só pode concluir se estava 'Em Andamento'
