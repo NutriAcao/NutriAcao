@@ -141,6 +141,39 @@ function preencherTabelaComDoacoesEmpresa(doacoes, tableId) {
   });
 }
 }
+// Arquivo: doacoesAtivasEmpresa.js (Funções atualizadas)
+
+function preencherTabelaComDoacoesEmpresa(doacoes, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = ''; // Limpa a tabela
+
+  //Cria os elementos da tabela
+  if (!doacoes.length) {
+    
+        // ATUALIZADO: Colspan corrigido de 7 para 4
+        tbody.innerHTML = '<tr><td colspan="4">Nenhum excedente cadastrado no momento.</td></tr>';
+        return;
+    
+  } else {
+  doacoes.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      
+      <td>${item.nome_alimento}</td>
+      <td>${item.quantidade}</td>
+      
+      <td>${item.status}</td>
+      
+      <td>
+        <button class="btn-visualizar-pedido" onclick="visualizarExcedente(${item.id_doacao})">
+            Visualizar
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+}
 
 function preencherTabelaComSolicitacoesAndamentoEmpresa(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
@@ -149,7 +182,8 @@ function preencherTabelaComSolicitacoesAndamentoEmpresa(doacoes, tableId) {
   //Cria os elementos da tabela
   if (!doacoes.length) {
     
-        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
+        // ATUALIZADO: Colspan corrigido de 7 para 5
+        tbody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação em andamento no momento.</td></tr>';
         return;
     
   } else {
@@ -161,6 +195,12 @@ function preencherTabelaComSolicitacoesAndamentoEmpresa(doacoes, tableId) {
       <td>${item.quantidade}</td>
       <td>${item.dataCadastroSolicitacao}</td>
       <td>${item.nomeONG}</td>
+
+      <td>
+        <button class="btn-visualizar-pedido" onclick="visualizarPedido(${item.id_solicitacao})">
+            Visualizar Pedido
+        </button>
+      </td>
     `;
     tbody.appendChild(tr);
   });
@@ -174,7 +214,8 @@ function preencherTabelaComExcedentesAndamentoEmpresa(doacoes, tableId) {
   //Cria os elementos da tabela
   if (!doacoes.length) {
     
-        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
+        // ATUALIZADO: Colspan corrigido de 7 para 5
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente em andamento no momento.</td></tr>';
         return;
     
   } else {
@@ -186,6 +227,12 @@ function preencherTabelaComExcedentesAndamentoEmpresa(doacoes, tableId) {
       <td>${item.quantidade}</td>
       <td>${item.data_validade}</td>
       <td>${item.ong?.nome || 'ONG não identificada'}</td>
+
+      <td>
+        <button class="btn-visualizar-pedido" onclick="visualizarReserva(${item.id_reserva})">
+            Visualizar Pedido
+        </button>
+      </td>
     `;
     tbody.appendChild(tr);
   });

@@ -93,7 +93,7 @@ function renderizarTabela(pedidos) {
                 <td>${pedido.nome_ong || pedido.nomeONG}</td>
                 <td>${dataFormatada}</td>
                 <td><span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span></td>
-                <td><button onclick="openModal(${pedido.id})">Visualizar Pedido</button></td>
+                <td><button onclick="openModal(${pedido.id})" class="btn-visualizar-pedido">Visualizar Pedido</button></td>
             </tr>
         `;
         tbody.innerHTML += row;

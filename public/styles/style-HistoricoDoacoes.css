@@ -431,3 +431,21 @@ tr:hover {
         justify-content: center;
     }
 }
+
+.btn-visualizar-pedido {
+    background-color: #f0f9ff; /* Cor de fundo (laranja claro) */
+    color: #004AAD;           /* Cor do texto (laranja escuro) */
+    border: 1px solid #004AAD; /* Borda laranja */
+    padding: 6px 12px;
+    border-radius: 20px;       /* Bordas arredondadas (igual ao status) */
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif; /* Garante a mesma fonte */
+}
+
+.btn-visualizar-pedido:hover {
+    background-color: #004AAD; /* Inverte as cores no hover */
+    color: #f0f9ff;
+}
