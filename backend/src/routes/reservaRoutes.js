@@ -8,9 +8,14 @@ import {
 } from '../controllers/reservaController.js';
 import { verificarToken } from '../routes/authMiddleware.js'; 
 import { cancelarReserva } from '../controllers/reservaController.js';
-
+import { getPedidosDisponiveis } from '../controllers/pedidoController.js'; 
+// ---
 const router = express.Router();
 
+// --- (NOVO) ROTA GET PARA BUSCAR PEDIDOS ---
+// Rota: GET /api/pedidos-disponiveis-empresa
+router.get('/pedidos-disponiveis-empresa', verificarToken, getPedidosDisponiveis);
+// ---
 // --- ROTAS DE RESERVA ---
 
 // Rota para uma ONG reservar uma Doação de Empresa

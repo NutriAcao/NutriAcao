@@ -5,6 +5,8 @@ import { buscarDoacoesSolicitadasEmpresa } from '../model/doacoesEmpresaModel.js
 import { buscarExcedentesConcluidosPorEmpresa } from '../model/doacoesEmpresaModel.js';
 import { buscarDoacoesSolicitadasConcluidasEmpresa } from '../model/doacoesEmpresaModel.js';
 import { buscarDoacoesConcluidasONG } from '../model/doacoesONGModel.js';
+import { getDetalhesDoacao } from '../controllers/doacaoDetalhesController.js';
+import { verificarToken } from './authMiddleware.js'; 
 const router = express.Router();
 
 //Busca Excedentes disponíveis da empresa
@@ -150,5 +152,6 @@ router.get('/doacoesONG', async (req, res) => {
 });
 
 
+router.get('/detalhes/:tipo/:id', verificarToken, getDetalhesDoacao);
 
 export default router;
