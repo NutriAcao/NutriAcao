@@ -449,3 +449,173 @@ tr:hover {
     background-color: #004AAD; /* Inverte as cores no hover */
     color: #f0f9ff;
 }
+/* ================================== */
+/* Botão Visualizar (Estilo Azul)     */
+/* ================================== */
+
+.btn-visualizar-pedido {
+    background-color: #f0f9ff; 
+    color: #004AAD;           
+    border: 1px solid #004AAD; 
+    padding: 6px 12px;
+    border-radius: 20px;       
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif; 
+}
+
+.btn-visualizar-pedido:hover {
+    background-color: #004AAD; 
+    color: #f0f9ff;
+}
+
+/* ================================== */
+/* Estilos para Modal <dialog>        */
+/* ================================== */
+
+dialog {
+    width: 90%;
+    max-width: 800px;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    padding: 0;
+    overflow: hidden;
+    margin: auto;
+}
+
+dialog::backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    background-color: #004AAD; /* Cor principal */
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5em;
+    color: white; /* Garante que o H3 seja branco */
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.8em; /* Aumentado */
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.section-title {
+    margin: 20px 0 10px 0;
+    padding-bottom: 5px;
+    border-bottom: 2px solid #004AAD; /* Cor principal */
+    color: #2c3e50;
+}
+
+.order-info p {
+    margin: 8px 0;
+    font-size: 1rem;
+}
+.order-info p strong {
+    display: inline-block;
+    width: 120px;
+    color: #333;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.items-table th {
+    background-color: #004AAD; /* Cor principal */
+    color: white;
+}
+.items-table th, .items-table td {
+    padding: 10px;
+    text-align: center;
+    border-bottom: 1px solid #e0e6ed;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+/* Botões de Ação */
+.btn-secondary, .btn-success, .btn-cancel, .btn-confirm-yes {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-family: 'Poppins', sans-serif;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-success {
+    background-color: #2ecc71; /* Verde */
+    color: white;
+}
+.btn-success:hover {
+    background-color: #27ae60;
+}
+
+.btn-cancel {
+    background-color: #e74c3c; /* Vermelho */
+    color: white;
+}
+.btn-cancel:hover {
+    background-color: #c0392b;
+}
+
+.btn-confirm-yes {
+    background-color: #004AAD; /* Azul principal */
+    color: white;
+}
+.btn-confirm-yes:hover {
+    background-color: #003a8c;
+}
+
+/* Modal pequeno de confirmação */
+.small-modal {
+    max-width: 450px;
+    text-align: center;
+}
+.small-modal .modal-actions {
+    justify-content: center;
+}
+.small-modal .modal-body p {
+    font-size: 1.1em;
+}

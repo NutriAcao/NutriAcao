@@ -241,5 +241,6 @@ router.get('/excedentesConcluidosONG', async (req, res) => {
     }
 });
 
+router.get('/detalhes/:tipo/:id', verificarToken, getDetalhesDoacao);
 
 export default router;

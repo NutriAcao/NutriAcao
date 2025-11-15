@@ -205,7 +205,52 @@
         </main>
         
     </div>
+</div> <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Detalhes #<span id="orderId"></span></h3> 
+            <button class="btn-close" onclick="closeModal('orderModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações</h3>
+            <div id="modalDetails" class="order-info">
+                <p>Carregando...</p>
+            </div>
 
+            <h3 class="section-title">Itens</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                    </tbody>
+            </table>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
+            
+            <button id="btnCancelar" class="btn-cancel" style="display: none;">Cancelar Reserva</button>
+            <button id="btnConcluir" class="btn-success" style="display: none;">Concluir Transação</button>
+        </div>
+    </dialog>
+
+    <dialog id="confirmModal" class="modal small-modal">
+        <div class="modal-header">
+            <h3>Confirmação</h3>
+            <button class="btn-close" onclick="closeModal('confirmModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Tem certeza?</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('confirmModal'); openModal('orderModal')">Voltar</button>
+            <button id="btnConfirmarAcao" class="btn-confirm-yes">Sim, Confirmar</button>
+        </div>
+    </dialog>
     
     <script src="/js/doacoesAtivasEmpresa.js"></script>
 </body>
