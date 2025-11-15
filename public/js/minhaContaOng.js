@@ -18,9 +18,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const dados = resposta.data;
-    window.dadosOng = dados; // Armazena os dados da ONG globalmente
+    window.dadosOng = dados;
 
-    // --- Dados do responsável ---
     document.getElementById("nomeResponsavel").textContent = dados.nome_responsavel_ong || "Não informado";
     document.getElementById("cargoResponsavel").textContent = dados.cargo_responsavel_ong || "Não informado";
     document.getElementById("cpfResponsavel").textContent = dados.cpf_responsavel_ong || "Não informado";
@@ -57,9 +56,6 @@ const btnSalvar = document.getElementById("salvar-edicao");
 btnFechar.addEventListener("click", () => (modal.style.display = "none"));
 btnCancelar.addEventListener("click", () => (modal.style.display = "none"));
 
-// ===============================
-// EDITAR DADOS DO RESPONSÁVEL
-// ===============================
 document.getElementById("editar-responsavel").addEventListener("click", () => {
   const dados = window.dadosOng;
 
@@ -95,7 +91,7 @@ document.getElementById("editar-responsavel").addEventListener("click", () => {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/usuario", {
+      const res = await fetch("/api/ong", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -121,9 +117,6 @@ document.getElementById("editar-responsavel").addEventListener("click", () => {
 });
 
 
-// ===============================
-// ATUALIZAR DADOS DA ONG
-// ===============================
 document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
   const dados = window.dadosOng;
 

@@ -13,6 +13,7 @@ import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
+import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 
 
 // configuração de variáveis
@@ -137,6 +138,7 @@ app.get('/minhaContaOng.html', verificarToken, verificarOng, (req,res) => {
 
 app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
+app.use('/api', minhaContaOngRoutes); 
 
 
 // rota de contato/suporte

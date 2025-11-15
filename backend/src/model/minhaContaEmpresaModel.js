@@ -19,7 +19,7 @@ export async function buscarUsuarioPorId(id, tipo) {
   return data;
 }
 
-export async function atualizarResponsavelEmpresa(id, novosDados) {
+export async function atualizarResponsavelEmpresa(id, novosDados, tipo) {
   const { error } = await supabase
     .from("empresa")
     .update(novosDados)
