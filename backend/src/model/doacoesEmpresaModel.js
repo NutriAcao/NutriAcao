@@ -11,10 +11,10 @@ export async function buscarExcedentesDisponiveisEmpresa(id_empresa) {
         if (error.code !== 'PGRST116') {
             console.error('Erro ao buscar doações:', error);
         }
-        return null;
+        return [];
     }
 
-    return data?.length ? data : null;
+    return data?.length ? data : [];
 }
 
 export async function buscarExcedentesReservadosPorEmpresa(id_empresa) {

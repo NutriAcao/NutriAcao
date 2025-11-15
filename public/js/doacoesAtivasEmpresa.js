@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.innerHTML = `
                 <td>${item.nome_alimento}</td>
                 <td>${item.quantidade}</td>
-                <td>${item.data}</td>
+                <td>${data}</td>
                 <td>${item.nomeONG}</td>
                 <td>
                     <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'pedido-reservado')">
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
             tr.innerHTML = `
                 <td>${item.nome_alimento}</td>
                 <td>${item.quantidade}</td>
-                <td>${item.data}</td>
+                <td>${data}</td>
                 <td>${item.ong?.nome || 'ONG não identificada'}</td>
                 <td>
                     <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-reservado')">

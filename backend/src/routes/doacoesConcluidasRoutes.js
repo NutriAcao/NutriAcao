@@ -11,6 +11,9 @@ import { buscarExcedentesAndamentoONG } from '../model/doacoesONGModel.js';
 import { buscarSolicitacoesConcluidasONG } from '../model/doacoesONGModel.js';
 import { buscarExcedentesConcluidosONG } from '../model/doacoesONGModel.js';
 
+import { verificarToken } from './authMiddleware.js';
+import { getDetalhesDoacao } from '../controllers/doacaoDetalhesController.js';
+
 const router = express.Router();
 
 //Busca Excedentes disponíveis da empresa
