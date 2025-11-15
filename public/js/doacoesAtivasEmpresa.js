@@ -189,11 +189,12 @@ function preencherTabelaComSolicitacoesAndamentoEmpresa(doacoes, tableId) {
   } else {
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    let data = item.dataCadastroSolicitacao.split('-').reverse().join('/');
     tr.innerHTML = `
       
       <td>${item.nome_alimento}</td>
       <td>${item.quantidade}</td>
-      <td>${item.dataCadastroSolicitacao}</td>
+      <td>${data}</td>
       <td>${item.nomeONG}</td>
 
       <td>
@@ -221,11 +222,12 @@ function preencherTabelaComExcedentesAndamentoEmpresa(doacoes, tableId) {
   } else {
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    let data = item.data_validade.split('-').reverse().join('/');
     tr.innerHTML = `
       
       <td>${item.nome_alimento}</td>
       <td>${item.quantidade}</td>
-      <td>${item.data_validade}</td>
+      <td>${data}</td>
       <td>${item.ong?.nome || 'ONG não identificada'}</td>
 
       <td>

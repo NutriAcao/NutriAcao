@@ -92,8 +92,8 @@
                         <table id="doacoesTableOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Produto Recebido</th>
+                                    
+                                    <th>Solicitações Cadastradas</th>
                                     <th>Quantidade <br>(Kg ou Litros)</th>
                                     <th>Status</th>
                                     <th>Ações</th>
@@ -124,19 +124,20 @@
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
+                        <input type="text" id="searchInputSolicitacaoOng" placeholder="Pesquisar alimentos...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
                 
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="doacoesTableEmpresa">
+                        <table id="doacoesTableSolicitacaoOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Produto Recebido</th>
+                                    
+                                    <th>Solicitações em andamento</th>
                                     <th>Quantidade <br>(Kg ou Litros)</th>
+                                    <th>Empresa</th>
                                     <th>Status</th>
                                     <th>Ações</th>
                                 </tr>
@@ -149,10 +150,53 @@
                     
                     <div class="pagination">
                         <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
-                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
+                            Total de Páginas: <span id="totalPaginasSolicitacaoOng">2</span>
+                            | Itens encontrados: <span id="totalItensSolicitacaoOng">10</span>
                         </div>
-                        <div class="pagination-controls" id="paginationControlsEmpresa">
+                        <div class="pagination-controls" id="paginationControlsSolicitacaoOng">
+                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active" data-page="1">1</button>
+                            <button class="page-btn" data-page="2">2</button>
+                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="card" id="historicoEmpresa">
+                <div class="card-header">
+                    <div class="search-container">
+                        <input type="text" id="searchInputExcedenteOng" placeholder="Pesquisar alimentos...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTableExcedenteOng">
+                            <thead>
+                                <tr>
+                                   
+                                    <th>Excedentes em andamento</th>
+                                    <th>Quantidade <br>(Kg ou Litros)</th>
+                                    <th>Data de validade</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                               
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Total de Páginas: <span id="totalPaginasExcedenteOng">2</span>
+                            | Itens encontrados: <span id="totalItensExcedenteOng">10</span>
+                        </div>
+                        <div class="pagination-controls" id="paginationControlsExcedenteOng">
                             <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
                             <button class="page-btn active" data-page="1">1</button>
                             <button class="page-btn" data-page="2">2</button>

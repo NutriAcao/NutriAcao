@@ -13,12 +13,16 @@ document.addEventListener('DOMContentLoaded', function() {
             nomeUsuario.innerHTML = dados.nome;
             nomeInstituicao.innerHTML = dados.nomeInstituicao;
 
-            let email_usuario = dados.email;
-            let tipo_usuario = dados.tipo;
+            let id_usuario = dados.id;
+            
+            
 
-            if (tipo_usuario === 'ong') {
+          
                 // Carrega as solicitações ativas (reservas em andamento)
-                const solicitacoes = await carregarSolicitacoesAtivas(email_usuario);
+                const solicitacoesDisponiveis = await carregarSolicitacoesAtivas(id_usuario);
+                const solicitacoesReservadas = await carregarSolicitacoesAndamento(id_usuario);
+                const excedentesRerservados = await carregarExcedentesAndamento(id_usuario);
+                
                 
                 // Os IDs aqui são 'doacoesTableOng' e 'searchInputOng' conforme o HTML original da ONG
                 const tableId = 'doacoesTableOng';
@@ -27,37 +31,195 @@ document.addEventListener('DOMContentLoaded', function() {
                 const totalPaginasId = 'totalPaginasOng';
                 const paginationControlsId = 'paginationControlsOng';
 
-                preencherTabelaSolicitacoes(solicitacoes, tableId);
+                const tableIdSolicitacao = 'doacoesTableSolicitacaoOng';
+                const searchInputIdSolicitacao = 'searchInputSolicitacaoOng';
+                const totalItensIdSolicitacao = 'totalItensSolicitacaoOng';
+                const totalPaginasIdSolicitacao = 'totalPaginasSolicitacaoOng';
+                const paginationControlsIdSolicitacao = 'paginationControlsSolicitacaoOng';
+
+                const tableIdExcedente = 'doacoesTableExcedenteOng';
+                const searchInputIdExcedente = 'searchInputExcedenteOng';
+                const totalItensIdExcedente = 'totalItensExcedenteOng';
+                const totalPaginasIdExcedente = 'totalPaginasExcedenteOng';
+                const paginationControlsIdExcedente = 'paginationControlsExcedenteOng';
+
+
+
+                preencherTabelaSolicitacoesDisponiveis(solicitacoesDisponiveis, tableId);
+                preencherTabelaSolicitacoesAndamento(solicitacoesReservadas, tableIdSolicitacao);
+                preencherTabelaExcedentesAndamento(excedentesRerservados, tableIdExcedente);
+
+
                 // setupTable precisa de um elemento DOM real, vamos garantir que ele seja selecionado corretamente
                 setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
-            } else {
-                // Lógica da Empresa será tratada no doacoesAtivasEmpresa.js
-            }
-
+                setupTable(searchInputIdSolicitacao, tableIdSolicitacao, totalItensIdSolicitacao, totalPaginasIdSolicitacao, paginationControlsIdSolicitacao);
+                setupTable(searchInputIdExcedente, tableIdExcedente, totalItensIdExcedente, totalPaginasIdExcedente, paginationControlsIdExcedente);
         } catch (erro) {
             console.error('Erro ao buscar usuário:', erro);
         }
     }
 
-   async function carregarSolicitacoesAtivas(email) {
+   
+   async function carregarSolicitacoesAtivas(id) {
     try {
-        // Rota para as RESERVAS/SOLICITAÇÕES que a ONG fez e estão ATIVAS
-        const endpoint = `/doacoesAtivasONG/solicitacoes?email=${encodeURIComponent(email)}`;
+        // Rota para as SOLICITAÇÕES que a ONG fez e estão ATIVAS
+        const endpoint = `/doacoesConcluidasONG/solicitacoesDisponiveisONG?id=${encodeURIComponent(id)}`;
         
         const res = await fetch(endpoint);
+
 
         if (!res.ok) {
             throw new Error(`Erro HTTP ao buscar solicitações: ${res.status}`);
         }
 
         const solicitacoes = await res.json();
-        console.log('Solicitações ativas (reservas em andamento):', solicitacoes);
+        console.log('Solicitações disponíveis:', solicitacoes);
         return solicitacoes;
     } catch (erro) {
         console.error('Erro ao carregar solicitações ativas:', erro);
         return [];
     }
 }
+
+async function carregarSolicitacoesAndamento(id) {
+    try {
+        // Rota para as SOLICITAÇÕES que a ONG fez e estão RESERVADAS
+        const endpoint = `/doacoesConcluidasONG/solicitacoesAndamentoONG?id=${encodeURIComponent(id)}`;
+        
+        const res = await fetch(endpoint);
+
+
+        if (!res.ok) {
+            throw new Error(`Erro HTTP ao buscar solicitações: ${res.status}`);
+        }
+
+        const solicitacoes = await res.json();
+        console.log('Solicitações disponíveis:', solicitacoes);
+        return solicitacoes;
+    } catch (erro) {
+        console.error('Erro ao carregar solicitações ativas:', erro);
+        return [];
+    }
+}
+
+async function carregarExcedentesAndamento(id) {
+    try {
+        // Rota para as SOLICITAÇÕES que a ONG fez e estão RESERVADAS
+        const endpoint = `/doacoesConcluidasONG/excedentesAndamentoONG?id=${encodeURIComponent(id)}`;
+        
+        const res = await fetch(endpoint);
+
+
+        if (!res.ok) {
+            throw new Error(`Erro HTTP ao buscar solicitações: ${res.status}`);
+        }
+
+        const solicitacoes = await res.json();
+        console.log('Solicitações disponíveis:', solicitacoes);
+        return solicitacoes;
+    } catch (erro) {
+        console.error('Erro ao carregar solicitações ativas:', erro);
+        return [];
+    }
+}
+
+
+function preencherTabelaSolicitacoesDisponiveis(solicitacoes, tableId) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = ''; // Limpa a tabela
+
+        // 6 colunas: ID, Doação Solicitada, Quantidade, Empresa Doadora, Status, Ações
+        const colspan = 6; 
+
+        if (solicitacoes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+            return;
+        }
+
+        solicitacoes.forEach(item => {
+            const tr = document.createElement('tr');
+            
+            // Cria a classe para o status (útil para estilizar via CSS)
+            const statusClass = (item.status || 'pendente').toLowerCase();
+
+            // O backend deve retornar: id_reserva, nome_alimento, quantidade_reservada, nome_empresa, status
+            tr.innerHTML = `
+              
+              <td>${item.nome_alimento}</td>
+              <td>${item.quantidade}</td>
+              <td>${item.status}</td>
+              <td><button class="btn-acao" onclick="visualizarDetalhesSolicitacao(${item.id_reserva})">Visualizar Pedido</button></td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+    }
+
+    function preencherTabelaSolicitacoesAndamento(solicitacoes, tableId) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = ''; // Limpa a tabela
+
+        // 6 colunas: ID, Doação Solicitada, Quantidade, Empresa Doadora, Status, Ações
+        const colspan = 6; 
+
+        if (solicitacoes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+            return;
+        }
+
+        solicitacoes.forEach(item => {
+            const tr = document.createElement('tr');
+            
+            // Cria a classe para o status (útil para estilizar via CSS)
+            const statusClass = (item.status || 'pendente').toLowerCase();
+
+            // O backend deve retornar: id_reserva, nome_alimento, quantidade_reservada, nome_empresa, status
+            tr.innerHTML = `
+              
+              <td>${item.nome_alimento}</td>
+              <td>${item.quantidade}</td>
+              <td>${item.empresa.nome}</td>
+              <td>${item.status}</td>
+              <td><button class="btn-acao" onclick="visualizarDetalhesSolicitacao(${item.id_reserva})">Visualizar Pedido</button></td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+    }
+
+    function preencherTabelaExcedentesAndamento(solicitacoes, tableId) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        tbody.innerHTML = ''; // Limpa a tabela
+
+        // 6 colunas: ID, Doação Solicitada, Quantidade, Empresa Doadora, Status, Ações
+        const colspan = 6; 
+
+        if (solicitacoes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+            return;
+        }
+
+        solicitacoes.forEach(item => {
+            const tr = document.createElement('tr');
+            let data = item.data_validade.split('-').reverse().join('/');
+            
+            // Cria a classe para o status (útil para estilizar via CSS)
+            const statusClass = (item.status || 'pendente').toLowerCase();
+
+            // O backend deve retornar: id_reserva, nome_alimento, quantidade_reservada, nome_empresa, status
+            tr.innerHTML = `
+              
+              <td>${item.nome_alimento}</td>
+              <td>${item.quantidade}</td>
+              <td>${data}</td>
+              <td>${item.NomeEmpresa}</td>
+              <td>${item.status}</td>
+              <td><button class="btn-acao" onclick="visualizarDetalhesSolicitacao(${item.id_reserva})">Visualizar Pedido</button></td>
+            `;
+            
+            tbody.appendChild(tr);
+        });
+    }
 
     // FUNÇÃO ATUALIZADA para preencher a tabela da ONG (Minhas Solicitações)
     function preencherTabelaSolicitacoes(solicitacoes, tableId) {
@@ -80,7 +242,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // O backend deve retornar: id_reserva, nome_alimento, quantidade_reservada, nome_empresa, status
             tr.innerHTML = `
-              <td>${item.id_reserva}</td>
+              
               <td>${item.nome_alimento}</td>
               <td>${item.quantidade_reservada}</td>
               <td>${item.nome_empresa}</td>

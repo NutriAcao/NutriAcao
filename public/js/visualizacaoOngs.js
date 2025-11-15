@@ -59,6 +59,7 @@ async function loadPedidosDisponiveis() {
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
         pedidosReais = await response.json();
+        console.log(pedidosReais)
         renderizarTabela(pedidosReais); 
         setupPagination(pedidosReais.length); 
     } catch (error) {

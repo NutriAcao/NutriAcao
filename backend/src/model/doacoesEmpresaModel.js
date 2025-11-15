@@ -33,10 +33,10 @@ export async function buscarExcedentesReservadosPorEmpresa(id_empresa) {
 
     if (error) {
         console.error('Erro ao buscar doações reservadas:', error);
-        return null;
+        return [];
     }
 
-    return data?.length ? data : null;
+    return data?.length ? data : [];
 }
 
 export async function buscarDoacoesSolicitadasEmpresa(id_empresa) {
@@ -53,10 +53,10 @@ export async function buscarDoacoesSolicitadasEmpresa(id_empresa) {
 
     if (error) {
         console.error('Erro ao buscar doações solicitadas:', error);
-        return null;
+        return [];
     }
 
-    return data?.length ? data : null;
+    return data?.length ? data : [];
 }
 
 export async function buscarExcedentesConcluidosPorEmpresa(id_empresa) {
@@ -75,10 +75,10 @@ export async function buscarExcedentesConcluidosPorEmpresa(id_empresa) {
 
     if (error) {
         console.error('Erro ao buscar doações reservadas:', error);
-        return null;
+        return [];
     }
 
-    return data?.length ? data : null;
+    return data?.length ? data : [];
 }
 
 export async function buscarDoacoesSolicitadasConcluidasEmpresa(id_empresa) {
@@ -95,9 +95,9 @@ export async function buscarDoacoesSolicitadasConcluidasEmpresa(id_empresa) {
 
     if (error) {
         console.error('Erro ao buscar doações solicitadas:', error);
-        return null;
+        return [];
     }
 
-    return data?.length ? data : null;
+    return data?.length ? data : [];
 }
 

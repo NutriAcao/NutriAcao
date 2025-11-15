@@ -49,8 +49,8 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
                 "doacoesDisponiveis" d
             INNER JOIN
                 empresa e ON d.id_empresa = e.id -- CORRIGIDO (tabela doacoesDisponiveis usa "id_empresa")
-            -- WHERE
-            --     d.status ILIKE 'disponível' -- <-- REMOVIDA. (Ver explicação)
+            WHERE
+                 d.status ILIKE 'disponível'
             ORDER BY
                 d.data_validade ASC;
         `;
@@ -88,8 +88,8 @@ router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) 
                 "doacoesSolicitadas" s 
             INNER JOIN
                 ong o ON s.id_ong = o.id -- CORRIGIDO (tabela doacoesSolicitadas usa "id_ong")
-            -- WHERE
-            --    s.status ILIKE 'Disponível' -- <-- REMOVIDA. (Ver explicação)
+            WHERE
+               s.status ILIKE 'disponível' 
             ORDER BY
                 s."dataCadastroSolicitacao" DESC;
         `;
