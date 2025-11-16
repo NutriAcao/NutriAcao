@@ -255,9 +255,8 @@ document.addEventListener('DOMContentLoaded', function() {
     carregarUsuario();
 });
 
-
 // ===================================================
-// --- (NOVO) LÓGICA DO MODAL (ADAPTADA P/ <dialog>)
+// LÓGICA DO MODAL
 // ===================================================
 
 // --- Funções Auxiliares de Modal ---
@@ -276,8 +275,7 @@ function closeModal(modalId) {
 
 // --- Função Principal de Abertura ---
 async function abrirDetalhesModal(id, tipo) {
-    // Define o endpoint de busca de detalhes
-    // (Requer o doacaoDetalhesController.js no backend!)
+    // Define o endpoint de busca de detalhes (depende das rotas que criamos acima)
     let endpoint = '';
     if (tipo === 'excedente-disponivel' || tipo === 'excedente-reservado') {
         endpoint = `/doacoesConcluidasEmpresa/detalhes/excedente/${id}`;
@@ -296,16 +294,23 @@ async function abrirDetalhesModal(id, tipo) {
     const btnConcluir = document.getElementById('btnConcluir');
     const btnCancelar = document.getElementById('btnCancelar');
 
+
+    //PROCURANDO AMERDA DO ERRO
+    if (!orderModal || !modalTitle || !orderIdSpan || !modalDetails) {
+        console.error("Erro: Elementos essenciais do modal não encontrados. Verifique os IDs no HTML.");
+        return; // Impede a execução do resto do código que causaria o erro null.
+    }
+    
     // Limpa o modal e mostra "carregando"
-    modalTitle.textContent = 'Carregando Detalhes...';
-    orderIdSpan.textContent = id;
+   modalTitle.firstChild.textContent = 'Carregando Detalhes... '; 
+    orderIdSpan.textContent = `#${id}`; 
     modalDetails.innerHTML = '<p>Carregando...</p>';
     itemsList.innerHTML = '';
     btnConcluir.style.display = 'none';
     btnCancelar.style.display = 'none';
 
     // Abre o modal
-    openModal('orderModal');
+    openModal('orderModal'); // A abertura do modal é feita no início para o usuário ver o carregamento
 
     try {
         const res = await fetch(endpoint);
@@ -315,42 +320,49 @@ async function abrirDetalhesModal(id, tipo) {
         }
         
         const data = await res.json();
-        console.log("Detalhes recebidos:", data);
+        console.log("Detalhes recebidos:", data); // Verifique no console do navegador se os dados estão completos
 
         // Popula o modal com os detalhes
-        const ong = data.ong || { nome: data.nomeONG, telefone: data.telefoneContato, email: data.emailContato };
+        // O objeto 'data' agora deve incluir um campo 'ong' com nome, email e telefone se for reservado
+        const ong = data.ong || { 
+            nome: data.NomeEmpresa || data.nomeONG || 'N/A', 
+            telefone: data.telefone_contato || 'N/A', 
+            email: data.email_contato || 'N/A' 
+        };
         const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
         
-        modalTitle.textContent = 'Detalhes #'; // O ID já está no span
-        
+        modalTitle.firstChild.textContent = 'Detalhes '; // Altera SÓ o texto
+        orderIdSpan.textContent = `#${id}`; 
+        // Ponto de Correção: Preenchendo o HTML DENTRO de modalDetails
         modalDetails.innerHTML = `
             <p><strong>Instituição:</strong> <span>${ong.nome || 'N/A'}</span></p>
             <p><strong>Status:</strong> <span class="status ${data.status}">${statusText}</span></p>
-            <p><strong>Data Cadastro:</strong> <span>${new Date(data.dataCadastroDoacao || data.dataCadastroSolicitacao).toLocaleDateString('pt-BR')}</span></p>
+            <p><strong>Data Cadastro:</strong> <span>${new Date(data.data_cadastro || data.dataCadastroSolicitacao || data.dataCadastroDoacao).toLocaleDateString('pt-BR')}</span></p>
             <p><strong>Contato:</strong> <span>${ong.telefone || 'N/A'}</span></p>
             <p><strong>Email:</strong> <span>${ong.email || 'N/A'}</span></p>
         `;
         
+        // Ponto de Correção: Preenchendo a lista de itens
         itemsList.innerHTML = `
             <tr>
                 <td>${data.nome_alimento}</td>
                 <td>${data.quantidade}</td>
                 <td>Kg</td>
-                <td>-</td>
+                <td>${data.observacoes || '-'}</td>
             </tr>
         `;
 
-        // Controla quais botões de ação aparecem
+        // Controla quais botões de ação aparecem e suas funções
         if (tipo === 'excedente-disponivel') {
-            // Tabela 1: Excedente Disponível
-            // Nenhuma ação. Botões permanecem escondidos.
+            // Tabela 1: Excedente Disponível -> Nenhuma ação.
             
         } else if (tipo === 'pedido-reservado') {
-            // Tabela 2: Pedido de ONG que EU reservei
+            // Tabela 2: Pedido de ONG que EU reservei -> Ações: Concluir e Cancelar
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Pedido';
             
+            // Note que aqui o TIPO é 'pedido' para o backend
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-pedido', id, 'pedido', 'concluir este pedido');
             };
@@ -359,11 +371,12 @@ async function abrirDetalhesModal(id, tipo) {
             };
 
         } else if (tipo === 'excedente-reservado') {
-            // Tabela 3: Meu Excedente que uma ONG reservou
+            // Tabela 3: Meu Excedente que uma ONG reservou -> Ações: Concluir e Cancelar
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Doação';
 
+            // Note que aqui o TIPO é 'doacao' para o backend
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-doacao', id, 'doacao', 'concluir esta doação');
             };
@@ -374,10 +387,9 @@ async function abrirDetalhesModal(id, tipo) {
 
     } catch (erro) {
         console.error("Erro ao carregar detalhes:", erro);
-        modalDetails.innerHTML = `<p style="color: red;">Erro ao carregar detalhes: ${erro.message}</p>`;
+        modalDetails.innerHTML = `<p style="color: red;">Erro ao carregar detalhes: ${erro.message}. Verifique as rotas da API no backend.</p>`;
     }
 }
-
 
 function confirmarAcao(acao, id, tipo, mensagem) {
     // 1. Fecha o modal de detalhes

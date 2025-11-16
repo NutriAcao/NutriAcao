@@ -3,11 +3,11 @@ import express from 'express';
 import { 
     reservarDoacaoEmpresa, 
     reservarPedidoOng,
-    concluirDoacao, 
+    concluirDoacao,
+    cancelarReserva,
     concluirPedido
 } from '../controllers/reservaController.js';
-import { verificarToken } from '../routes/authMiddleware.js'; 
-import { cancelarReserva } from '../controllers/reservaController.js';
+import { verificarToken } from '../routes/authMiddleware.js';
 import { getPedidosDisponiveis } from '../controllers/pedidoController.js'; 
 // ---
 const router = express.Router();

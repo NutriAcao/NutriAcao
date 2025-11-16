@@ -12,10 +12,19 @@ import { buscarSolicitacoesConcluidasONG } from '../model/doacoesONGModel.js';
 import { buscarExcedentesConcluidosONG } from '../model/doacoesONGModel.js';
 
 import { verificarToken } from './authMiddleware.js';
-import { getDetalhesDoacao } from '../controllers/doacaoDetalhesController.js';
+import { getDetalhesExcedente, 
+    getDetalhesSolicitacao,
+    getMinhasSolicitacoesReservadas, 
+    getMeusExcedentesReservados } from '../controllers/doacaoDetalhesController.js';
 
 const router = express.Router();
 
+router.get('/doacoesSolicitadasEmpresa', verificarToken, getMinhasSolicitacoesReservadas);
+
+// O frontend chama "/doacoesConcluidasEmpresa/excedentesReservadosEmpresa"
+router.get('/excedentesReservadosEmpresa', verificarToken, getMeusExcedentesReservados);
+router.get('/detalhes/excedente/:id', verificarToken, getDetalhesExcedente);
+router.get('/detalhes/solicitacao/:id', verificarToken, getDetalhesSolicitacao);
 //Busca Excedentes disponíveis da empresa
 router.get('/doacoesEmpresa', async (req, res) => {
     const { id } = req.query;
@@ -244,6 +253,5 @@ router.get('/excedentesConcluidosONG', async (req, res) => {
     }
 });
 
-router.get('/detalhes/:tipo/:id', verificarToken, getDetalhesDoacao);
 
 export default router;
