@@ -63,7 +63,7 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 }
 export async function getMeusExcedentesDisponiveis(req, res) {
     // Pega o ID da empresa logada (do middleware de autenticação)
-    const id_empresa_logada = req.user.id; 
+    const id_empresa_logada = req.usuario.id; 
 
     if (!id_empresa_logada) {
         return res.status(401).json({ message: 'Usuário não autenticado.' });
@@ -89,7 +89,7 @@ export async function getMeusExcedentesDisponiveis(req, res) {
 // FUNÇÃO 2: Para a Tabela "Itens Reservados" (Status: Reservado)
 // -------------------------------------------------------------------
 export async function getMeusItensReservados(req, res) {
-    const id_empresa_logada = req.user.id;
+    const id_empresa_logada = req.usuario.id;
 
     if (!id_empresa_logada) {
         return res.status(401).json({ message: 'Usuário não autenticado.' });

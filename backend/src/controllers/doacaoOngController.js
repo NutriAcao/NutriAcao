@@ -79,7 +79,7 @@ export async function getPedidosDisponiveis(req, res) {
 // FUNÇÃO 3: Para a Tabela "Meus Pedidos Disponíveis" (Status: Disponível)
 // -------------------------------------------------------------------
 export async function getMeusPedidosDisponiveis(req, res) {
-    const id_ong_logada = req.user.id; 
+    const id_ong_logada = req.usuario.id; 
 
     if (!id_ong_logada) {
         return res.status(401).json({ message: 'Usuário não autenticado.' });
@@ -104,39 +104,51 @@ export async function getMeusPedidosDisponiveis(req, res) {
 // -------------------------------------------------------------------
 // FUNÇÃO 4: Para a Tabela "Itens Recebidos/Reservados" (Status: Reservado)
 // -------------------------------------------------------------------
-export async function getMeusItensReservadosOng(req, res) {
-    const id_ong_logada = req.user.id;
+export async function getMeusPedidosReservados(req, res) {
+    const id_ong_logada = req.usuario.id;
 
     if (!id_ong_logada) {
         return res.status(401).json({ message: 'Usuário não autenticado.' });
     }
 
     try {
-        // Query A: Doações de EMPRESAS que EU (ONG) reservei
-        const { data: doacoesQueReservei, error: errorA } = await supabase
-            .from('doacoesDisponiveis')
-            .select('*') 
-            .eq('status', 'reservado') // Filtro 1: Status
-            .eq('id_ong_reserva', id_ong_logada); // Filtro 2: Eu reservei
-        
-        if (errorA) throw errorA;
-
-        // Query B: Pedidos que EU (ONG) criei e que foram reservados por uma Empresa
-        const { data: meusPedidosReservados, error: errorB } = await supabase
+        const { data, error } = await supabase
             .from('doacoesSolicitadas')
             .select('*') 
             .eq('status', 'reservado') // Filtro 1: Status
-            .eq('id_ong', id_ong_logada); // Filtro 2: Eu criei
+            .eq('id_ong', id_ong_logada); // Filtro 2: Eu (ONG) criei
 
-        if (errorB) throw errorB;
-
-        // Junta os resultados das duas queries em uma única lista
-        const todosItensReservados = [...doacoesQueReservei, ...meusPedidosReservados];
-        
-        return res.status(200).json(todosItensReservados);
+        if (error) throw error;
+        return res.status(200).json(data);
 
     } catch (error) {
-        console.error('Erro ao buscar itens reservados da ONG:', error.message);
+        console.error('Erro ao buscar meus pedidos reservados:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
+    }
+}
+
+
+// --- NOVO (PARA TABELA 3: Doações que eu reservei) ---
+// Tabela 3: Excedentes em Andamento (Reservados por Mim)
+export async function getDoacoesQueReservei(req, res) {
+    const id_ong_logada = req.usuario.id;
+
+    if (!id_ong_logada) {
+        return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('doacoesDisponiveis')
+            .select('*') 
+            .eq('status', 'reservado') // Filtro 1: Status
+            .eq('id_ong_reserva', id_ong_logada); // Filtro 2: Eu (ONG) reservei
+        
+        if (error) throw error;
+        return res.status(200).json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar doações que reservei:', error.message);
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }

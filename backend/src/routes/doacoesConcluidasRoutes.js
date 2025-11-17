@@ -16,9 +16,16 @@ import { getDetalhesExcedente,
     getDetalhesSolicitacao,
     getMinhasSolicitacoesReservadas, 
     getMeusExcedentesReservados } from '../controllers/doacaoDetalhesController.js';
-
+import { 
+    getMeusPedidosReservados, 
+    getDoacoesQueReservei 
+} from '../controllers/doacaoOngController.js';
 const router = express.Router();
+// Rota para a Tabela 2 em minhasSolicitacoes.html
+router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados); 
 
+// Rota para a Tabela 3 em minhasSolicitacoes.html
+router.get('/doacoesReservadas', verificarToken, getDoacoesQueReservei);
 router.get('/doacoesSolicitadasEmpresa', verificarToken, getMinhasSolicitacoesReservadas);
 
 // O frontend chama "/doacoesConcluidasEmpresa/excedentesReservadosEmpresa"

@@ -436,7 +436,7 @@ tr:hover {
         }
 
         .info-table td {
-            background-color: white;
+            background-color: rgb(255, 255, 255);
         }
 
         .items-table {
@@ -446,7 +446,7 @@ tr:hover {
         }
 
         .items-table th {
-            background-color: #3498db;
+            background-color: #000000;
             color: white;
         }
 
