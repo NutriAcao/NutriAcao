@@ -195,10 +195,10 @@ router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (r
 
 // --- NOVA ROTA ---
 
-// ROTA 5: ATUALIZAR STATUS (em andamento / concluido)
+// ROTA 5: ATUALIZAR STATUS (em andamento / concluído)
 router.post('/api/update-status', verificarToken, async (req, res) => {
     // 1. Obter dados do frontend e do token
-    const { id, tipo, status: novoStatus } = req.body; // 'novoStatus' vem como 'em andamento' ou 'concluido'
+    const { id, tipo, status: novoStatus } = req.body; // 'novoStatus' vem como 'em andamento' ou 'concluído'
     const usuarioId = req.usuario.id;
 
     let tableName, fkColumn, statusAnterior, statusParaDB;
@@ -218,9 +218,9 @@ router.post('/api/update-status', verificarToken, async (req, res) => {
     if (novoStatus === 'em andamento') {
         statusAnterior = 'reservado';
         statusParaDB = 'Em Andamento'; // Padronizando para maiúsculas no DB
-    } else if (novoStatus === 'concluido') {
+    } else if (novoStatus === 'concluído') {
         statusAnterior = 'Em Andamento'; // Só pode concluir se estava 'Em Andamento'
-        statusParaDB = 'Concluido';
+        statusParaDB = 'Concluído';
     } else {
         return res.status(400).json({ message: "Status de destino inválido." });
     }

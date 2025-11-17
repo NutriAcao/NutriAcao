@@ -17,18 +17,18 @@ export async function getMeuHistorico(req, res) {
         if (tipo_usuario === 'empresa') {
             // Doações que a EMPRESA criou
             queryA = supabase.from('doacoesDisponiveis').select('*')
-                        .eq('status', 'concluido').eq('id_empresa', id_usuario_logado);
+                        .eq('status', 'concluído').eq('id_empresa', id_usuario_logado);
             // Pedidos que a EMPRESA reservou
             queryB = supabase.from('doacoesSolicitadas').select('*')
-                        .eq('status', 'concluido').eq('id_empresa_reserva', id_usuario_logado);
+                        .eq('status', 'concluído').eq('id_empresa_reserva', id_usuario_logado);
 
         } else if (tipo_usuario === 'ong') {
             // Doações que a ONG reservou
             queryA = supabase.from('doacoesDisponiveis').select('*')
-                        .eq('status', 'concluido').eq('id_ong_reserva', id_usuario_logado);
+                        .eq('status', 'concluído').eq('id_ong_reserva', id_usuario_logado);
             // Pedidos que a ONG criou
             queryB = supabase.from('doacoesSolicitadas').select('*')
-                        .eq('status', 'concluido').eq('id_ong', id_usuario_logado);
+                        .eq('status', 'concluído').eq('id_ong', id_usuario_logado);
         } else {
             return res.status(400).json({ message: 'Tipo de usuário inválido.' });
         }

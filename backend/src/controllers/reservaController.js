@@ -87,7 +87,7 @@ export async function concluirDoacao(req, res) {
     try {
         const { data, error } = await supabase
             .from('doacoesDisponiveis')
-            .update({ status: 'concluido' })
+            .update({ status: 'concluído' })
             .eq('id', item_id)
             .eq('status', 'reservado') 
             // Permite que ONG reservadora OU Empresa criadora conclua
@@ -118,7 +118,7 @@ export async function concluirPedido(req, res) {
     try {
         const { data, error } = await supabase
             .from('doacoesSolicitadas')
-            .update({ status: 'concluido' })
+            .update({ status: 'concluído' })
             .eq('id', item_id)
             .eq('status', 'reservado')
             // Permite que ONG criadora OU Empresa reservadora conclua
