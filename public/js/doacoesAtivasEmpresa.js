@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${item.nome_alimento}</td>
                 <td>${item.quantidade}</td>
                 <td>${data}</td>
-                <td>${item.ong?.nome || 'ONG não identificada'}</td>
+                <td></td>
                 <td>
                     <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-reservado')">
                         Visualizar Pedido
