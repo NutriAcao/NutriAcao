@@ -56,7 +56,7 @@ router.get('/doacoesEmpresa', async (req, res) => {
 });
 
 //Busca excedentes da empresa que foram reservados por uma ONG
-router.get('/excedentesReservadosEmpresa', async (req, res) => {
+router.get('/excedentesReservadosEmpresa1', async (req, res) => {
     const { id } = req.query;
 
     if (!id) {
