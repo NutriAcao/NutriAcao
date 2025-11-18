@@ -115,6 +115,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${item.nome_alimento}</td>
                 <td>${item.quantidade}</td>
                 <td><span class="status ${statusClass}">${statusText}</span></td>
+                <td></td>
                 <td>
                     <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-disponivel')">
                         Visualizar
