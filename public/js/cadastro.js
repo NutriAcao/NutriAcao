@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 estado: dadosCompletos.estado_ong
             };
 
-            console.log('📤 Enviando dados da ONG:', dadosONG);
 
             try {
                 const response = await fetch('/api/ongs/cadastrar', { 
@@ -188,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 estado: dadosCompletos.estado
             };
 
-            console.log('📤 Enviando dados da Empresa:', dadosEmpresa);
 
             try {
                 // Envio da Requisição HTTP POST

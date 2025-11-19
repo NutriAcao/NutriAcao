@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { cadastrarONG } from '../controllers/ongController.js';
+/*import { cadastrarONG } from '../controllers/ongController.js';
 import { cadastrarEmpresa, buscarEmpresa } from '../controllers/empresaController.js';
 import { cadastrarDoacaoEmpresa } from '../controllers/doacaoEmpresaController.js'
 import { cadastrarDoacaoOng } from '../controllers/doacaoOngController.js';
@@ -12,5 +12,7 @@ router.post('/cadastrar', cadastrarEmpresa);
 router.get('/:id', buscarEmpresa);
 router.post('/doacaoEmpresa', cadastrarDoacaoEmpresa)
 router.post('/doacaoOng', cadastrarDoacaoOng)
+*/
 
+const router = Router();
 export default router;
