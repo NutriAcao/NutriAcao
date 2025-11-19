@@ -13,6 +13,7 @@ import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
+import empresaRoutes from './src/routes/empresaRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 
 
@@ -59,6 +60,7 @@ app.use(express.static(publicPath));
 app.use('/', testeBDRoute)
 app.use('/', dbRoutes); 
 app.use('/api/cadastro', cadastroRoutes)
+app.use('/api/empresas', empresaRoutes);
 app.use('/api/login', login)
 app.use("/api", usuarioRoutes);
 

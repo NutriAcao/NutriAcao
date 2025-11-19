@@ -1,90 +1,117 @@
 // backend/src/controllers/empresaController.js
-
-// os controllers tem o objetivo de estabelecer funções especificas, 
-// nesse caso essa função é responsável por receber os dados de uma nova empresa a ser registrada, processá-los com segurança e
-// salvar essas informações no banco de dados, utilizando o Supabase como serviço de backend.
-
-import { supabase } from '../config/supabaseClient.js';
-import bcrypt from 'bcrypt'; // essa biblioteca é necessária para a segurança da senha.
-
-const saltRounds = 10;
+import * as EmpresaModel from '../model/empresaModel.js';
 
 export async function cadastrarEmpresa(req, res) {
-    console.log('Dados recebidos no req.body:', req.body); 
-    // receber e preparar os dados da Empresa do formulário
+    console.log('Dados recebidos no req.body:', req.body);
+    
     const { 
-        nome, 
+        // Dados da empresa
+        razao_social, 
+        nome_fantasia,
         cnpj, 
-        area_atuacao,
-        cep, 
-        endereco, 
-        telefone, 
-        email,
+        ramo_atuacao,
+        email_institucional,
+        site_url,
+        descricao,
         
+        // Dados do usuário/login
+        email,
         senha,
+        telefone,
+        nome,
+        
+        // Dados do responsável legal
         nome_responsavel_empresa,
         cpf_responsavel_empresa,
         cargo_responsavel_empresa,
         email_responsavel_empresa,
         telefone_responsavel_empresa,
-    } = req.body; 
+        data_nascimento_responsavel,
+        
+        // Endereço
+        cep, 
+        logradouro, 
+        numero, 
+        complemento, 
+        bairro, 
+        cidade, 
+        estado
+    } = req.body;
 
-    // verificação de Segurança e Validação Simples
-    if (!senha || !nome || !cnpj || !email || !area_atuacao) {
-        return res.status(400).send("Campos essenciais (Nome, CNPJ, Tipo de Negócio, E-mail e Senha) não podem estar vazios.");
+    // Validação dos campos obrigatórios
+    if (!senha || !razao_social || !cnpj || !email || !ramo_atuacao || !nome_responsavel_empresa) {
+        return res.status(400).send("Campos essenciais (Razão Social, CNPJ, Ramo de Atuação, E-mail, Senha e Nome do Responsável) não podem estar vazios.");
     }
-    
+
     try {
-        // usando o bcrypt para hashficar a senha
-        const senhaHash = await bcrypt.hash(senha, saltRounds); 
-
-        // insere dados na tabela 'Empresa'
-        const { data, error } = await supabase
-            .from('empresa')
-            .insert([
-                { 
-                    nome: nome, 
-                    cnpj: cnpj, 
-                    area_atuacao: area_atuacao, 
-                    cep: cep, 
-                    endereco: endereco, 
-                    telefone: telefone, 
-                    email: email,
-                    
-                    senha_hash: senhaHash, // Armazena a senha criptografada
-
-                    nome_responsavel_empresa: nome_responsavel_empresa,
-                    cpf_responsavel_empresa: cpf_responsavel_empresa,
-                    cargo_responsavel_empresa: cargo_responsavel_empresa,
-                    email_responsavel_empresa: email_responsavel_empresa,
-                    telefone_responsavel_empresa: telefone_responsavel_empresa,
-                } 
-            ])
-            .select(); // retorna o registro para confirmação
-
-        if (error) {
+        const resultado = await EmpresaModel.criarEmpresaCompleta({
+            // Dados da empresa
+            razao_social, 
+            nome_fantasia,
+            cnpj, 
+            ramo_atuacao,
+            email_institucional,
+            site_url,
+            descricao,
             
-            console.error('Erro ao cadastrar Empresa:', error.message);
+            // Dados do usuário
+            email,
+            senha,
+            telefone,
+            nome,
             
-            // logica para lidar com violação de unicidade (CNPJ ou Email duplicado)
-            if (error.code === '23505') {
-                 return res.status(409).send("CNPJ ou E-mail institucional já cadastrado.");
-            }
-            return res.status(500).send("Falha no cadastro da Empresa. Erro: " + error.message);
-        }
-
-        // cria uma cópia dos dados e remove o hash antes de enviar ao cliente
-        const dadosResposta = { ...data[0] };
-        delete dadosResposta.senha_hash; 
-
-        return res.status(201).json({ 
-            status: 'OK', 
-            message: 'Empresa cadastrada com sucesso! Agora é necessário cadastrar o Representante Legal.', 
-            dados: dadosResposta
+            // Dados do responsável
+            nome_responsavel_empresa,
+            cpf_responsavel_empresa,
+            cargo_responsavel_empresa,
+            email_responsavel_empresa,
+            telefone_responsavel_empresa,
+            data_nascimento_responsavel,
+            
+            // Endereço
+            cep, 
+            logradouro, 
+            numero, 
+            complemento, 
+            bairro, 
+            cidade, 
+            estado
         });
 
-    } catch (e) {
-        console.error('Erro interno do servidor no cadastro da Empresa:', e);
-        return res.status(500).send("Erro fatal ao processar a requisição.");
+        return res.status(201).json({
+            status: 'OK',
+            message: 'Empresa cadastrada com sucesso!',
+            dados: resultado
+        });
+
+    } catch (error) {
+        console.error('Erro no controller ao cadastrar empresa:', error);
+        
+        if (error.code === '23505') {
+            return res.status(409).send(error.message);
+        }
+        
+        if (error.message.includes('Campos essenciais')) {
+            return res.status(400).send(error.message);
+        }
+        
+        return res.status(500).send(error.message || "Erro interno do servidor.");
+    }
+}
+
+// Função para buscar empresa por ID
+export async function buscarEmpresa(req, res) {
+    try {
+        const { id } = req.params;
+        const empresa = await EmpresaModel.buscarEmpresaPorId(id);
+        
+        return res.status(200).json({
+            status: 'OK',
+            dados: empresa
+        });
+        
+    } catch (error) {
+        console.error('Erro ao buscar empresa:', error);
+        return res.status(404).send(error.message);
     }
 }
