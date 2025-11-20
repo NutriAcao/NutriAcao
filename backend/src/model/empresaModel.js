@@ -1,4 +1,5 @@
 // backend/src/models/empresaModel.js
+//refatorado
 import { supabase } from '../config/supabaseClient.js';
 import bcrypt from 'bcrypt';
 

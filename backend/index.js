@@ -13,6 +13,7 @@ import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
 import empresaRoutes from './src/routes/empresaRoutes.js';
+import loginRoutes from './src/routes/loginRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 
@@ -70,6 +71,7 @@ app.use('/api/login', loginRoutes);
 app.use('/api/doacoes-concluidas', doacoesConcluidasRoutes);
 app.use('/api/minha-conta-ong', minhaContaOngRoutes);
 app.use("/api", usuarioRoutes);
+app.use('/api/auth', loginRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
