@@ -67,6 +67,7 @@ export async function cadastrarDoacaoOng(req, res) {
         });
     }
 }
+
 export async function getPedidosDisponiveis(req, res) {
     try {
         const { data, error } = await supabase
@@ -83,6 +84,7 @@ export async function getPedidosDisponiveis(req, res) {
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }
+
 // -------------------------------------------------------------------
 // FUNÇÃO 3: Para a Tabela "Meus Pedidos Disponíveis" (Status: Disponível)
 // -------------------------------------------------------------------
@@ -135,7 +137,6 @@ export async function getMeusPedidosReservados(req, res) {
     }
 }
 
-
 // --- NOVO (PARA TABELA 3: Doações que eu reservei) ---
 // Tabela 3: Excedentes em Andamento (Reservados por Mim)
 export async function getDoacoesQueReservei(req, res) {
@@ -159,6 +160,7 @@ export async function getDoacoesQueReservei(req, res) {
         console.error('Erro ao buscar doações que reservei:', error.message);
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
+} // ← CHAVE DE FECHAMENTO ADICIONADA AQUI
 
 // Função para listar solicitações (se necessário)
 export async function listarSolicitacoesOng(req, res) {
