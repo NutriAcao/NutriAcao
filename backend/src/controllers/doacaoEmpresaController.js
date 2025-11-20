@@ -103,3 +103,27 @@ export async function cadastrarDoacaoEmpresa(req, res) {
         });
     }
 }
+export async function getMeusExcedentesDisponiveis(req, res) {
+    // Pega o ID da empresa logada (do middleware de autenticação)
+    const id_empresa_logada = req.usuario.id; 
+
+    if (!id_empresa_logada) {
+        return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('doacoesDisponiveis')
+            .select('*')
+            .eq('status', 'disponível') // Filtro 1: Status
+            .eq('id_empresa', id_empresa_logada); // Filtro 2: Somente os que EU criei
+
+        if (error) throw error;
+        return res.status(200).json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar excedentes:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
+    }
+
+}

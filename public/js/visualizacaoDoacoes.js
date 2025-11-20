@@ -1,5 +1,6 @@
 // public/js/visualizacaoDoacoes.js
-// VERSÃO COM MODAL DE MÚLTIPLOS STATUS
+// VERSÃO CORRIGIDA PARA O FLUXO SIMPLIFICADO: Disponível -> Reservado -> Concluído
+console.log(">>> ARQUIVO visualizacaoDoacoes.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
@@ -11,8 +12,21 @@ let currentPage = 1;
 document.addEventListener('DOMContentLoaded', function() {
     carregarUsuario();
     loadDoacoesDisponiveis(); 
-    setupSearch(); // Adicionando o setup de pesquisa
+    setupSearch(); 
+    setupModalListeners(); // Novo setup para fechar modal
 });
+
+function setupModalListeners() {
+    const modal = document.getElementById('orderModal');
+    if (!modal) return;
+    
+    // Fechar modal clicando fora
+    modal.addEventListener('click', function(event) {
+        if (event.target === this) {
+            closeModal();
+        }
+    });
+}
 
 async function carregarUsuario() {
     try {
@@ -29,6 +43,7 @@ async function carregarUsuario() {
 // === CARREGAMENTO DE DADOS (BACKEND) ===
 async function loadDoacoesDisponiveis() {
     try {
+        // A rota deve retornar APENAS doações com status 'disponível'
         const response = await fetch('/api/doacoes-disponiveis-ong'); 
         if (!response.ok) {
             const err = await response.json();
@@ -36,7 +51,7 @@ async function loadDoacoesDisponiveis() {
         }
         doacoesReais = await response.json();
         renderizarTabela(doacoesReais);
-        setupPagination(doacoesReais.length); // Adicionando paginação
+        setupPagination(doacoesReais.length);
     } catch (error) {
         console.error('Erro ao carregar doações:', error);
         alert('Falha ao carregar doações disponíveis. Tente novamente.');
@@ -48,7 +63,7 @@ function renderizarTabela(doacoes) {
     tbody.innerHTML = ''; 
 
     if (doacoes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="7">Nenhuma doação disponível no momento.</td></tr>'; // Ajustado colspan
+        tbody.innerHTML = '<tr><td colspan="7">Nenhuma doação disponível no momento.</td></tr>'; 
         return;
     }
     
@@ -73,104 +88,132 @@ function renderizarTabela(doacoes) {
         tbody.innerHTML += row;
     });
 
-    updateItemCount(doacoes.length); // Adicionando contagem de itens
+    updateItemCount(doacoes.length);
 }
 
-// === MODAL E AÇÕES (LÓGICA ATUALIZADA) ===
+// === MODAL E AÇÕES (LÓGICA CORRIGIDA) ===
+
+// Função auxiliar para preencher o conteúdo do modal com segurança
+const fillElement = (id, content) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = content;
+};
 
 function openModal(doacaoId) {
     const modal = document.getElementById('orderModal');
-    const doacao = doacoesReais.find(d => d.id == doacaoId);
+    if (!modal) return;
+    
+    // CORREÇÃO: Usando a chave correta (id_empresa)
+    const doacao = doacoesReais.find(d => d.id == doacaoId); 
 
     if (!doacao) return;
 
     // --- 1. Preencher Informações Básicas ---
     modal.querySelector('.modal-header h3').textContent = `Detalhes da Doação #${doacao.id}`;
-    document.getElementById('orderId').textContent = doacao.id;
-    document.getElementById('orderDate').textContent = new Date(doacao.data_validade).toLocaleDateString('pt-BR'); // Data de Validade
-    document.getElementById('institution').textContent = doacao.nome_empresa;
-    document.getElementById('contact').textContent = doacao.telefone_contato;
-    document.getElementById('address').textContent = doacao.cep_retirada; 
+    fillElement('orderId', doacao.id);
+    fillElement('orderDate', new Date(doacao.data_validade).toLocaleDateString('pt-BR'));
+    fillElement('institution', doacao.nomeEmpresa || doacao.NomeEmpresa);
+    fillElement('contact', doacao.telefone_contato);
+    fillElement('address', doacao.cep_retirada); 
 
     const statusElement = document.getElementById('orderStatus');
-    statusElement.innerHTML = `<span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span>`;
+    if (statusElement) {
+        statusElement.innerHTML = `<span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span>`;
+    }
 
     const itemsList = document.getElementById('itemsList');
-    itemsList.innerHTML = `
-        <tr>
-            <td>${doacao.nome_alimento}</td>
-            <td>${doacao.quantidade}</td>
-            <td>Kg</td> <td>-</td>
-        </tr>
-    `;
+    if (itemsList) {
+        itemsList.innerHTML = `
+            <tr>
+                <td>${doacao.nome_alimento}</td>
+                <td>${doacao.quantidade}</td>
+                <td>Kg</td> <td>-</td>
+            </tr>
+        `;
+    }
 
-    // --- 2. Controlar Ações e Seções com Base no Status ---
+    // --- 2. Controlar Ações (REMOVIDO FLUXO 'EM ANDAMENTO') ---
     const actionButton = document.getElementById('actionButton');
     const statusUpdateSection = document.getElementById('statusUpdateSection');
-    const statusSelect = document.getElementById('statusSelect');
-    const updateStatusButton = document.getElementById('updateStatusButton');
 
     // Reseta/Esconde tudo por padrão
-    statusUpdateSection.style.display = 'none';
-    statusSelect.innerHTML = '';
+    actionButton.style.display = 'none';
+    if(statusUpdateSection) {
+        statusUpdateSection.style.display = 'none'; 
+    }
     
     const status = String(doacao.status).toLowerCase();
-    const tipoDoacao = 'excedente'; // Tipo para o backend
 
     if (status === 'disponível') {
         actionButton.textContent = 'Reservar Doação';
         actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';
-        actionButton.onclick = () => handleAction(doacao.id, tipoDoacao, 'reservar'); 
+        // Chama a ação 'reservar' no novo sistema
+        actionButton.onclick = () => handleAction(doacao.id, 'reservar-doacao'); 
 
     } else if (status === 'reservado') {
-        actionButton.textContent = 'Cancelar Reserva';
-        actionButton.style.backgroundColor = '#e74c3c';
-        actionButton.style.display = 'inline-block';
-        actionButton.onclick = () => handleAction(doacao.id, tipoDoacao, 'cancelar'); 
-        
-        statusUpdateSection.style.display = 'block';
-        statusSelect.innerHTML = '<option value="em andamento">Mover para "Em Andamento"</option>';
-        updateStatusButton.onclick = () => updateStatus(doacao.id, tipoDoacao);
-
-    } else if (status === 'em andamento') {
+        // Se a ONG vê um item reservado NESTA tela,
+        // só deve ver o botão de Cancelar (se o item foi ela quem reservou, que não é o caso aqui,
+        // pois esta tela deve filtrar para APENAS 'disponível'.
+        // O item reservado deve sumir desta lista e ir para "Minhas Doações Ativas" da ONG.
+        // Assim, este bloco só serve para debug/cache.
+        actionButton.style.display = 'none'; // Não deve haver ações nesta tela para status reservado/concluído.
+    } else {
+        // Concluído, etc.
         actionButton.style.display = 'none';
-
-        statusUpdateSection.style.display = 'block';
-        statusSelect.innerHTML = '<option value="concluido">Mover para "Concluído"</option>';
-        updateStatusButton.onclick = () => updateStatus(doacao.id, tipoDoacao);
-
-    } else if (status === 'concluido') {
-        actionButton.style.display = 'none';
-        statusUpdateSection.style.display = 'none';
     }
     
     modal.showModal();
 }
 
 function closeModal() {
-    document.getElementById('orderModal').close();
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        modal.close();
+    }
 }
 
-// Função de Ação (Reserva/Cancela) - Mantida
-async function handleAction(doacaoId, tipoDoacao, actionType) {
-    const endpoint = actionType === 'reservar' 
-        ? '/api/reservar-doacao' 
-        : '/api/cancelar-reserva-e-devolver-estoque';
+/**
+ * Função ÚNICA para lidar com Reservar
+ * @param {number} doacaoId - O ID da doação (da tabela doacoesDisponiveis)
+ * @param {string} actionType - A ação a ser executada ('reservar-doacao')
+ */
+async function handleAction(doacaoId, actionType) {
+    let endpoint = '';
+    const method = 'PUT'; // Usamos PUT para atualizações de status
+    let body = { doacao_id: doacaoId }; 
+
+    // Define o endpoint com base no tipo de ação
+    switch (actionType) {
+        case 'reservar-doacao':
+            endpoint = '/api/reservar-doacao';
+            break;
+        case 'cancelar-doacao':
+            // Rota de cancelamento (Se fosse implementada, seria aqui)
+            alert('Ação de Cancelar deve ser feita na página de Itens Reservados.');
+            return;
+        default:
+            alert('Ação desconhecida.');
+            return;
+    }
     
-    closeModal();
+    closeModal(); 
 
     try {
         const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ doacaoId: doacaoId, tipoDoacao: tipoDoacao }),
+            method: method,
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(body),
         });
 
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message); 
+            alert(result.message);
+            // O item reservado deve sumir desta lista (pois o loadDoacoesDisponiveis filtra por 'disponível')
             loadDoacoesDisponiveis(); 
         } else {
             alert(`Falha: ${result.message}`);
@@ -181,48 +224,13 @@ async function handleAction(doacaoId, tipoDoacao, actionType) {
     }
 }
 
-// *** NOVA FUNÇÃO ***
-// Atualiza o status para "em andamento" ou "concluído"
-async function updateStatus(id, tipoDoacao) {
-    const statusSelect = document.getElementById('statusSelect');
-    const novoStatus = statusSelect.value;
+// REMOVIDA A FUNÇÃO 'updateStatus' (Obsoleta no novo fluxo)
 
-    if (!novoStatus) {
-        alert('Nenhum novo status selecionado.');
-        return;
-    }
 
-    const endpoint = '/api/update-status'; 
-    
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST', 
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: id,            // ID da doação
-                tipo: tipoDoacao,  // 'excedente'
-                status: novoStatus // 'em andamento' ou 'concluido'
-            }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert(result.message);
-            closeModal();
-            loadDoacoesDisponiveis(); // Recarrega os dados
-        } else {
-            alert(`Falha: ${result.message}`);
-        }
-    } catch (error) {
-        console.error('Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
-    }
-}
-
-// === PESQUISA E PAGINAÇÃO (Adicionado) ===
+// === PESQUISA E PAGINAÇÃO ===
 function updateItemCount(total) {
-    document.getElementById('totalItens').textContent = total;
+    const el = document.getElementById('totalItens');
+    if (el) el.textContent = total;
 }
 
 function setupSearch() {
@@ -232,8 +240,9 @@ function setupSearch() {
         const searchText = this.value.toLowerCase();
         
         const doacoesFiltradas = doacoesReais.filter(doacao => 
-            doacao.nome_alimento.toLowerCase().includes(searchText) ||
-            doacao.nome_empresa.toLowerCase().includes(searchText)
+            (doacao.nome_alimento && doacao.nome_alimento.toLowerCase().includes(searchText)) ||
+            (doacao.nomeEmpresa && doacao.nomeEmpresa.toLowerCase().includes(searchText)) ||
+            (doacao.NomeEmpresa && doacao.NomeEmpresa.toLowerCase().includes(searchText))
         );
         
         currentPage = 1; 
@@ -244,13 +253,6 @@ function setupSearch() {
 
 function setupPagination(totalItems) {
     const totalPaginas = Math.ceil(totalItems / itemsPerPage);
-    document.getElementById('totalPaginas').textContent = totalPaginas;
-    // (A lógica de paginação avançada precisa ser implementada)
+    const el = document.getElementById('totalPaginas');
+    if (el) el.textContent = totalPaginas;
 }
-
-// Fechar modal clicando fora
-document.getElementById('orderModal').addEventListener('click', function(event) {
-    if (event.target === this) {
-        closeModal();
-    }
-});

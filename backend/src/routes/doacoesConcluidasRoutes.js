@@ -4,8 +4,34 @@ import { buscarExcedentesReservadosPorEmpresa } from '../model/doacoesEmpresaMod
 import { buscarDoacoesSolicitadasEmpresa } from '../model/doacoesEmpresaModel.js';
 import { buscarExcedentesConcluidosPorEmpresa } from '../model/doacoesEmpresaModel.js';
 import { buscarDoacoesSolicitadasConcluidasEmpresa } from '../model/doacoesEmpresaModel.js';
-import { buscarDoacoesConcluidasONG } from '../model/doacoesONGModel.js';
 const router = express.Router();
+import { buscarSolicitacoesDisponiveisONG } from '../model/doacoesONGModel.js';
+import { buscarSolicitacoesAndamentoONG } from '../model/doacoesONGModel.js';
+import { buscarExcedentesAndamentoONG } from '../model/doacoesONGModel.js';
+import { buscarSolicitacoesConcluidasONG } from '../model/doacoesONGModel.js';
+import { buscarExcedentesConcluidosONG } from '../model/doacoesONGModel.js';
+
+import { verificarToken } from './authMiddleware.js';
+import { getDetalhesExcedente, 
+    getDetalhesSolicitacao,
+    getMinhasSolicitacoesReservadas, 
+    getMeusExcedentesReservados } from '../controllers/doacaoDetalhesController.js';
+import { 
+    getMeusPedidosReservados, 
+    getDoacoesQueReservei 
+} from '../controllers/doacaoOngController.js';
+
+// Rota para a Tabela 2 em minhasSolicitacoes.html
+router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados); 
+
+// Rota para a Tabela 3 em minhasSolicitacoes.html
+router.get('/doacoesReservadas', verificarToken, getDoacoesQueReservei);
+router.get('/doacoesSolicitadasEmpresa', verificarToken, getMinhasSolicitacoesReservadas);
+
+// O frontend chama "/doacoesConcluidasEmpresa/excedentesReservadosEmpresa"
+router.get('/excedentesReservadosEmpresa', verificarToken, getMeusExcedentesReservados);
+router.get('/detalhes/excedente/:id', verificarToken, getDetalhesExcedente);
+router.get('/detalhes/solicitacao/:id', verificarToken, getDetalhesSolicitacao);
 
 //Busca Excedentes disponíveis da empresa
 router.get('/doacoesEmpresa', async (req, res) => {
@@ -20,7 +46,7 @@ router.get('/doacoesEmpresa', async (req, res) => {
         
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhuma excedente disponível para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -43,7 +69,7 @@ router.get('/excedentesReservadosEmpresa', async (req, res) => {
         
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhum excedente reservado para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -66,7 +92,7 @@ router.get('/doacoesSolicitadasEmpresa', async (req, res) => {
         
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhuma doação solicitada para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -89,7 +115,7 @@ router.get('/excedentesConcluidosEmpresa', async (req, res) => {
         
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhum excedente concluído para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -112,7 +138,7 @@ router.get('/doacoesSolicitadasConcluidasEmpresa', async (req, res) => {
         
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhuma solicitação concluída para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -122,13 +148,8 @@ router.get('/doacoesSolicitadasConcluidasEmpresa', async (req, res) => {
     }
 });
 
-
-
-
-
-
 // ROTAS PARA ONGS
-router.get('/doacoesONG', async (req, res) => {
+router.get('/solicitacoesDisponiveisONG', async (req, res) => {
     const { id } = req.query;
 
     if (!id) {
@@ -136,10 +157,10 @@ router.get('/doacoesONG', async (req, res) => {
     }
 
     try {
-        const doacoes = await buscarDoacoesConcluidasONG(email);
+        const doacoes = await buscarSolicitacoesDisponiveisONG(id);
 
         if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+            return res.status(404).json({ message: 'Nenhuma solicitação disponível para este email' });
         }
 
         res.status(200).json(doacoes);
@@ -149,6 +170,88 @@ router.get('/doacoesONG', async (req, res) => {
     }
 });
 
+router.get('/solicitacoesAndamentoONG', async (req, res) => {
+    const { id } = req.query;
 
+    if (!id) {
+        return res.status(400).json({ error: 'ID é obrigatório' });
+    }
+
+    try {
+        const doacoes = await buscarSolicitacoesAndamentoONG(id);
+
+        if (!doacoes) {
+            return res.status(404).json({ message: 'Nenhuma solicitação em andamento para este email' });
+        }
+
+        res.status(200).json(doacoes);
+    } catch (err) {
+        console.error('Erro na rota /doacoes:', err);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+router.get('/excedentesAndamentoONG', async (req, res) => {
+    const { id } = req.query;
+
+    if (!id) {
+        return res.status(400).json({ error: 'ID é obrigatório' });
+    }
+
+    try {
+        const doacoes = await buscarExcedentesAndamentoONG(id);
+
+        if (!doacoes) {
+            return res.status(404).json({ message: 'Nenhum excedente em andamento para este email' });
+        }
+
+        res.status(200).json(doacoes);
+    } catch (err) {
+        console.error('Erro na rota /doacoes:', err);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+router.get('/solicitacoesConcluidasONG', async (req, res) => {
+    const { id } = req.query;
+
+    if (!id) {
+        return res.status(400).json({ error: 'ID é obrigatório' });
+    }
+
+    try {
+        const doacoes = await buscarSolicitacoesConcluidasONG(id);
+
+        if (!doacoes) {
+            return res.status(404).json({ message: 'Nenhuma solicitação concluída para este email' });
+        }
+
+        res.status(200).json(doacoes);
+    } catch (err) {
+        console.error('Erro na rota /doacoes:', err);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+router.get('/excedentesConcluidosONG', async (req, res) => {
+    const { id } = req.query;
+
+    if (!id) {
+        return res.status(400).json({ error: 'ID é obrigatório' });
+    }
+
+    try {
+        const doacoes = await buscarExcedentesConcluidosONG(id);
+
+        if (!doacoes) {
+            return res.status(404).json({ message: 'Nenhum excedente concluído para este email' });
+        }
+
+        res.status(200).json(doacoes);
+    } catch (err) {
+        console.error('Erro na rota /doacoes:', err);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
 
 export default router;

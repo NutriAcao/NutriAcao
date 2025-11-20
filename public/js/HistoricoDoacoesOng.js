@@ -13,42 +13,49 @@ async function carregarUsuario() {
     nomeUsuario.innerHTML = dados.nome
     nomeInstituicao.innerHTML = dados.nomeInstituicao
 
-    let email_usuario = dados.email;
-    let tipo_usuario = dados.tipo;
+    let id_usuario = dados.id;
+  
 
-    const doacoes = await carregarDoacoesUsuario(email_usuario, tipo_usuario);
+    const solicitacoes = await carregarDoacoesUsuario(id_usuario);
+    const excedentes = await carregarExcedentesUsuario(id_usuario);
 
   // define os IDs com base no tipo
-    const tableId = tipo_usuario === 'empresa' ? 'doacoesTableEmpresa' : 'doacoesTableOng';
-    const searchInputId = tipo_usuario === 'empresa' ? 'searchInputEmpresa' : 'searchInputOng';
-    const totalItensId = tipo_usuario === 'empresa' ? 'totalItensEmpresa' : 'totalItensOng';
-    const totalPaginasId = tipo_usuario === 'empresa' ? 'totalPaginasEmpresa' : 'totalPaginasOng';
-    const paginationControlsId = tipo_usuario === 'empresa' ? 'paginationControlsEmpresa' : 'paginationControlsOng';
+    const tableId = 'doacoesTableOng';
+    const searchInputId = 'searchInputOng';
+    const totalItensId = 'totalItensOng';
+    const totalPaginasId = 'totalPaginasOng';
+    const paginationControlsId = 'paginationControlsOng';
+
+    const tableIdExcedente = 'doacoesTableOngExcedente';
+    const searchInputIdExcedente = 'searchInputOngExcedente';
+    const totalItensIdExcedente = 'totalItensOngExcedente';
+    const totalPaginasIdExcedente = 'totalPaginasOngExcedente';
+    const paginationControlsIdExcedente = 'paginationControlsOngExcedente';
 
     // exibe apenas a tabela correspondente
     document.getElementById(tableId).style.display = 'table';
-    preencherTabelaComDoacoes(doacoes, tableId);
+    document.getElementById(tableIdExcedente).style.display = 'table';
+
+    preencherTabelaComDoacoesConcluidas(solicitacoes, tableId);
+    preencherTabelaComExcedentesConcluidos(excedentes, tableIdExcedente);
+
     setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
+    setupTable(searchInputIdExcedente, tableIdExcedente, totalItensIdExcedente, totalPaginasIdExcedente, paginationControlsIdExcedente);
+
 
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
   }
 }
 
-async function carregarDoacoesUsuario(email, tipo) {
+async function carregarDoacoesUsuario(id) {
   try {
-    let res;
-    if (tipo === 'empresa') {
-     res = await fetch(`/doacoesConcluidasEmpresa/doacoesEmpresa?email=${encodeURIComponent(email)}`);
-    } else {
-     res = await fetch(`/doacoesConcluidasONG/doacoesONG?email=${encodeURIComponent(email)}`);
-    }
-    
-
+ 
+     const res = await fetch(`/doacoesConcluidasONG/solicitacoesConcluidasONG?id=${encodeURIComponent(id)}`);
 
     const doacoes = await res.json();
 
-    console.log('Doações concluídas:', doacoes);
+    console.log('Solicitações concluídas:', doacoes);
     return doacoes; // ← Aqui está certo!
   } catch (erro) {
     console.error('Erro ao carregar doações do usuário:', erro);
@@ -56,16 +63,58 @@ async function carregarDoacoesUsuario(email, tipo) {
   }
 }
 
-function preencherTabelaComDoacoes(doacoes, tableId) {
+async function carregarExcedentesUsuario(id) {
+  try {
+ 
+     const res = await fetch(`/doacoesConcluidasONG/excedentesConcluidosONG?id=${encodeURIComponent(id)}`);
+
+    const doacoes = await res.json();
+
+    console.log('Excedentes concluídos:', doacoes);
+    return doacoes; // ← Aqui está certo!
+  } catch (erro) {
+    console.error('Erro ao carregar doações do usuário:', erro);
+    return []; // ← retorna array vazio em caso de erro
+  }
+}
+
+function preencherTabelaComDoacoesConcluidas(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = ''; // Limpa a tabela
+
+   if (doacoes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+            return;
+        }
 
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${item.id}</td>
+      
       <td>${item.nome_alimento}</td>
       <td>${item.quantidade}</td>
+      <td>${item.empresa.nome}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function preencherTabelaComExcedentesConcluidos(doacoes, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  tbody.innerHTML = ''; // Limpa a tabela
+
+   if (doacoes.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+            return;
+        }
+
+  doacoes.forEach(item => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      
+      <td>${item.nome_alimento}</td>
+      <td>${item.quantidade}</td>
+      <td>${item.NomeEmpresa}</td>
     `;
     tbody.appendChild(tr);
   });

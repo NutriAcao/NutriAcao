@@ -2,168 +2,203 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Minhas Solicitações - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+    
+    <style>
+        .modal {
+            border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            padding: 0; max-width: 600px; width: 90%;
+        }
+        .modal::backdrop { background: rgba(0, 0, 0, 0.5); }
+        .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 24px; border-bottom: 1px solid #eee; background: #f7f7f7;
+            border-radius: 8px 8px 0 0;
+        }
+        .modal-header h3 { margin: 0; font-size: 1.25rem; }
+        .modal-body { padding: 24px; }
+        .modal-actions {
+            display: flex; justify-content: flex-end; gap: 10px;
+            padding: 16px 24px; border-top: 1px solid #eee; background: #f7f7f7;
+            border-radius: 0 0 8px 8px;
+        }
+        .btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .btn-details { /* Estilo do seu botão "Visualizar" */
+            background-color: #004aad; color: white; padding: 5px 10px; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 0.9rem;
+        }
+        .btn-primary { background-color: #28a745; color: white; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .items-table th, .items-table td { 
+            border: 1px solid #ddd; padding: 8px; text-align: left; 
+        }
+        .items-table th { background-color: #f2f2f2; }
+        .section-title { 
+            margin-top: 20px; margin-bottom: 10px; font-size: 1.1rem; 
+            border-bottom: 2px solid #004aad; padding-bottom: 5px; 
+        }
+        .order-info p { margin: 8px 0; }
+        .order-info p strong { min-width: 120px; display: inline-block; }
+    </style>
 </head>
 <body>
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-               <li>
-                    <a href="/visualizacaoDoacoes.html">
-                        <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
-                    </a>
-                </li>
-
-
-                 <li>
-                    <a href="/cadastrarDoacoesONG.html" >
-                        <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="/minhasSolicitacoes.html" id="toggleGestao" class="active">
-                        <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
-                    </a>
-                </li>
-
-                 <li>
-                    <a href="/HistoricoDoacoesONG.html">
-                        <i class="fas fa-history"></i> Histórico de Doações
-                    </a>
-                </li>
-               
-                <li>
-                    
-                    <a href="/relatorioOng.html">
-                        <i class="fas fa-chart-line"></i> Relatórios de Consumo
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-user-circle"></i> Minha Conta
-                    </a>
-                </li>
-                <li>
-                    <a href="/suporteONG.html">
-                        <i class="fas fa-headset"></i> Suporte / FAQ
-                    </a>
-                </li>
+                <li><a href="/visualizacaoDoacoes.html"><i class="fas fa-hand-holding-usd"></i> Visualizar Doações</a></li>
+                <li><a href="/cadastrarDoacoesONG.html"><i class="fas fa-plus-circle"></i> Cadastrar Solicitações</a></li>
+                <li><a href="/minhasSolicitacoes.html" class="active"><i class="fas fa-hand-holding-heart"></i> Minhas Solicitações</a></li>
+                <li><a href="/HistoricoDoacoesONG.html"><i class="fas fa-history"></i> Histórico de Doações</a></li>
+                <li><a href="/relatorioOng.html"><i class="fas fa-chart-line"></i> Relatórios de Impacto</a></li>
+                <li><a href="/minhaContaOng.html"><i class="fas fa-user-circle"></i> Minha Conta</a></li>
+                <li><a href="/suporteONG.html"><i class="fas fa-headset"></i> Suporte / FAQ</a></li>
+            </ul>
         </aside>
-        
-        <!-- Main Content -->
+
         <main class="main-content">
             <div class="header">
-                <h2>Doações Ativas</h2>
-
-
+                <h2>Minhas Solicitações Ativas</h2>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=O&background=004AAD&color=fff" alt="Avatar">
                     <div>
-                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
+                        <h4 id="textNomeUsuario">Carregando...</h4>
+                        <p id="textNomeInstituicao">Carregando...</p>
                     </div>
                 </div>
-    
-
             </div>
             
-            <div class="card" id="historicoEmpresa">
+            <div class="card">
                 <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInputOng" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
+                    <h3>Solicitações Cadastradas (Disponíveis)</h3>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesTableOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Produto Pedido</th>
-                                    <th>Quantidade (Kilos)</th>
-                                    
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Parceiro</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                               
+                                <tr><td colspan="5">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasOng">2</span>
-                            | Itens encontrados: <span id="totalItensOng">10</span>
-                        </div>
-                        <div class="pagination-controls" id="paginationControlsOng">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                    </div>
                 </div>
             </div>
-                   
-              
-            <div class="card" id="historicoEmpresa">
+
+            <div class="card">
                 <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
+                    <h3>Solicitações em Andamento (Reservadas por Empresas)</h3>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="doacoesTableEmpresa">
+                        <table id="doacoesTableSolicitacaoOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Pedidos em Andamento</th>
-                                    <th>Quantidade (Kilos)</th>
-                                    
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
-                               
+                                <tr><td colspan="5">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
-                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
-                        </div>
-                        <div class="pagination-controls" id="paginationControlsEmpresa">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Excedentes em Andamento (Doações que eu Reservei)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTableExcedenteOng">
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5">Carregando...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
         </main>
-        
     </div>
 
-    
-    <script src="/js/doacoesAtivasOng.js"></script>
+    <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Carregando... <span id="orderId"></span></h3> 
+            <button class="btn-close" onclick="closeModal('orderModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações</h3>
+            <div class="order-info" id="modalDetails">
+                <p>Carregando...</p>
+            </div>
+            
+            <h3 class="section-title">Itens</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions">
+            <button classF="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
+            
+            <button id="btnCancelar" class="btn-danger" style="display: none;">Cancelar Reserva</button>
+            <button id="btnConcluir" class="btn-primary" style="display: none;">Concluir</button>
+        </div>
+    </dialog>
+
+    <dialog id="confirmModal" class="modal">
+        <div class="modal-header">
+            <h3>Confirmar Ação</h3>
+            <button class="btn-close" onclick="closeModal('confirmModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('confirmModal')">Voltar</button>
+            <button id="btnConfirmarAcao" class="btn-danger">Sim, Confirmar</button>
+        </div>
+    </dialog>
+
+    <script src="/js/minhasSolicitacoes.js"></script>
 </body>
 </html>
