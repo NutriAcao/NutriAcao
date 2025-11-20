@@ -3,6 +3,7 @@ import { supabase } from "../config/supabaseClient.js";
 
 // Função para buscar o histórico de doações concluídas (que você já tinha)
 export async function buscarSolicitacoesDisponiveisONG(id) {
+export async function buscarDoacoesConcluidasONG(email) {
     const { data, error } = await supabase
         .from('doacoesSolicitadas')
         .select('nome_alimento, quantidade, status')

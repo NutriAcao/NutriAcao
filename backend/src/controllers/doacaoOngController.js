@@ -1,62 +1,70 @@
+// controllers/doacaoOngController.js
+
+// ADAPTADO ----------------------------------------------///////////////
+
 import { supabase } from '../config/supabaseClient.js';
 
 export async function cadastrarDoacaoOng(req, res) {
     console.log('Dados recebidos no req.body:', req.body); 
-    // receber e preparar os dados da doação da empresa do formulário
+    
     const { 
-      nome,
-      email_Institucional,
-      nome_alimento,
-      quantidade,
-      telefone,
-      email,
-      id_ong
+      titulo,
+      descricao,
+      categoria_id,
+      quantidade_desejada,
+      telefone_contato,
+      email_contato,
+      ong_id
     } = req.body;
 
-    // verificação de segurança e validação Simples
-    if (!nome_alimento || !nome || !email_Institucional || !email) {
-        return res.status(400).json({message: "Campos essenciais não podem estar vazios."});
+    // Verificação de segurança e validação
+    if (!titulo || !quantidade_desejada || !ong_id) {
+        return res.status(400).json({
+          success: false,
+          message: "Campos essenciais não podem estar vazios."
+        });
     }
     
     try {
-       
-
-        // insere dados na tabela 'Empresa'
+        // Inserir na tabela solicitacoes_ong
         const { data, error } = await supabase
-            .from('doacoesSolicitadas')
-            .insert([
-                { 
-                    nomeONG: nome,
-                    email_Institucional: email_Institucional,
-                    nome_alimento: nome_alimento,
-                    quantidade: quantidade,
-                    telefoneContato: telefone,
-                    emailContato: email,
-                    status: 'disponível',
-                    id_ong: id_ong
-                } 
-            ])
-            .select(); // retorna o registro para confirmação
+    .from('solicitacoes_ong')
+    .insert([
+        { 
+            ong_id: ong_id,
+            titulo: titulo,
+            descricao: descricao || '',
+            categoria_id: categoria_id || 1,
+            quantidade_desejada: quantidade_desejada,
+            status: 'disponivel',
+            data_criacao: new Date(),
+            // USANDO OS NOVOS CAMPOS
+            telefone_contato: telefone_contato,
+            email_contato: email_contato
+        } 
+    ])
+    .select();
 
         if (error) {
-            
-            console.error('Erro ao cadastrar a doação:', error.message);
-            
-            
-            return res.status(500).json({message:"Falha no cadastro da doação. Erro: " + error.message});
+            console.error('Erro ao cadastrar a solicitação:', error.message);
+            return res.status(500).json({
+              success: false,
+              message: "Falha no cadastro da solicitação. Erro: " + error.message
+            });
         }
 
-        
-
         return res.status(201).json({ 
-            status: 'OK', 
-            message: 'Doação cadastrada com sucesso !', 
-            dados: data
+            success: true,
+            message: 'Solicitação cadastrada com sucesso!', 
+            data: data
         });
 
     } catch (e) {
-        console.error('Erro interno do servidor no cadastro da Empresa:', e);
-        return res.status(500).json({message:"Erro fatal ao processar a requisição."});
+        console.error('Erro interno do servidor no cadastro da solicitação:', e);
+        return res.status(500).json({
+          success: false,
+          message: "Erro fatal ao processar a requisição."
+        });
     }
 }
 export async function getPedidosDisponiveis(req, res) {
@@ -151,4 +159,37 @@ export async function getDoacoesQueReservei(req, res) {
         console.error('Erro ao buscar doações que reservei:', error.message);
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
+
+// Função para listar solicitações (se necessário)
+export async function listarSolicitacoesOng(req, res) {
+  try {
+    const { data, error } = await supabase
+      .from('solicitacoes_ong')
+      .select(`
+        *,
+        categorias (nome),
+        ongs (nome_ong, email_institucional)
+      `)
+      .eq('ong_id', req.params.ong_id)
+      .order('data_criacao', { ascending: false });
+
+    if (error) {
+      console.error('Erro ao buscar solicitações:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao buscar solicitações'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: data
+    });
+  } catch (error) {
+    console.error('Erro interno ao buscar solicitações:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor'
+    });
+  }
 }

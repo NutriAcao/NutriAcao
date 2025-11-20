@@ -20,6 +20,7 @@ import {
     getMeusPedidosReservados, 
     getDoacoesQueReservei 
 } from '../controllers/doacaoOngController.js';
+import { buscarDoacoesConcluidasONG } from '../model/doacoesONGModel.js';
 const router = express.Router();
 // Rota para a Tabela 2 em minhasSolicitacoes.html
 router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados); 
@@ -198,6 +199,8 @@ router.get('/solicitacoesAndamentoONG', async (req, res) => {
 });
 
 router.get('/excedentesAndamentoONG', async (req, res) => {
+// Busca excedentes concluídos pela empresa
+router.get('/excedentesConcluidosEmpresa', async (req, res) => {
     const { id } = req.query;
 
     if (!id) {
@@ -219,6 +222,36 @@ router.get('/excedentesAndamentoONG', async (req, res) => {
 });
 
 router.get('/solicitacoesConcluidasONG', async (req, res) => {
+//Busca doações solicitadas por ONGs que foram concluídas pela empresa
+router.get('/doacoesSolicitadasConcluidasEmpresa', async (req, res) => {
+    const { id } = req.query;
+
+    if (!id) {
+        return res.status(400).json({ error: 'ID é obrigatório' });
+    }
+
+    try {
+        const doacoes = await buscarDoacoesSolicitadasConcluidasEmpresa(id);
+        
+
+        if (!doacoes) {
+            return res.status(404).json({ message: 'Nenhuma doação encontrada para este email' });
+        }
+
+        res.status(200).json(doacoes);
+    } catch (err) {
+        console.error('Erro na rota /doacoes:', err);
+        res.status(500).json({ error: 'Erro interno do servidor' });
+    }
+});
+
+
+
+
+
+
+// ROTAS PARA ONGS
+router.get('/doacoesONG', async (req, res) => {
     const { id } = req.query;
 
     if (!id) {
