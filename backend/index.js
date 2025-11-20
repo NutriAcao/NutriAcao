@@ -13,7 +13,6 @@ import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
 import empresaRoutes from './src/routes/empresaRoutes.js';
-import loginRoutes from './src/routes/loginRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 
