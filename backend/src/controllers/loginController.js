@@ -1,65 +1,154 @@
-import { buscarUsuarioPorEmail } from '../model/loginModel.js';
+//refatorado
+import * as LoginModel from '../model/loginModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// funçãozinha pra logar bota fé, ela puxa o email e a senha la do formulario
-export async function login(req, res) {
+const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+
+export async function loginUsuario(req, res) {
     const { email, senha } = req.body;
 
-    if (!email || !senha) { //verifica se ta preenchido
-        return res.status(400).json({ message: 'Email e senha são obrigatórios.' });
+    console.log('Tentativa de login:', { email });
+
+    // Validação básica
+    if (!email || !senha) {
+        return res.status(400).json({
+            success: false,
+            message: 'Email e senha são obrigatórios'
+        });
     }
-    //deu green, agr ele tenta buscar um email
-    try {//aqui ele leva pro model
-        const usuario = await buscarUsuarioPorEmail(email);
-        //se nao tiver usuario entra aqui
+
+    try {
+        // 1. Buscar usuário pelo email
+        const usuario = await LoginModel.buscarUsuarioPorEmail(email);
+        
         if (!usuario) {
-            return res.status(401).json({ message: 'Usuário não encontrado.' });
+            console.log('Usuário não encontrado:', email);
+            return res.status(401).json({
+                success: false,
+                message: 'Credenciais inválidas'
+            });
         }
-        //compara a senha que veio do formulario com a senha que a função buscarusuario puxou la do banco de dados
-        const senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+
+        // 2. Verificar se o usuário está ativo
+        if (!usuario.ativo) {
+            console.log('Usuário inativo:', email);
+            return res.status(401).json({
+                success: false,
+                message: 'Conta desativada. Entre em contato com o suporte.'
+            });
+        }
+
+        // 3. VERIFICAÇÃO CRÍTICA: garantir que senha_hash existe
+        if (!usuario.senha_hash) {
+            console.error('ERRO: usuário sem senha_hash:', usuario.id);
+            return res.status(500).json({
+                success: false,
+                message: 'Erro no cadastro do usuário. Entre em contato com o suporte.'
+            });
+        }
+
+        console.log('Comparando senhas...');
+
+        // 4. Verificar senha COM TRY-CATCH ESPECÍFICO
+        let senhaValida = false;
+        try {
+            senhaValida = await bcrypt.compare(senha, usuario.senha_hash);
+            console.log('Comparação de senha concluída:', senhaValida);
+        } catch (bcryptError) {
+            console.error('Erro no bcrypt.compare:', bcryptError);
+            return res.status(500).json({
+                success: false,
+                message: 'Erro interno ao verificar senha'
+            });
+        }
+        
         if (!senhaValida) {
-            return res.status(401).json({ message: 'Senha incorreta.' });
+            console.log('Senha inválida para:', email);
+            return res.status(401).json({
+                success: false,
+                message: 'Credenciais inválidas'
+            });
         }
 
-//criação do Token JWT e envio como cookie
-const token = jwt.sign(
-            {
-                id: usuario.id,
-                email: usuario.email,
-                tipo: usuario.tipo,
-                nome: usuario.tipo === 'ong' 
-                ? usuario.nome_responsavel_ong 
-                : usuario.nome_responsavel_empresa,
-                nomeInstituicao: usuario.nome
-                
+        // 5. Atualizar último login
+        await LoginModel.atualizarUltimoLogin(usuario.id);
+
+        // 6. Gerar JWT Token
+        const token = jwt.sign(
+            { 
+                id: usuario.id, 
+                email: usuario.email, 
+                tipo: usuario.tipo 
             },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' } // token expira em 1 hora
+            JWT_SECRET,
+            { expiresIn: '24h' }
         );
-// configura o cookie com o token
-         res.cookie('token', token, {
-    httpOnly: true,
-    secure: true, // use HTTPS em produção
-    sameSite: 'Strict',
-    maxAge: 3600000 //cookie também expira em 1 hora
-  });
 
-
-        // retorna sucesso e tipo do usuário
-        // também envia o token JWT no corpo da resposta
-        return res.status(200).json({ 
-            message: 'Login bem-sucedido!',
-            userId: usuario.id,
-            nome: usuario.nome,
-            tipo: usuario.tipo,
-            token: token
-            // se quiser testar pra ver se ta pegando, descomenta, nao sei se é uma falha de segurança, mas Deus nos abençoe que não seja
-            // por que muito provavelmente eu não vou lembrar de tirar esse comentario na entrega do p.i
+        // 7. SETAR COOKIE COM O TOKEN
+        res.cookie('token', token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'strict',
+            maxAge: 24 * 60 * 60 * 1000
         });
 
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: 'Erro interno do servidor.' });
+        // 8. Preparar resposta (remover dados sensíveis)
+        const { senha_hash, ...usuarioSemSenha } = usuario;
+
+        // 9. DEFINIR URL DE REDIRECIONAMENTO CORRETA
+        let redirectUrl = '';
+        if (usuario.tipo === 'empresa') {
+            redirectUrl = '/visualizacaoOngs.html';
+        } else if (usuario.tipo === 'ong') {
+            redirectUrl = '/visualizacaoDoacoes.html';
+        }
+
+        console.log('Login bem-sucedido:', { 
+            id: usuario.id, 
+            email: usuario.email, 
+            tipo: usuario.tipo,
+            redirectUrl: redirectUrl
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'Login realizado com sucesso',
+            usuario: usuarioSemSenha,
+            redirectUrl: redirectUrl
+        });
+
+    } catch (error) {
+        console.error('Erro no processo de login:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
+        });
+    }
+}
+
+export async function getPerfilUsuario(req, res) {
+    try {
+        console.log('Buscando perfil para usuário:', req.usuario.id);
+        
+        const usuario = await LoginModel.buscarUsuarioCompletoPorId(req.usuario.id);
+        
+        console.log('Perfil encontrado:', { 
+            id: usuario.id, 
+            tipo: usuario.tipo,
+            nome: usuario.nome 
+        });
+
+        return res.status(200).json({
+            success: true,
+            usuario
+        });
+
+    } catch (error) {
+        console.error('Erro ao buscar perfil:', error);
+        return res.status(404).json({
+            success: false,
+            message: 'Usuário não encontrado: ' + error.message
+        });
     }
 }

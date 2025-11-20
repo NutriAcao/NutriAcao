@@ -1,37 +1,34 @@
-import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
-
+//refatorado
 export function verificarEmpresa(req, res, next) {
-  const token = req.cookies.token;
-  if (!token) return res.redirect('/loginpage');
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.tipo !== 'empresa') {
-      // return res.status(403).send('Acesso restrito a empresas.');
-      return res.redirect('/loginpage');
+    console.log('Verificando se é empresa...', req.usuario);
+    
+    if (!req.usuario) {
+        console.log('Usuário não autenticado - REDIRECIONANDO PARA LOGIN');
+        return res.redirect('/loginpage');
     }
-    req.usuario = decoded;
+    
+    if (req.usuario.tipo !== 'empresa') {
+        console.log('Não é empresa:', req.usuario.tipo, '- REDIRECIONANDO PARA LOGIN');
+        return res.redirect('/loginpage');
+    }
+    
+    console.log('É empresa, acesso permitido');
     next();
-  } catch (err) {
-    return res.redirect('/loginpage');
-  }
 }
 
 export function verificarOng(req, res, next) {
-  const token = req.cookies.token;
-  if (!token) return res.redirect('/loginpage');
-
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    if (decoded.tipo !== 'ong') {
-      // return res.status(403).send('Acesso restrito a ONGs.');
-      return res.redirect('/loginpage');
+    console.log('Verificando se é ONG...', req.usuario);
+    
+    if (!req.usuario) {
+        console.log('Usuário não autenticado - REDIRECIONANDO PARA LOGIN');
+        return res.redirect('/loginpage');
     }
-    req.usuario = decoded;
+    
+    if (req.usuario.tipo !== 'ong') {
+        console.log('Não é ONG:', req.usuario.tipo, '- REDIRECIONANDO PARA LOGIN');
+        return res.redirect('/loginpage');
+    }
+    
+    console.log('É ONG, acesso permitido');
     next();
-  } catch (err) {
-    return res.redirect('/loginpage');
-  }
 }

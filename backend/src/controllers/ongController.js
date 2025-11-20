@@ -1,4 +1,5 @@
 // backend/src/controllers/ongController.js
+//refatorado
 import * as OngModel from '../model/ongModel.js';
 
 export async function cadastrarOng(req, res) {

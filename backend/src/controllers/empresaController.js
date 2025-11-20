@@ -1,4 +1,6 @@
+//refatorado
 // backend/src/controllers/empresaController.js
+//refatorado
 import * as EmpresaModel from '../model/empresaModel.js';
 
 export async function cadastrarEmpresa(req, res) {

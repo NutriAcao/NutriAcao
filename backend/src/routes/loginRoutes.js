@@ -1,8 +1,14 @@
-import { Router } from 'express'
-import { login } from '../controllers/loginController.js'
+//refatorado
+import express from 'express';
+import { loginUsuario, getPerfilUsuario } from '../controllers/loginController.js';
+import { verificarToken } from './authMiddleware.js'; 
 
-const router = Router()
+const router = express.Router();
 
-router.post('/',login)
+// Rota pública
+router.post('/login', loginUsuario);
 
-export default router
+// Rota protegida
+router.get('/perfil', verificarToken, getPerfilUsuario); 
+
+export default router;

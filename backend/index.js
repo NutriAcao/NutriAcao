@@ -4,7 +4,6 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cadastroRoutes from './src/routes/cadastroRoutes.js'; 
-import login from './src/routes/loginRoutes.js'
 import './src/config/dbPool.js'; 
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
@@ -14,6 +13,7 @@ import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
 import empresaRoutes from './src/routes/empresaRoutes.js';
+import loginRoutes from './src/routes/loginRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 
@@ -63,8 +63,8 @@ app.use('/', dbRoutes);
 app.use('/api/cadastro', cadastroRoutes)
 app.use('/api/empresas', empresaRoutes);
 app.use('/api/ongs', ongRoutes);
-app.use('/api/login', login)
 app.use("/api", usuarioRoutes);
+app.use('/api/auth', loginRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {

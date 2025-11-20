@@ -1,6 +1,8 @@
 // backend/src/models/ongModel.js
+//refatorado
 import { supabase } from '../config/supabaseClient.js';
 import bcrypt from 'bcrypt';
+
 
 const saltRounds = 10;
 
