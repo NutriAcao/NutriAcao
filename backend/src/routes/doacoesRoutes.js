@@ -1,7 +1,7 @@
 import express from 'express';
 import { getPedidosDisponiveis } from '../controllers/doacaoOngController.js';
 import { verificarToken } from '../routes/authMiddleware.js'; // Verifique se o caminho está correto
-import { getMeusExcedentesDisponiveis} from '../controllers/doacaoEmpresaController.js';
+import { cadastrarDoacaoEmpresa} from '../controllers/doacaoEmpresaController.js';
 import { getMeusPedidosDisponiveis, getMeusPedidosReservados, getDoacoesQueReservei} from '../controllers/doacaoOngController.js'; 
 const router = express.Router();
 
@@ -11,5 +11,5 @@ router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados);
 router.get('/doacoesReservadas', verificarToken, getDoacoesQueReservei);
 router.get('/meus-pedidos-disponiveis', verificarToken, getMeusPedidosDisponiveis);
 router.get('/pedidos-disponiveis-empresa', verificarToken, getPedidosDisponiveis);
-router.get('/meus-excedentes-disponiveis', verificarToken, getMeusExcedentesDisponiveis);
+router.get('/meus-excedentes-disponiveis', verificarToken, cadastrarDoacaoEmpresa);
 export default router;
