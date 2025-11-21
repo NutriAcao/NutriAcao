@@ -4,7 +4,6 @@ import { supabase } from '../config/supabaseClient.js';
 export const cadastrarExcedente = async (req, res) => {
   try {
     const {
-      empresa_id,
       titulo,
       descricao,
       categoria_id,
@@ -13,7 +12,23 @@ export const cadastrarExcedente = async (req, res) => {
       data_validade
     } = req.body;
 
-    console.log('Dados recebidos para excedente:', req.body);
+    const usuario_id = req.usuario.id;
+
+    // Buscar ID da empresa associada ao usuário
+    const { data: empresaData, error: empresaError } = await supabase
+      .from('empresas')
+      .select('id')
+      .eq('usuario_id', usuario_id)
+      .single();
+
+    if (empresaError || !empresaData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Usuário não possui uma empresa cadastrada'
+      });
+    }
+
+    const empresa_id = empresaData.id;
 
     // 1. Inserir na tabela excedentes
     const { data: excedente, error: excedenteError } = await supabase

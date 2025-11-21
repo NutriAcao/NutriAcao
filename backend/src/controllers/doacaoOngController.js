@@ -26,24 +26,23 @@ export async function cadastrarDoacaoOng(req, res) {
     }
     
     try {
-        // Inserir na tabela solicitacoes_ong
+        // Inserir na tabela solicitacoes_ong (ESTRUTURA CORRIGIDA)
         const { data, error } = await supabase
-    .from('solicitacoes_ong')
-    .insert([
-        { 
-            ong_id: ong_id,
-            titulo: titulo,
-            descricao: descricao || '',
-            categoria_id: categoria_id || 1,
-            quantidade_desejada: quantidade_desejada,
-            status: 'disponivel',
-            data_criacao: new Date(),
-            // USANDO OS NOVOS CAMPOS
-            telefone_contato: telefone_contato,
-            email_contato: email_contato
-        } 
-    ])
-    .select();
+            .from('solicitacoes_ong')
+            .insert([
+                { 
+                    ong_id: ong_id,
+                    titulo: titulo,
+                    descricao: descricao || '',
+                    categoria_id: categoria_id || 1,
+                    quantidade_desejada: quantidade_desejada,
+                    status: 'disponivel',
+                    data_criacao: new Date(),
+                    telefone_contato: telefone_contato,
+                    email_contato: email_contato
+                } 
+            ])
+            .select();
 
         if (error) {
             console.error('Erro ao cadastrar a solicitação:', error.message);

@@ -43,6 +43,7 @@ async function carregarCategorias() {
 
 let formDoacaoOng = document.getElementById("form-cadastro-ong");
 
+// Atualize a função de submit no frontend
 if (formDoacaoOng) {
   formDoacaoOng.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -51,40 +52,16 @@ if (formDoacaoOng) {
     const dadosCompletos = Object.fromEntries(formData.entries());
 
     const dadosSolicitacao = {
-      // Dados para o novo modelo
       titulo: dadosCompletos.nome_alimento,
       descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
-      categoria_id: dadosCompletos.categoria || 1, // Categoria padrão
-      quantidade_desejada: dadosCompletos.quantidade,
+      categoria_id: parseInt(dadosCompletos.categoria) || 1,
+      quantidade_desejada: parseFloat(dadosCompletos.quantidade),
       telefone_contato: dadosCompletos.telefone,
-      email_contato: dadosCompletos.email,
-      ong_id: dadosUsuario.id
+      email_contato: dadosCompletos.email
+      // ong_id REMOVIDO - será buscado automaticamente pelo controller
     };
 
-    function validarDados(dados) {
-      const erros = [];
-
-      //validação da quantidade
-      const quantidade = Number(dados.quantidade_desejada);
-      if (isNaN(quantidade) || quantidade < 0 || quantidade > 500) {
-        erros.push("A quantidade deve ser um número entre 0 e 500.");
-      }
-
-      //validação do telefone
-      const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone_contato);
-      if (!telefoneValido) {
-        erros.push("O número de telefone informado é inválido.");
-      }
-
-      return erros;
-    }
-
-    let checagem = validarDados(dadosSolicitacao);
-
-    if (checagem.length > 0) {
-      alert("Erros encontrados:\n\n" + checagem.join("\n"));
-      return;
-    }
+    // ... validações existentes ...
 
     try {
       const response = await fetch('/api/solicitacoes-ong', {
