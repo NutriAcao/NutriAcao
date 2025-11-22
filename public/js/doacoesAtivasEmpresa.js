@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function excedentesAndamentoEmpresa(id) {
         try {
-            const res = await fetch(`/doacoesConcluidasEmpresa/excedentesReservadosEmpresa?id=${encodeURIComponent(id)}`);
+            const res = await fetch(`/doacoesConcluidasEmpresa/excedentesReservadosEmpresa1?id=${encodeURIComponent(id)}`);
             if (!res.ok) throw new Error(`Erro na requisição: ${res.status} ${res.statusText}`);
             const dados = await res.json();
             return dados;
@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
         doacoes.forEach(item => {
             const tr = document.createElement('tr');
             let data = item.data_validade.split('-').reverse().join('/');
+            console.log(item)
             tr.innerHTML = `
                 <td>${item.nome_alimento}</td>
                 <td>${item.quantidade}</td>
@@ -276,6 +277,7 @@ function closeModal(modalId) {
 
 // --- Função Principal de Abertura ---
 async function abrirDetalhesModal(id, tipo) {
+    console.log('abriu')
     // Define o endpoint de busca de detalhes (depende das rotas que criamos acima)
     let endpoint = '';
     if (tipo === 'excedente-disponivel' || tipo === 'excedente-reservado') {

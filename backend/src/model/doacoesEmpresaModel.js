@@ -21,6 +21,7 @@ export async function buscarExcedentesReservadosPorEmpresa(id_empresa) {
     const { data, error } = await supabase
         .from('doacoesDisponiveis')
         .select(`
+            id,
             nome_alimento,
             quantidade,
             data_validade,
