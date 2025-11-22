@@ -1,10 +1,10 @@
-// index.js
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cadastroRoutes from './src/routes/cadastroRoutes.js';
 import login from './src/routes/loginRoutes.js'
+import loginRoutes from './src/routes/loginRoutes.js';
 import './src/config/dbPool.js';
 import './src/config/supabaseClient.js';
 import dbRoutes from './src/routes/dbRoutes.js';
@@ -19,6 +19,14 @@ import historicoRoutes from './src/routes/historicoRoutes.js';
 import { supabase } from './src/config/supabaseClient.js'
 import crypto from 'crypto';
 
+import empresaRoutes from './src/routes/empresaRoutes.js';
+import ongRoutes from './src/routes/ongRoutes.js';
+import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
+
+// IMPORTE OS CONTROLLERS CORRETAMENTE
+import * as excedentesController from './src/controllers/excedentesController.js';
+import * as doacaoOngController from './src/controllers/doacaoOngController.js';
+import { cadastrarDoacaoEmpresa } from './src/controllers/doacaoEmpresaController.js';
 
 // configuração de variáveis
 dotenv.config();
@@ -68,6 +76,19 @@ app.use("/api", usuarioRoutes);
 app.use('/api', reservaRoutes);
 app.use('/api', doacaoRoutes);
 app.use('/api', historicoRoutes);
+app.use('/', testeBDRoute);
+app.use('/', dbRoutes);
+app.use('/api/cadastro', cadastroRoutes);
+app.use('/api/empresas', empresaRoutes);
+app.use('/api/ongs', ongRoutes);
+app.use('/api/login', loginRoutes);
+app.use('/api/doacoes-concluidas', doacoesConcluidasRoutes);
+app.use('/api/minha-conta-ong', minhaContaOngRoutes);
+app.use("/api", usuarioRoutes);
+app.use('/api', reservaRoutes);
+app.use('/api', doacaoRoutes); 
+app.use('/api', historicoRoutes); 
+app.use('/api/auth', loginRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
@@ -149,7 +170,14 @@ app.get('/resetarSenha.html', (req, res) => {
 
 app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
+app.use('/api', minhaContaOngRoutes); 
 
+app.post('/api/excedentes', verificarToken, verificarEmpresa, excedentesController.cadastrarExcedente);
+app.get('/api/categorias', excedentesController.listarCategorias);
+app.get('/api/unidades-medida', excedentesController.listarUnidadesMedida);
+app.post('/api/solicitacoes-ong', verificarToken, verificarOng, doacaoOngController.cadastrarDoacaoOng);
+
+app.post('/api/cadastro/doacaoEmpresa', verificarToken, verificarEmpresa, cadastrarDoacaoEmpresa);
 
 
 

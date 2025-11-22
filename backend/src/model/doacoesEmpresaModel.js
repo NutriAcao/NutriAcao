@@ -4,8 +4,8 @@ export async function buscarExcedentesDisponiveisEmpresa(id_empresa) {
     const { data, error } = await supabase
         .from('doacoesDisponiveis') 
         .select('id, nome_alimento, quantidade, status')
-        .eq('id_empresa', id_empresa )
-        .eq('status', 'disponível')
+        .eq('id_empresa', id_empresa)
+        .eq('status', 'disponível');
         
     if (error) {
         if (error.code !== 'PGRST116') {
@@ -99,8 +99,10 @@ export async function buscarDoacoesSolicitadasConcluidasEmpresa(id_empresa) {
         return [];
     }
 
-    return data?.length ? data : null;
-}/**
+    return data?.length ? data : [];
+}
+
+/**
  * Busca detalhes de um excedente cadastrado pela Empresa (tabela doacoesDisponiveis)
  * @param {number} doacaoId - ID da doação/excedente
  */
@@ -113,7 +115,7 @@ export async function buscarDetalhesExcedente(doacaoId) {
             quantidade,
             data_validade,
             status,
-            telefone_contato
+            telefone_contato,  // ← VÍRGULA ADICIONADA AQUI
             ong: id_ong_reserva (nome, telefone, email) 
         `)
         .eq('id', doacaoId)

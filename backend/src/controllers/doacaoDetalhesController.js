@@ -1,18 +1,24 @@
 // src/controllers/doacaoDetalhesController.js
 import { supabase } from '../config/supabaseClient.js';
 
-// Função auxiliar para buscar detalhes da ONG
+// --- Função Auxiliar Corrigida ---
 async function getOngDetails(id_ong) {
     if (!id_ong) return null;
+
+    // CORREÇÃO FINAL: Usando aspas duplas ("nome") para forçar o reconhecimento 
+    // do nome da coluna exato no PostgreSQL, resolvendo o erro 'column ongs.nome does not exist'.
     const { data, error } = await supabase
-        .from('ongs')
-        .select('nome_instituicao as nome, telefone, email')
+        .from('ong')
+        .select('"nome", telefone, email') // <-- AQUI ESTÁ A MUDANÇA CRÍTICA
         .eq('id', id_ong)
         .single();
+        
     if (error) {
-        console.error('Erro ao buscar detalhes da ONG:', error.message);
+        console.error('Erro ao buscar detalhes da ONG:', error.message); 
         return null;
     }
+    
+    // O objeto retornado já estará no formato correto
     return data;
 }
 
@@ -34,14 +40,21 @@ export async function getDetalhesExcedente(req, res) {
         // Se for reservado, busca detalhes da ONG que reservou
         if (doacao.status === 'reservado' && doacao.id_ong_reserva) {
             const ongDetails = await getOngDetails(doacao.id_ong_reserva);
-            doacao.ong = ongDetails; // Adiciona os detalhes da ONG ao objeto de doação
+            
+            // Adiciona detalhes da ONG OU um objeto placeholder se a busca falhar
+            doacao.ong = ongDetails || { 
+                nome: 'ONG não identificada (Verifique o log do servidor)', 
+                telefone: '-', 
+                email: 'erro@servidor.com' 
+            }; 
         }
-
+        // Retorna 200 (OK) em caso de sucesso ou falha na busca da ONG (para não quebrar o modal)
         return res.status(200).json(doacao);
 
     } catch (error) {
-        console.error('Erro ao buscar detalhes do excedente:', error.message);
-        return res.status(500).json({ message: 'Falha ao buscar detalhes.' });
+        console.error('Erro fatal ao buscar detalhes do excedente:', error.message);
+        // Retorna 500 SOMENTE se o erro for fatal (ex: falha de conexão com o banco)
+        return res.status(500).json({ message: 'Falha ao buscar detalhes no servidor. Verifique o log.' });
     }
 }
 
@@ -73,6 +86,8 @@ export async function getDetalhesSolicitacao(req, res) {
         return res.status(500).json({ message: 'Falha ao buscar detalhes da solicitação.' });
     }
 }
+
+// Listagem Tabela 2
 export async function getMinhasSolicitacoesReservadas(req, res) {
     const id_empresa_logada = req.usuario.id;
     if (!id_empresa_logada) {
@@ -82,9 +97,9 @@ export async function getMinhasSolicitacoesReservadas(req, res) {
     try {
         const { data, error } = await supabase
             .from('doacoesSolicitadas')
-            .select('*') // Pega tudo
-            .eq('status', 'reservado') // Filtro 1: Status
-            .eq('id_empresa_reserva', id_empresa_logada); // Filtro 2: Eu reservei
+            .select('*')
+            .eq('status', 'reservado')
+            .eq('id_empresa_reserva', id_empresa_logada);
 
         if (error) throw error;
         return res.status(200).json(data);
@@ -95,8 +110,7 @@ export async function getMinhasSolicitacoesReservadas(req, res) {
     }
 }
 
-// --- NOVA FUNÇÃO 2: Apenas para a Tabela 3 ---
-// Busca EXCEDENTES que EU (Empresa) cadastrei e que foram reservados por uma ONG.
+// Listagem Tabela 3
 export async function getMeusExcedentesReservados(req, res) {
     const id_empresa_logada = req.usuario.id;
     if (!id_empresa_logada) {
@@ -104,17 +118,18 @@ export async function getMeusExcedentesReservados(req, res) {
     }
 
     try {
+        // DICA: Adicione .order() para garantir que os mais recentes apareçam primeiro
         const { data, error } = await supabase
             .from('doacoesDisponiveis')
-            .select('*') // Pega tudo
-            .eq('status', 'reservado') // Filtro 1: Status
-            .eq('id_empresa', id_empresa_logada); // Filtro 2: Eu criei
+            .select('*') 
+            .eq('status', 'reservado')
+            .eq('id_empresa', id_empresa_logada); 
         
         if (error) throw error;
         return res.status(200).json(data);
 
     } catch (error) {
-        console.error('Erro ao buscar excedentes reservados:', error.message);
+        console.error('Erro ao buscar excedentes reservadas:', error.message);
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }
