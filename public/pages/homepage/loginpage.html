@@ -1,87 +1,95 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=, initial-scale=1.0">
-    <title>Preencha os dados para entrar</title>
-    <link rel="stylesheet" href="../../../../styles/style-login.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">  
-    <link rel="shortcut icon" href="../../../../assets/logo-blue.png" type="image/x-icon">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=, initial-scale=1.0">
+  <title>Preencha os dados para entrar</title>
+  <link rel="stylesheet" href="../../../../styles/style-login.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="shortcut icon" href="../../../../assets/logo-blue.png" type="image/x-icon">
 
 
 </head>
 <body>
 
-    <header id="header">
+  <header id="header">
 
-                <button id="menu-button">
-                  <img src="../../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
-                </button>
+    <button id="menu-button">
+      <img src="../../assets/Blue Hamburger Menu.svg" alt="Menu" id="burger">
+    </button>
 
-                <a class="footer-logo" href="./../homepage.html">
-                  <img src="../../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
-                  <h1>NutriAção</h1>
-                </a> 
-                
-                <nav id="menu">
-                  <ul id="nav-list">
-                    <li><a href="../homepage.html" class="nav-link active">Página inicial</a></li>
-                    <li id="sobre"><a href="../homepage.html" class="nav-link">Sobre</a></li>
-                    <li id="contato"><a href="../homepage.html" class="nav-link">Contato</a></li>
-                    <li><a href="loginpage.html" class="btn-login">Já tenho cadastro</a></li>       
-                    <li><a href="cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
-                  </ul>
-                </nav>
-        </header>
-      
-      <main>
-        <section>
-            <div class="left-container">
-                <img src="/../../assets/left-image-login.jpg" alt="" srcset="" id="imgLeft">
-            </div>
-            <form action="" id="formulario-login" method="post">
-            <div class="right-container">
-              
-                <img src="../../assets/logo-blue.png" alt="" srcset="" id="logo-container">
-                <h2>Entrar como:</h2>
+    <a class="footer-logo" href="./../homepage.html">
+      <img src="../../assets/logoCortadaBlue.png" alt="Logo NutriAção" id="logo">
+      <h1>NutriAção</h1>
+    </a>
 
-                <div class="container-tipoUsuario">
-                  <input type="radio" name="tipoUsuario" id="ong">
-                  <label for="ong">ONG</label>
-                  <input type="radio" name="tipoUsuario" id="empresa">
-                  <label for="empresa">Empresa</label>
-                </div>
+    <nav id="menu">
+      <ul id="nav-list">
+        <li><a href="../homepage.html" class="nav-link active">Página inicial</a></li>
+        <li id="sobre"><a href="../homepage.html" class="nav-link">Sobre</a></li>
+        <li id="contato"><a href="../homepage.html" class="nav-link">Contato</a></li>
+        <li><a href="loginpage.html" class="btn-login">Já tenho cadastro</a></li>
+        <li><a href="cadastropage.html" class="btn-cadastro">Cadastrar</a></li>
+      </ul>
+    </nav>
+  </header>
 
-                <div class="input-container">
-                    <i class="fa-solid fa-user"></i>
-                    <input id="user" type="text" placeholder="Usuário">
-                </div>
-                <div class="input-container">
-                    <i class="fa-solid fa-lock"></i>
-                    <input id="password" type="password" placeholder="Senha">
-                </div>
-                
-                <div class="checkbox-container">
-                <input type="checkbox" name=""  id="manterConexao"><p>Manter-se Conectado</p>
-                </div>
-                
-                <input type="submit" value="Entrar" id="btn-entrar">
-            </div>
-            </form>
-        </section>
-      </main>
+  <main>
+    <section>
+      <div class="left-container">
+        <img src="/../../assets/left-image-login.jpg" alt="" srcset="" id="imgLeft">
+      </div>
+      <form action="" id="formulario-login" method="post">
+        <div class="right-container">
 
-      <footer>
-        <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
-      </footer>
+          <img src="../../assets/logo-blue.png" alt="" srcset="" id="logo-container">
+          <h2>Entrar como:</h2>
 
-    <script src="../../js/menu.js"></script>
-    <script src="../../js/login.js"></script>
-    <script src="../../js/paginaLoginStyleControl.js"></script>
-    <script src="../../../backend/index.js"></script>
+          <div class="container-tipoUsuario">
+            <input type="radio" name="tipoUsuario" id="ong">
+            <label for="ong">ONG</label>
+            <input type="radio" name="tipoUsuario" id="empresa">
+            <label for="empresa">Empresa</label>
+          </div>
+
+          <div class="input-container">
+            <i class="fa-solid fa-user"></i>
+            <input id="user" type="text" placeholder="Usuário">
+          </div>
+          <div class="input-container">
+            <i class="fa-solid fa-lock"></i>
+            <input id="password" type="password" placeholder="Senha">
+          </div>
+
+          <div class="checkbox-container">
+            <input type="checkbox" name="" id="manterConexao">
+            <p>Manter-se Conectado</p>
+          </div>
+
+
+
+          <input type="submit" value="Entrar" id="btn-entrar">
+
+          <a href="./recuperarSenha.html" class="btn-recuperar">
+            <p>Recuperar Senha</p>
+          </a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p class="footer-text">&copy; 2025 NutriAção. Todos os direitos reservados.</p>
+  </footer>
+
+  <script type="module" src="../../js/menu.js"></script>
+  <script src="../../js/login.js"></script>
+  <script src="../../js/paginaLoginStyleControl.js"></script>
     
-    
+
+
 
 </body>
+
 </html>
