@@ -10,7 +10,7 @@ let currentPage = 1;
 
 // === CARREGAMENTO INICIAL ===
 document.addEventListener('DOMContentLoaded', function() {
-    carregarUsuario();
+    carregarDadosUsuario();
     loadPedidosDisponiveis(); 
     setupSearch();
 
@@ -38,15 +38,58 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-async function carregarUsuario() {
+// FUNÇÃO CARREGAR DADOS DO USUÁRIO - CORRIGIDA
+async function carregarDadosUsuario() {
     try {
-        const res = await fetch('/api/usuarioToken');
-        if (!res.ok) throw new Error('Falha ao buscar usuário');
-        dadosUsuario = await res.json();
-        document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
-        document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'Empresa';
+        console.log('>>> Carregando dados do usuário...');
+        
+        const response = await fetch('/api/usuario');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+        
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+            
+            // Salva os dados globalmente
+            dadosUsuario = dados;
+            
+            // CORREÇÃO: Usando a estrutura correta da sua API
+            let txtnomeUsuario = document.getElementById('textNomeUsuario');
+            let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
+            
+            if (txtnomeUsuario) {
+                txtnomeUsuario.innerText = dados.nome || 'Usuário';
+            }
+            
+            if (txtnomeInstituicao) {
+                // Para empresa, usa nome_fantasia; para ONG, usaria nome_ong
+                const nomeInstituicao = dados.nome_fantasia || dados.nome_ong || dados.razao_social || 'Instituição';
+                txtnomeInstituicao.innerText = nomeInstituicao;
+            }
+            
+            console.log('>>> Dados do usuário carregados:', {
+                nome: dados.nome,
+                instituicao: dados.nome_fantasia || dados.nome_ong || dados.razao_social,
+                id: dados.id // Importante para a lógica de redirecionamento
+            });
+
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+
     } catch (erro) {
         console.error('Erro ao buscar usuário:', erro);
+        // Fallback em caso de erro
+        let txtnomeUsuario = document.getElementById('textNomeUsuario');
+        let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
+        
+        if (txtnomeUsuario) txtnomeUsuario.innerText = 'Usuário';
+        if (txtnomeInstituicao) txtnomeInstituicao.innerText = 'Instituição';
     }
 }
 

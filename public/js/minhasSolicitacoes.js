@@ -31,19 +31,56 @@ document.addEventListener('DOMContentLoaded', function() {
     window.openModal = openModal;
     window.closeModal = closeModal;
     
-    carregarUsuario();
+    carregarDadosUsuario();
     loadMinhasSolicitacoes(); 
 });
 
-async function carregarUsuario() {
+async function carregarDadosUsuario() {
     try {
-        const res = await fetch('/api/usuarioToken');
-        if (!res.ok) throw new Error('Falha ao buscar usuário');
-        dadosUsuario = await res.json();
-        document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
-        document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'ONG';
-    } catch (erro) {
-        console.error('Erro ao buscar usuário:', erro);
+        console.log('>>> Carregando dados do usuário...');
+        
+        const response = await fetch('/api/usuario');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+        
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+            
+            // CORREÇÃO: Acessa os dados corretamente através de resultado.data
+            atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
+            
+            // CORREÇÃO: Para ONG, usa nome_ong; para empresa, usa nome_fantasia
+            const nomeInstituicao = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
+            atualizarElementoUI('textNomeInstituicao', nomeInstituicao);
+            
+            console.log('>>> Dados carregados:', {
+                nome: dados.nome,
+                instituicao: nomeInstituicao
+            });
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        // Fallback em caso de erro
+        atualizarElementoUI('textNomeUsuario', 'Usuário');
+        atualizarElementoUI('textNomeInstituicao', 'Instituição');
+    }
+}
+
+// Função auxiliar para atualizar elementos da UI
+function atualizarElementoUI(elementId, texto) {
+    const elemento = document.getElementById(elementId);
+    if (elemento) {
+        elemento.textContent = texto;
+    } else {
+        console.warn(`Elemento com ID '${elementId}' não encontrado`);
     }
 }
 
