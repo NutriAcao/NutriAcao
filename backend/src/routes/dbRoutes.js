@@ -34,26 +34,20 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
         // CORRIGIDO: Usa e.nome (da tabela empresa) e d."dataCadastroDoacao"
         // ❗️ ATENÇÃO: A CLÁUSULA 'WHERE' FOI REMOVIDA ABAIXO. LEIA A EXPLICAÇÃO NO FINAL.
         const query = `
-            SELECT
-                d.id,
-                d.nome_alimento,
-                d.quantidade,
-                d.data_validade,
-                d.telefone_contato,
-                d.email_contato,
-                d."dataCadastroDoacao" AS data_cadastro,
-                e.nome AS nome_empresa, -- CORRIGIDO (tabela empresa usa "nome")
-                e.cnpj AS cnae_empresa,
-                d.status    
-            FROM
-                "doacoesDisponiveis" d
-            INNER JOIN
-                empresa e ON d.id_empresa = e.id -- CORRIGIDO (tabela doacoesDisponiveis usa "id_empresa")
-            WHERE
-                 d.status ILIKE 'disponível'
-            ORDER BY
-                d.data_validade ASC;
-        `;
+            SELECT 
+                dd.id,
+                dd.titulo as nome_alimento,
+                dd.quantidade,
+                dd.data_validade,
+                dd.telefone_contato,
+                dd.email_contato,
+                dd.data_publicacao,
+                e.nome_fantasia as nome_empresa,
+                e.ramo_atuacao as cnae_empresa,
+                dd.status
+            FROM doacoes_disponiveis dd
+            LEFT JOIN empresas e ON dd.empresa_id = e.id
+            WHERE dd.status = 'disponível'`;
         
         const result = await pool.query(query);
         res.status(200).json(result.rows);
@@ -71,27 +65,19 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
 // ROTA 2: PAINEL DA EMPRESA - Busca pedidos disponíveis (Solicitações de ONGs)
 router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) => {
     try {
-        // CORRIGIDO: Usa s."dataCadastroSolicitacao", s."telefoneContato", s."emailContato" e o.nome
-        // ❗️ ATENÇÃO: A CLÁUSULA 'WHERE' FOI REMOVIDA ABAIXO. LEIA A EXPLICAÇÃO NO FINAL.
         const query = `
-            SELECT
-                s.id,
-                s.nome_alimento,
-                s.quantidade,
-                s."dataCadastroSolicitacao" AS data_solicitacao, -- CORRIGIDO
-                s."telefoneContato" AS telefone_contato, -- CORRIGIDO
-                s."emailContato" AS email_contato, -- CORRIGIDO
-                o.nome AS nome_ong, -- CORRIGIDO (tabela ong usa "nome")
-                o.cnpj AS cnae_ong,
-                s.status
-            FROM
-                "doacoesSolicitadas" s 
-            INNER JOIN
-                ong o ON s.id_ong = o.id -- CORRIGIDO (tabela doacoesSolicitadas usa "id_ong")
-            WHERE
-               s.status ILIKE 'disponível' 
-            ORDER BY
-                s."dataCadastroSolicitacao" DESC;
+            SELECT 
+                so.id,
+                so.titulo as nome_alimento,
+                so.quantidade_desejada as quantidade,
+                so.data_criacao as data_solicitacao,
+                so.telefone_contato,
+                so.email_contato,
+                o.nome_ong as nome_ong,
+                so.status
+            FROM solicitacoes_ong so
+            LEFT JOIN ongs o ON so.ong_id = o.id
+            WHERE so.status = 'disponivel'
         `;
         
         const result = await pool.query(query);

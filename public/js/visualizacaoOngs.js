@@ -52,14 +52,13 @@ async function carregarUsuario() {
 
 async function loadPedidosDisponiveis() {
     try {
-        // Esta rota deve retornar APENAS pedidos com status 'disponível'
         const response = await fetch('/api/pedidos-disponiveis-empresa'); 
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
         pedidosReais = await response.json();
-        console.log(pedidosReais)
+        console.log(pedidosReais); // Para ver os dados no console
         renderizarTabela(pedidosReais); 
         setupPagination(pedidosReais.length); 
     } catch (error) {

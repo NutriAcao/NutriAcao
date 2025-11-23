@@ -40,24 +40,31 @@ async function carregarUsuario() {
     }
 }
 
-// === CARREGAMENTO DE DADOS (BACKEND) ===
+// === CARREGAMENTO DE DADOS (BACKEND) - ATUALIZADO ===
 async function loadDoacoesDisponiveis() {
     try {
-        // A rota deve retornar APENAS doações com status 'disponível'
+        console.log("🔄 Iniciando carregamento de doações...");
+        
         const response = await fetch('/api/doacoes-disponiveis-ong'); 
+        console.log("📡 Resposta da API:", response);
+        
         if (!response.ok) {
             const err = await response.json();
+            console.error("❌ Erro na resposta:", err);
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
+        
         doacoesReais = await response.json();
+        console.log("✅ Dados carregados do banco:", doacoesReais);
+        
         renderizarTabela(doacoesReais);
         setupPagination(doacoesReais.length);
+        
     } catch (error) {
-        console.error('Erro ao carregar doações:', error);
+        console.error('❌ Erro ao carregar doações:', error);
         alert('Falha ao carregar doações disponíveis. Tente novamente.');
     }
 }
-
 function renderizarTabela(doacoes) {
     const tbody = document.getElementById('tableBody'); 
     tbody.innerHTML = ''; 
@@ -67,30 +74,36 @@ function renderizarTabela(doacoes) {
         return;
     }
     
+    console.log("Doações para renderizar:", doacoes); // DEBUG
+    
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const doacoesPaginadas = doacoes.slice(startIndex, endIndex);
 
     doacoesPaginadas.forEach(doacao => {
-        const dataValidadeFormatada = new Date(doacao.data_validade).toLocaleDateString('pt-BR');
+        const dataValidadeFormatada = doacao.data_validade 
+            ? new Date(doacao.data_validade).toLocaleDateString('pt-BR')
+            : 'N/A';
         
         const row = `
             <tr>
                 <td>${doacao.id}</td>
-                <td>${doacao.nome_alimento}</td>
-                <td>${doacao.quantidade}</td> 
-                <td>${doacao.nome_empresa}</td> 
+                <td>${doacao.nome_alimento || doacao.titulo || 'Produto'}</td>
+                <td>${doacao.quantidade || '0'}kg</td> 
+                <td>Ver detalhes</td> <!-- Temporário -->
                 <td>${dataValidadeFormatada}</td>
                 <td><span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
-                <td><button onclick="openModal(${doacao.id})">Ver</button></td>
+                <td>
+                    <button onclick="openModal(${doacao.id})" class="btn-visualizar">👁️ Ver</button>
+                </td>
             </tr>
         `;
         tbody.innerHTML += row;
     });
 
     updateItemCount(doacoes.length);
+    document.getElementById('totalPaginas').textContent = Math.ceil(doacoes.length / itemsPerPage);
 }
-
 // === MODAL E AÇÕES (LÓGICA CORRIGIDA) ===
 
 // Função auxiliar para preencher o conteúdo do modal com segurança
@@ -103,19 +116,17 @@ function openModal(doacaoId) {
     const modal = document.getElementById('orderModal');
     if (!modal) return;
     
-    // CORREÇÃO: Usando a chave correta (id_empresa)
     const doacao = doacoesReais.find(d => d.id == doacaoId); 
 
     if (!doacao) return;
 
-    // --- 1. Preencher Informações Básicas ---
+    // CORREÇÃO: Mostra informações disponíveis mesmo se empresa estiver vazia
     modal.querySelector('.modal-header h3').textContent = `Detalhes da Doação #${doacao.id}`;
     fillElement('orderId', doacao.id);
     fillElement('orderDate', new Date(doacao.data_validade).toLocaleDateString('pt-BR'));
-    fillElement('institution', doacao.nomeEmpresa || doacao.NomeEmpresa);
-    fillElement('contact', doacao.telefone_contato);
-    fillElement('address', doacao.cep_retirada); 
-
+    fillElement('institution', doacao.nome_empresa || "Empresa não informada"); // CORREÇÃO
+    fillElement('contact', doacao.telefone_contato || "Ver detalhes");
+    fillElement('address', doacao.cep_retirada || "A combinar"); 
     const statusElement = document.getElementById('orderStatus');
     if (statusElement) {
         statusElement.innerHTML = `<span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span>`;
@@ -250,9 +261,13 @@ function setupSearch() {
         setupPagination(doacoesFiltradas.length);
     });
 }
-
 function setupPagination(totalItems) {
-    const totalPaginas = Math.ceil(totalItems / itemsPerPage);
-    const el = document.getElementById('totalPaginas');
-    if (el) el.textContent = totalPaginas;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const totalPaginasEl = document.getElementById('totalPaginas');
+    const totalItensEl = document.getElementById('totalItens');
+    
+    if (totalPaginasEl) totalPaginasEl.textContent = totalPages;
+    if (totalItensEl) totalItensEl.textContent = totalItems;
+    
+    console.log(`Pagination: ${totalItems} items, ${totalPages} pages`); // DEBUG
 }
