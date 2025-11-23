@@ -1,19 +1,13 @@
 // public/js/minhasSolicitacoes.js
-// ATENÇÃO: Se suas funções de paginação e renderização forem diferentes, você terá que integrar
-// estas novas funções com as suas existentes. Este é o esqueleto funcional.
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
-// Tabela 1: Pedidos que a ONG criou (status 'disponível')
 let pedidosDisponiveisOng = []; 
-// Tabela 2: Pedidos que a ONG criou (status 'reservado')
 let meusPedidosReservados = [];    
-// Tabela 3: Doações que a ONG reservou (status 'reservado')
 let doacoesReservadas = [];
 const itemsPerPage = 10;
-const BASE_URL_ONG = '/doacoesConcluidasONG'; // Prefixos do index.js
 
-// --- Funções Auxiliares de Modal (Reutilizadas da Empresa) ---
+// --- Funções Auxiliares de Modal ---
 function openModal(modalId) {
     const modal = document.getElementById(modalId);
     if (modal) modal.showModal();
@@ -26,7 +20,6 @@ function closeModal(modalId) {
 
 // === CARREGAMENTO INICIAL ===
 document.addEventListener('DOMContentLoaded', function() {
-    // Exponha as funções essenciais globalmente
     window.abrirDetalhesModal = abrirDetalhesModal;
     window.openModal = openModal;
     window.closeModal = closeModal;
@@ -50,11 +43,7 @@ async function carregarDadosUsuario() {
         
         if (resultado.success && resultado.data) {
             const dados = resultado.data;
-            
-            // CORREÇÃO: Acessa os dados corretamente através de resultado.data
             atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
-            
-            // CORREÇÃO: Para ONG, usa nome_ong; para empresa, usa nome_fantasia
             const nomeInstituicao = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
             atualizarElementoUI('textNomeInstituicao', nomeInstituicao);
             
@@ -68,13 +57,11 @@ async function carregarDadosUsuario() {
         
     } catch (error) {
         console.error('Erro ao carregar usuário:', error);
-        // Fallback em caso de erro
         atualizarElementoUI('textNomeUsuario', 'Usuário');
         atualizarElementoUI('textNomeInstituicao', 'Instituição');
     }
 }
 
-// Função auxiliar para atualizar elementos da UI
 function atualizarElementoUI(elementId, texto) {
     const elemento = document.getElementById(elementId);
     if (elemento) {
@@ -86,78 +73,141 @@ function atualizarElementoUI(elementId, texto) {
 
 async function loadMinhasSolicitacoes() {
     try {
-        // --- 1. Tabela 1: Pedidos Disponíveis (Existente) ---
-        const resPedidos = await fetch('/api/meus-pedidos-disponiveis');
-        if (!resPedidos.ok) throw new Error('Falha ao carregar meus pedidos disponíveis.');
-        pedidosDisponiveisOng = await resPedidos.json();
-        renderizarTabelaMeusPedidos(pedidosDisponiveisOng, 'doacoesTableOng', 'pedido-disponivel');
+        console.log("🔄 Carregando minhas solicitações...");
+        
+        const responseDisponiveis = await fetch('/api/meus-pedidos-disponiveis');
+        if (!responseDisponiveis.ok) {
+            throw new Error('Falha ao carregar meus pedidos disponíveis.');
+        }
+        const solicitacoesDisponiveis = await responseDisponiveis.json();
+        
+        const responseReservados = await fetch('/api/meus-pedidos-reservados');
+        if (!responseReservados.ok) {
+            throw new Error('Falha ao carregar meus pedidos reservados.');
+        }
+        const solicitacoesReservadas = await responseReservados.json();
+        
+        const responseDoacoes = await fetch('/api/doacoes-reservadas-ong');
+        if (!responseDoacoes.ok) {
+            throw new Error('Falha ao carregar doações reservadas.');
+        }
+        const doacoesReservadas = await responseDoacoes.json();
 
-        // --- 2. Tabela 2: Pedidos Reservados (Novo Endpoint) ---
-        const resPedidosReservados = await fetch(BASE_URL_ONG + '/meusPedidosReservados');
-        if (!resPedidosReservados.ok) throw new Error('Falha ao carregar meus pedidos reservados.');
-        meusPedidosReservados = await resPedidosReservados.json();
-        renderizarTabelaMeusPedidos(meusPedidosReservados, 'doacoesTableSolicitacaoOng', 'pedido-reservado');
+        console.log("✅ Dados carregados:", {
+            disponiveis: solicitacoesDisponiveis,
+            reservadas: solicitacoesReservadas, 
+            doacoes: doacoesReservadas
+        });
 
-        // --- 3. Tabela 3: Doações Reservadas (Novo Endpoint) ---
-        const resDoacoesReservadas = await fetch(BASE_URL_ONG + '/doacoesReservadas');
-        if (!resDoacoesReservadas.ok) throw new Error('Falha ao carregar doações reservadas.');
-        doacoesReservadas = await resDoacoesReservadas.json();
+        // CORREÇÃO: Salva os dados globalmente para usar no modal
+        window.pedidosDisponiveisOng = solicitacoesDisponiveis;
+        window.meusPedidosReservados = solicitacoesReservadas;
+        window.doacoesReservadas = doacoesReservadas;
+
+        renderizarTabelaMeusPedidos(solicitacoesDisponiveis, 'doacoesTableOng', 'pedido-disponivel');
+        renderizarTabelaMeusPedidos(solicitacoesReservadas, 'doacoesTableSolicitacaoOng', 'pedido-reservado');
         renderizarTabelaMeusPedidos(doacoesReservadas, 'doacoesTableExcedenteOng', 'doacao-reservada');
 
     } catch (error) {
-        console.error('Erro ao carregar dados da ONG:', error.message);
-        // Exibir erro nas tabelas se necessário
+        console.error('❌ Erro ao carregar dados da ONG:', error);
+        alert(error.message);
     }
 }
 
-// --- Funções de Renderização (Adapte conforme sua implementação real) ---
+// CORREÇÃO: Função de renderização com campos corretos
 function renderizarTabelaMeusPedidos(data, tableId, tipo) {
-    const tableBody = document.querySelector(`#${tableId} tbody`);
-    if (!tableBody) return;
-    tableBody.innerHTML = ''; 
-
-    if (data.length === 0) {
-        tableBody.innerHTML = `<tr><td colspan="5">Nenhum item encontrado.</td></tr>`;
+    console.log(`🔄 Renderizando tabela ${tableId} com tipo ${tipo}`, data);
+    
+    let tableBody;
+    if (tableId === 'doacoesTableOng') {
+        tableBody = document.getElementById('tableBodyDisponiveis');
+    } else if (tableId === 'doacoesTableSolicitacaoOng') {
+        tableBody = document.getElementById('tableBodyReservados');
+    } else if (tableId === 'doacoesTableExcedenteOng') {
+        tableBody = document.getElementById('tableBodyDoacoes');
+    }
+    
+    if (!tableBody) {
+        console.error(`❌ Elemento tbody não encontrado para tabela '${tableId}'`);
         return;
     }
+    
+    tableBody.innerHTML = ''; 
+
+    if (!data || data.length === 0) {
+        tableBody.innerHTML = `<tr><td colspan="5" class="no-data">Nenhum item encontrado.</td></tr>`;
+        console.log(`ℹ️  Nenhum dado para tabela ${tableId}`);
+        return;
+    }
+
+    console.log(`✅ Renderizando ${data.length} itens na tabela ${tableId}`);
 
     data.forEach(item => {
         const row = tableBody.insertRow();
         
-        let acoesHtml = `<button class="btn-details" onclick="abrirDetalhesModal('${item.id}', '${tipo}')">Visualizar</button>`;
+        // CORREÇÃO: Usa os campos corretos da API
+        let nomeAlimento = item.titulo || item.nome_alimento || 'N/A';
         
-        // A lógica de renderização para cada tabela é complexa. 
-        // Aqui, estou usando um HTML simplificado, ajuste com suas colunas exatas.
+        // CORREÇÃO: Usa quantidade_desejada para pedidos, quantidade para doações
+        let quantidade = '';
+        if (tipo === 'pedido-disponivel' || tipo === 'pedido-reservado') {
+            quantidade = item.quantidade_desejada ? `${item.quantidade_desejada} Kg/L` : 'N/A';
+        } else {
+            quantidade = item.quantidade ? `${item.quantidade} Kg/L` : 'N/A';
+        }
+        
+        // CORREÇÃO: Nome da empresa corrigido
+        let nomeParceiro = 'N/A';
+        if (tipo === 'pedido-disponivel') {
+            nomeParceiro = 'Aguardando empresa';
+        } else if (tipo === 'pedido-reservado') {
+            // Para pedidos reservados, mostra a empresa que reservou
+            nomeParceiro = item.empresa?.nome_fantasia || item.empresa?.razao_social || item.NomeEmpresa || item.nome_empresa || 'Empresa Parceira';
+        } else if (tipo === 'doacao-reservada') {
+            // Para doações reservadas, mostra a empresa que criou a doação
+            nomeParceiro = item.empresa?.nome_fantasia || item.empresa?.razao_social || item.NomeEmpresa || item.nome_empresa || 'Empresa Doadora';
+        }
+        
+        let status = item.status || 'desconhecido';
+        let statusText = status.charAt(0).toUpperCase() + status.slice(1);
+        
+        let acoesHtml = `<button class="btn-details btn-secondary" onclick="abrirDetalhesModal('${item.id}', '${tipo}')">Visualizar</button>`;
+        
         row.innerHTML = `
-            <td>${item.nome_alimento}</td>
-            <td>${item.quantidade} Kg/L</td>
-            <td>${item.NomeEmpresa || item.nomeONG || 'N/A'}</td>
-            <td><span class="status ${item.status}">${item.status.charAt(0).toUpperCase() + item.status.slice(1)}</span></td>
-            <td>${acoesHtml}</td>
+            <td>${nomeAlimento}</td>
+            <td>${quantidade}</td>
+            <td>${nomeParceiro}</td>
+            <td><span class="status ${status}">${statusText}</span></td>
+            <td class="actions">${acoesHtml}</td>
         `;
     });
+    
+    console.log(`✅ Tabela ${tableId} renderizada com sucesso`);
 }
 
-
-// ===================================================
-// LÓGICA DO MODAL E AÇÕES (Cancelamento/Conclusão)
-// ===================================================
-
+// CORREÇÃO: Função do modal com campos corretos
 async function abrirDetalhesModal(id, tipo) {
-    // 1. Define o endpoint de busca
-    let endpoint = '';
-    if (tipo === 'pedido-disponivel' || tipo === 'pedido-reservado') {
-        // Pedido que a ONG criou
-        endpoint = BASE_URL_ONG + `/detalhes/solicitacao/${id}`;
+    console.log(`🔍 Abrindo modal para ${tipo} ID: ${id}`);
+    
+    // Busca o item nos dados já carregados globalmente
+    let itemData = null;
+    
+    if (tipo === 'pedido-disponivel') {
+        itemData = window.pedidosDisponiveisOng.find(item => item.id == id);
+    } else if (tipo === 'pedido-reservado') {
+        itemData = window.meusPedidosReservados.find(item => item.id == id);
     } else if (tipo === 'doacao-reservada') {
-        // Doação que a ONG reservou
-        endpoint = BASE_URL_ONG + `/detalhes/excedente/${id}`;
-    } else {
-        alert('Tipo de item desconhecido!');
+        itemData = window.doacoesReservadas.find(item => item.id == id);
+    }
+
+    console.log("📦 Dados encontrados para o modal:", itemData);
+
+    if (!itemData) {
+        console.error('❌ Item não encontrado nos dados carregados');
+        alert('Não foi possível carregar os detalhes deste item.');
         return;
     }
 
-    // 2. Seleciona elementos do modal
     const modal = document.getElementById('orderModal');
     const modalTitle = document.getElementById('modalTitle');
     const orderIdSpan = document.getElementById('orderId');
@@ -166,101 +216,116 @@ async function abrirDetalhesModal(id, tipo) {
     const btnConcluir = document.getElementById('btnConcluir');
     const btnCancelar = document.getElementById('btnCancelar');
 
-    // Verifica se os elementos essenciais existem (proteção contra o erro 'null')
     if (!modal || !modalTitle || !orderIdSpan || !modalDetails) {
-        console.error("Erro: Elementos essenciais do modal não encontrados. Verifique os IDs no HTML.");
+        console.error("Erro: Elementos essenciais do modal não encontrados.");
         return; 
     }
     
-    // 3. Limpa e mostra "carregando" (Proteção do SPAN)
-    modalTitle.firstChild.textContent = 'Carregando Detalhes... '; 
+    // Limpa o modal
+    modalTitle.innerHTML = 'Carregando Detalhes... <span id="orderId"></span>';
     orderIdSpan.textContent = `#${id}`; 
     modalDetails.innerHTML = '<p>Carregando...</p>';
-    itemsList.innerHTML = '';
-    btnConcluir.style.display = 'none';
-    btnCancelar.style.display = 'none';
+    
+    if (itemsList) itemsList.innerHTML = '';
+    if (btnConcluir) btnConcluir.style.display = 'none';
+    if (btnCancelar) btnCancelar.style.display = 'none';
 
     openModal('orderModal');
 
     try {
-        // 4. Faz o Fetch
-        const res = await fetch(endpoint);
-        if (!res.ok) {
-            const errData = await res.json().catch(() => ({ message: res.statusText }));
-            throw new Error(errData.message || 'Falha ao buscar detalhes.');
-        }
+        // CORREÇÃO: Popula o modal com os campos corretos da API
+        const statusText = itemData.status ? itemData.status.charAt(0).toUpperCase() + itemData.status.slice(1) : 'Desconhecido';
         
-        const data = await res.json();
-        console.log("Detalhes recebidos (ONG):", data); 
-
-        // 5. Popula o modal
-        const parceiro = data.empresa || data.ong || { 
-            nome: data.NomeEmpresa || data.nomeONG || 'N/A', 
-            telefone: data.telefone_contato || data.telefoneContato || 'N/A', 
-            email: data.email_contato || data.emailContato || 'N/A' 
-        };
-        const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+        // CORREÇÃO: Usa os campos corretos baseados na estrutura real da API
+        const nomeAlimento = itemData.titulo || itemData.nome_alimento || 'N/A';
+        const descricao = itemData.descricao || itemData.observacoes || '-';
+        const quantidade = itemData.quantidade_desejada || itemData.quantidade || 'N/A';
         
-        modalTitle.firstChild.textContent = 'Detalhes '; 
+        // CORREÇÃO: Data de publicação correta
+        const dataPublicacao = itemData.data_publicacao || itemData.data_criacao || itemData.data_cadastro || itemData.dataCadastroSolicitacao || itemData.dataCadastroDoacao;
+        
+        // CORREÇÃO: Informações da empresa
+        const empresaNome = itemData.empresa?.nome_fantasia || itemData.empresa?.razao_social || 'N/A';
+        const empresaEmail = itemData.empresa?.email_institucional || itemData.empresa?.email || 'N/A';
+        const empresaTelefone = itemData.empresa?.telefone || itemData.telefone_contato || 'N/A';
+        
+        modalTitle.innerHTML = `Detalhes <span id="orderId">#${id}</span>`;
         orderIdSpan.textContent = `#${id}`;
 
+        // CORREÇÃO: HTML do modal com campos corretos
         modalDetails.innerHTML = `
-            <p><strong>Instituição Parceira:</strong> <span>${parceiro.nome || 'N/A'}</span></p>
-            <p><strong>Status:</strong> <span class="status ${data.status}">${statusText}</span></p>
-            <p><strong>Data Cadastro:</strong> <span>${new Date(data.data_cadastro || data.dataCadastroSolicitacao || data.dataCadastroDoacao).toLocaleDateString('pt-BR')}</span></p>
-            <p><strong>Contato:</strong> <span>${parceiro.telefone || 'N/A'}</span></p>
-            <p><strong>Email:</strong> <span>${parceiro.email || 'N/A'}</span></p>
+            <p><strong>Item:</strong> <span>${nomeAlimento}</span></p>
+            <p><strong>Descrição:</strong> <span>${descricao}</span></p>
+            <p><strong>Status:</strong> <span class="status ${itemData.status || ''}">${statusText}</span></p>
+            <p><strong>Quantidade:</strong> <span>${quantidade} Kg/L</span></p>
+            <p><strong>Data de Publicação:</strong> <span>${formatarData(dataPublicacao)}</span></p>
+            <p><strong>Empresa:</strong> <span>${empresaNome}</span></p>
+            <p><strong>Email:</strong> <span>${empresaEmail}</span></p>
+            <p><strong>Telefone:</strong> <span>${empresaTelefone}</span></p>
+            ${itemData.categoria ? `<p><strong>Categoria:</strong> <span>${itemData.categoria.nome || itemData.categoria}</span></p>` : ''}
+            ${itemData.data_validade ? `<p><strong>Data de Validade:</strong> <span>${formatarData(itemData.data_validade)}</span></p>` : ''}
         `;
         
-        itemsList.innerHTML = `
-            <tr>
-                <td>${data.nome_alimento}</td>
-                <td>${data.quantidade}</td>
-                <td>Kg</td>
-                <td>${data.observacoes || '-'}</td>
-            </tr>
-        `;
+        if (itemsList) {
+            itemsList.innerHTML = `
+                <tr>
+                    <td>${nomeAlimento}</td>
+                    <td>${quantidade}</td>
+                    <td>Kg/L</td>
+                    <td>${descricao}</td>
+                </tr>
+            `;
+        }
 
-        // 6. Controla os botões de Ação
-        if (tipo === 'pedido-disponivel') {
-            // Tabela 1: Pedido que a ONG cadastrou. Não permite Concluir/Cancelar.
-            // A ONG pode apenas Excluir/Editar, mas isso é feito na função renderizar
-            
-        } else if (tipo === 'pedido-reservado') {
-            // Tabela 2: Meu Pedido que uma EMPRESA reservou -> Ações: Concluir e Cancelar
-            btnConcluir.style.display = 'inline-block';
-            btnCancelar.style.display = 'inline-block';
-            btnConcluir.textContent = 'Concluir Pedido Recebido';
-            
-            // AÇÃO: A ONG conclui o próprio pedido. O item_id é do tipo 'pedido'.
-            btnConcluir.onclick = () => confirmarAcao('concluir-pedido', id, 'pedido', 'concluir este pedido');
-            btnCancelar.onclick = () => confirmarAcao('cancelar-reserva', id, 'pedido', 'cancelar esta reserva');
-
-        } else if (tipo === 'doacao-reservada') {
-            // Tabela 3: Doação de EMPRESA que EU (ONG) reservei -> Ações: Concluir e Cancelar
-            btnConcluir.style.display = 'inline-block';
-            btnCancelar.style.display = 'inline-block';
-            btnConcluir.textContent = 'Concluir Doação Recebida';
-
-            // AÇÃO: A ONG conclui a doação que reservou. O item_id é do tipo 'doacao'.
-            btnConcluir.onclick = () => confirmarAcao('concluir-doacao', id, 'doacao', 'concluir esta doação');
-            btnCancelar.onclick = () => confirmarAcao('cancelar-reserva', id, 'doacao', 'cancelar esta reserva');
+        // Configura botões de ação
+        if (btnConcluir && btnCancelar) {
+            if (tipo === 'pedido-disponivel') {
+                btnConcluir.style.display = 'none';
+                btnCancelar.style.display = 'none';
+            } else if (tipo === 'pedido-reservado') {
+                btnConcluir.style.display = 'inline-block';
+                btnCancelar.style.display = 'inline-block';
+                btnConcluir.textContent = 'Concluir Pedido Recebido';
+                btnConcluir.onclick = () => confirmarAcao('concluir-pedido', id, 'pedido', 'concluir este pedido');
+                btnCancelar.onclick = () => confirmarAcao('cancelar-reserva', id, 'pedido', 'cancelar esta reserva');
+            } else if (tipo === 'doacao-reservada') {
+                btnConcluir.style.display = 'inline-block';
+                btnCancelar.style.display = 'inline-block';
+                btnConcluir.textContent = 'Concluir Doação Recebida';
+                btnConcluir.onclick = () => confirmarAcao('concluir-doacao', id, 'doacao', 'concluir esta doação');
+                btnCancelar.onclick = () => confirmarAcao('cancelar-reserva', id, 'doacao', 'cancelar esta reserva');
+            }
         }
 
     } catch (erro) {
-        console.error("Erro ao carregar detalhes:", erro);
-        modalTitle.firstChild.textContent = 'Erro ';
+        console.error("❌ Erro ao carregar detalhes:", erro);
+        modalTitle.innerHTML = 'Erro <span id="orderId"></span>';
         orderIdSpan.textContent = '';
         modalDetails.innerHTML = `<p style="color: red;">${erro.message}</p>`;
     }
 }
 
-// --- Funções de Confirmação e Execução de Ação (Reutilizadas) ---
+function formatarData(dataString) {
+    if (!dataString) return 'N/A';
+    try {
+        return new Date(dataString).toLocaleDateString('pt-BR');
+    } catch (error) {
+        return 'Data inválida';
+    }
+}
+
 function confirmarAcao(acao, id, tipo, mensagem) {
     closeModal('orderModal');
     
     const btnConfirmar = document.getElementById('btnConfirmarAcao');
-    document.getElementById('confirmMessage').innerHTML = `Tem certeza que deseja **${mensagem}**?`;
+    const confirmMessage = document.getElementById('confirmMessage');
+    
+    if (!btnConfirmar || !confirmMessage) {
+        console.error('Elementos do modal de confirmação não encontrados');
+        return;
+    }
+    
+    confirmMessage.innerHTML = `Tem certeza que deseja <strong>${mensagem}</strong>?`;
     
     btnConfirmar.textContent = acao.includes('cancelar') ? 'Sim, Cancelar' : 'Sim, Concluir';
     
@@ -274,15 +339,22 @@ function confirmarAcao(acao, id, tipo, mensagem) {
 async function executarAcao(acao, id, tipo) {
     closeModal('confirmModal');
     
-    // As rotas de ação (concluir/cancelar) são as mesmas para Empresa e ONG
-    const endpoint = `/reserva/${acao}`;
+    let endpoint = '';
+    if (acao === 'concluir-pedido') {
+        endpoint = '/api/concluir-pedido';
+    } else if (acao === 'concluir-doacao') {
+        endpoint = '/api/concluir-doacao';
+    } else if (acao === 'cancelar-reserva') {
+        endpoint = '/api/cancelar-reserva';
+    }
     
     const bodyData = {
         item_id: id, 
-        tipo_item: tipo // 'doacao' ou 'pedido'
+        tipo_item: tipo
     };
     
     try {
+        console.log(`🚀 Executando ação: ${acao} para ${tipo} ID: ${id}`);
         const res = await fetch(endpoint, {
             method: 'PUT',
             headers: {
@@ -293,7 +365,7 @@ async function executarAcao(acao, id, tipo) {
 
         const data = await res.json();
 
-        if (res.ok) {
+        if (res.ok && data.success) {
             alert(data.message || `Ação realizada com sucesso!`);
             window.location.reload(); 
         } else {
@@ -301,7 +373,7 @@ async function executarAcao(acao, id, tipo) {
         }
 
     } catch (error) {
-        console.error(`Erro na requisição de ${acao}:`, error);
+        console.error(`❌ Erro na requisição de ${acao}:`, error);
         alert(`Erro de comunicação com o servidor. Tente novamente.`);
     }
 }

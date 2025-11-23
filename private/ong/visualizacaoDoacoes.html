@@ -2,12 +2,11 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas- NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Visualizar Doações - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
 </head>
 <body>
     <div class="container">
@@ -17,19 +16,16 @@
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-                
                 <li>
                     <a href="/visualizacaoDoacoes.html" class="active">
                         <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
                     </a>
                 </li>
-
                 <li>
                     <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
                         <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
                     </a>
                 </li>
-                
                 <li>
                     <a href="/minhasSolicitacoes.html">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
@@ -60,12 +56,12 @@
         
         <main class="main-content">
             <div class="header">
-                <h2>Painel de Doações</h2>
+                <h2>Doações Disponíveis</h2>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG">
                     <div>
                         <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
+                        <p id="textNomeInstituicao">Instituição</p>
                     </div>
                 </div>
             </div>
@@ -73,7 +69,7 @@
             <div class="card">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Pesquisar alimentos...">
+                        <input type="text" id="searchInput" placeholder="Pesquisar alimentos, empresas ou categorias...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
@@ -84,9 +80,10 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Doação Disponivel</th>
-                                    <th>Quantidade <br>(kg ou litros)</th>
+                                    <th>Produto</th>
+                                    <th>Quantidade</th>
                                     <th>Empresa</th>
+                                    <th>Categoria</th>
                                     <th>Data de Validade</th>
                                     <th>Status</th>
                                     <th>Ações</th>
@@ -98,13 +95,11 @@
                     
                     <div class="pagination">
                         <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginas">2</span>
-                            | Itens encontrados: <span id="totalItens">10</span>
+                            Total de Páginas: <span id="totalPaginas">1</span>
+                            | Itens encontrados: <span id="totalItens">0</span>
                         </div>
                         <div class="pagination-controls">
                             <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
                             <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
                         </div>
                     </div>
@@ -112,51 +107,40 @@
             </div>
         </main>
     </div>
+
     <dialog id="orderModal" class="modal">
         <div class="modal-header">
-            <h3>Detalhes #<span id="orderId"></span></h3> 
+            <h3>Detalhes da Doação</h3>
             <button class="btn-close" onclick="closeModal()">&times;</button>
         </div>
         <div class="modal-body">
             <h3 class="section-title">Informações</h3>
             <div class="order-info">
-                <p><strong>Id:</strong> <span id="orderId">...</span></p>
-                <p><strong>Instituição:</strong> <span id="institution">...</span></p>
+                <p><strong>ID:</strong> <span id="orderId">...</span></p>
+                <p><strong>Empresa:</strong> <span id="institution">...</span></p>
                 <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
-                <p><strong>Data:</strong> <span id="orderDate">...</span></p> 
+                <p><strong>Data de Validade:</strong> <span id="orderDate">...</span></p>
                 <p><strong>Contato:</strong> <span id="contact">...</span></p>
-                <p><strong>Endereço/CEP:</strong> <span id="address">...</span></p>
+                <p><strong>Local de Retirada:</strong> <span id="address">...</span></p>
             </div>
-            <h3 class="section-title">Itens</h3>
+            <h3 class="section-title">Detalhes do Produto</h3>
             <table class="items-table">
                 <thead>
                     <tr>
                         <th>Item</th>
                         <th>Quantidade</th>
                         <th>Unidade</th>
-                        <th>Observações</th>
+                        <th>Descrição</th>
                     </tr>
                 </thead>
-                <tbody id="itemsList">
-                </tbody>
+                <tbody id="itemsList"></tbody>
             </table>
-
-            <div id="statusUpdateSection" style="display: none; margin-top: 20px;">
-                <h3 class="section-title">Avançar Status</h3>
-                <div style="display: flex; gap: 10px; align-items: center;">
-                    <select id="statusSelect" class="form-control" style="flex: 1;">
-                        </select>
-                    <button id="updateStatusButton" class="btn-primary">Atualizar</button>
-                </div>
-            </div>
-            </div>
+        </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-            
-            <button id="actionButton">Aguardando...</button>
+            <button id="actionButton" style="display: none;">Reservar Doação</button>
         </div>
     </dialog>
-
 
     <script src="/js/visualizacaoDoacoes.js"></script>
 </body>

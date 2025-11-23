@@ -1,140 +1,31 @@
-// doacaoEmpresaController.js - VERSÃO COMPLETA
+// src/controllers/doacaoEmpresaController.js
 import { supabase } from '../config/supabaseClient.js';
 
+// Função para cadastrar doação da empresa
 export async function cadastrarDoacaoEmpresa(req, res) {
-    console.log('Dados recebidos no req.body:', req.body); 
-    
-    // CAMPOS DO NOVO SISTEMA
-    const { 
-      nome_alimento,           // ← novo campo (era 'nome')
-      quantidade,
-      data_validade,
-      cep_retirada,
-      telefone,
-      email,
-      id_empresa,
-      categoria_id,           // ← novo campo
-      unidade_medida_id,      // ← novo campo
-      descricao               // ← novo campo
-    } = req.body;
-
-    // Verificação de segurança - campos obrigatórios do NOVO sistema
-    if (!nome_alimento || !quantidade || !data_validade || !id_empresa) {
-        return res.status(400).json({
-            success: false,
-            message: "Campos essenciais não podem estar vazios. Campos obrigatórios: nome_alimento, quantidade, data_validade, id_empresa"
-        });
-    }
-    
     try {
-        // VERIFICAR SE A EMPRESA EXISTE (no novo sistema)
-        const { data: empresa, error: empresaError } = await supabase
-            .from('empresas')
-            .select('id, nome_fantasia')
-            .eq('id', id_empresa)
-            .single();
+        const usuario_id = req.usuario.id;
+        const { 
+            titulo, 
+            descricao, 
+            categoria_id, 
+            quantidade, 
+            unidade_medida_id, 
+            data_validade,
+            observacoes,
+            telefone_contato,
+            cep_retirada
+        } = req.body;
 
-        if (empresaError || !empresa) {
-            console.error('Empresa não encontrada:', id_empresa);
-            return res.status(400).json({
-                success: false,
-                message: "Empresa não encontrada. ID: " + id_empresa
+        // Validações básicas
+        if (!titulo || !quantidade || !categoria_id) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Título, quantidade e categoria são obrigatórios' 
             });
         }
 
-        console.log('Empresa encontrada:', empresa);
-
-        // 1. Inserir na tabela excedentes (NOVO SISTEMA)
-        const { data: excedente, error: excedenteError } = await supabase
-            .from('excedentes')
-            .insert([
-                { 
-                    empresa_id: id_empresa,
-                    titulo: nome_alimento,
-                    descricao: descricao || `Doação de ${nome_alimento} - CEP: ${cep_retirada}`,
-                    categoria_id: categoria_id || 1,
-                    quantidade: quantidade,
-                    unidade_medida_id: unidade_medida_id || 1,
-                    data_validade: data_validade,
-                    status: 'disponivel',
-                    data_criacao: new Date()
-                } 
-            ])
-            .select()
-            .single();
-
-        if (excedenteError) {
-            console.error('Erro ao cadastrar excedente:', excedenteError);
-            return res.status(500).json({
-                success: false,
-                message: "Falha no cadastro do excedente. Erro: " + excedenteError.message
-            });
-        }
-
-        console.log('Excedente criado:', excedente);
-
-        // 2. Inserir na tabela doacoes_disponiveis (NOVO SISTEMA)
-        const { data: doacao, error: doacaoError } = await supabase
-            .from('doacoes_disponiveis')
-            .insert([
-                { 
-                    empresa_id: id_empresa,
-                    excedente_id: excedente.id,
-                    titulo: nome_alimento,
-                    descricao: descricao || `Doação de ${nome_alimento} - CEP: ${cep_retirada}`,
-                    quantidade: quantidade,
-                    data_validade: data_validade,
-                    status: 'disponível',
-                    data_publicacao: new Date(),
-                    // NOVOS CAMPOS ADICIONADIS
-                    cep_retirada: cep_retirada,
-                    telefone_contato: telefone,
-                    email_contato: email
-                } 
-            ])
-            .select();
-
-        if (doacaoError) {
-            console.error('Erro ao criar doação disponível:', doacaoError);
-            // Rollback: deletar o excedente criado
-            await supabase.from('excedentes').delete().eq('id', excedente.id);
-            return res.status(500).json({
-                success: false,
-                message: "Falha ao criar doação disponível. Erro: " + doacaoError.message
-            });
-        }
-
-        console.log('Doação disponível criada:', doacao);
-
-        return res.status(201).json({ 
-            success: true,
-            message: 'Doação cadastrada com sucesso!', 
-            data: {
-                excedente: excedente,
-                doacao: doacao
-            }
-        });
-
-    } catch (e) {
-        console.error('Erro interno do servidor no cadastro da doação:', e);
-        return res.status(500).json({
-            success: false,
-            message: "Erro fatal ao processar a requisição."
-        });
-    }
-}
-
-// FUNÇÃO ADICIONADA PARA A ROTA /meus-excedentes-disponiveis
-export async function getMeusExcedentesDisponiveis(req, res) {
-    // Pega o ID do usuário logado (do middleware de autenticação)
-    const usuario_id = req.usuario.id; 
-
-    if (!usuario_id) {
-        return res.status(401).json({ message: 'Usuário não autenticado.' });
-    }
-
-    try {
-        // Primeiro, buscar o ID da empresa associada ao usuário
+        // Buscar ID da empresa associada ao usuário
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
@@ -143,25 +34,309 @@ export async function getMeusExcedentesDisponiveis(req, res) {
 
         if (empresaError || !empresaData) {
             return res.status(400).json({ 
-                message: 'Usuário não possui uma empresa cadastrada' 
+                success: false,
+                message: 'Empresa não encontrada para este usuário' 
             });
         }
 
-        const empresa_id = empresaData.id;
+        // 1. Primeiro cadastra o excedente
+        const { data: excedenteData, error: excedenteError } = await supabase
+            .from('excedentes')
+            .insert({
+                empresa_id: empresaData.id,
+                titulo: titulo,
+                descricao: descricao,
+                categoria_id: categoria_id,
+                quantidade: quantidade,
+                unidade_medida_id: unidade_medida_id,
+                data_validade: data_validade,
+                status: 'disponível',
+                data_criacao: new Date().toISOString()
+            })
+            .select()
+            .single();
 
-        // Buscar excedentes disponíveis da empresa
-        const { data, error } = await supabase
+        if (excedenteError) {
+            console.error('Erro ao cadastrar excedente:', excedenteError);
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro ao cadastrar excedente',
+                error: excedenteError.message 
+            });
+        }
+
+        // 2. Depois cadastra na tabela de doações disponíveis
+        const { data: doacaoData, error: doacaoError } = await supabase
             .from('doacoes_disponiveis')
-            .select('*')
-            .eq('status', 'disponível')
-            .eq('empresa_id', empresa_id);
+            .insert({
+                empresa_id: empresaData.id,
+                excedente_id: excedenteData.id,
+                titulo: titulo,
+                descricao: descricao,
+                quantidade: quantidade,
+                data_validade: data_validade,
+                status: 'disponível',
+                data_publicacao: new Date().toISOString(),
+                observacoes: observacoes,
+                telefone_contato: telefone_contato,
+                cep_retirada: cep_retirada
+            })
+            .select()
+            .single();
 
-        if (error) throw error;
+        if (doacaoError) {
+            console.error('Erro ao cadastrar doação disponível:', doacaoError);
+            
+            // Rollback: remove o excedente se a doação falhar
+            await supabase
+                .from('excedentes')
+                .delete()
+                .eq('id', excedenteData.id);
+                
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro ao cadastrar doação',
+                error: doacaoError.message 
+            });
+        }
+
+        console.log(`✅ Doação cadastrada com sucesso - ID: ${doacaoData.id}`);
         
-        return res.status(200).json(data);
+        res.status(201).json({
+            success: true,
+            message: 'Doação cadastrada com sucesso!',
+            data: doacaoData
+        });
 
     } catch (error) {
-        console.error('Erro ao buscar excedentes:', error.message);
-        return res.status(500).json({ message: 'Falha ao buscar dados.' });
+        console.error('❌ Erro interno ao cadastrar doação:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+}
+
+// Outras funções exportadas (se necessário)
+export async function getExcedentesDisponiveisEmpresa(req, res) {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ message: 'Empresa não encontrada' });
+        }
+
+        const { data: excedentes, error } = await supabase
+            .from('excedentes')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_criacao,
+                categoria:categorias(nome),
+                unidade_medida:unidades_medida(abreviacao)
+            `)
+            .eq('empresa_id', empresaData.id)
+            .eq('status', 'disponível')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(excedentes || []);
+    } catch (error) {
+        console.error('Erro ao buscar excedentes disponíveis:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+}
+
+export async function getExcedentesReservadosEmpresa(req, res) {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ message: 'Empresa não encontrada' });
+        }
+
+        const { data: doacoes, error } = await supabase
+            .from('doacoes_reservadas')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                ong:ongs(nome_ong, email_institucional)
+            `)
+            .eq('empresa_id', empresaData.id)
+            .eq('status', 'reservado')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(doacoes || []);
+    } catch (error) {
+        console.error('Erro ao buscar excedentes reservados:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+}
+
+export async function getExcedentesConcluidosEmpresa(req, res) {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ message: 'Empresa não encontrada' });
+        }
+
+        const { data: doacoes, error } = await supabase
+            .from('doacoes_concluidas')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                ong:ongs(nome_ong)
+            `)
+            .eq('empresa_id', empresaData.id)
+            .eq('status', 'concluída')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(doacoes || []);
+    } catch (error) {
+        console.error('Erro ao buscar excedentes concluídos:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+}
+
+export async function getSolicitacoesDisponiveisEmpresa(req, res) {
+    try {
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                ong:ongs(nome_ong, email_institucional),
+                categoria:categorias(nome)
+            `)
+            .eq('status', 'disponivel')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(solicitacoes || []);
+    } catch (error) {
+        console.error('Erro ao buscar solicitações disponíveis:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+}
+
+export async function getSolicitacoesReservadasEmpresa(req, res) {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ message: 'Empresa não encontrada' });
+        }
+
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong_reservada')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                ong:ongs(nome_ong, email_institucional),
+                categoria:categorias(nome)
+            `)
+            .eq('empresa_id', empresaData.id)
+            .eq('status', 'reservado')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(solicitacoes || []);
+    } catch (error) {
+        console.error('Erro ao buscar solicitações reservadas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
+    }
+}
+
+export async function getSolicitacoesConcluidasEmpresa(req, res) {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ message: 'Empresa não encontrada' });
+        }
+
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong_concluido')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                ong:ongs(nome_ong),
+                categoria:categorias(nome)
+            `)
+            .eq('empresa_id', empresaData.id)
+            .eq('status', 'concluído')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(solicitacoes || []);
+    } catch (error) {
+        console.error('Erro ao buscar solicitações concluídas:', error);
+        res.status(500).json({ message: 'Erro interno do servidor' });
     }
 }

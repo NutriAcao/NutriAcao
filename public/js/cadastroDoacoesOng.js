@@ -20,6 +20,7 @@ async function carregarUsuario() {
   }
 }
 
+
 async function carregarCategorias() {
   try {
     const catResponse = await fetch('/api/categorias');

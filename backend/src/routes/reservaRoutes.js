@@ -1,23 +1,25 @@
-// src/routes/reservaRoutes.js - VERIFIQUE SE ESTÁ ASSIM
+// src/routes/reservaRoutes.js
 import express from 'express';
+import { verificarToken } from './authMiddleware.js';
 import { 
-    reservarDoacaoEmpresa, 
-    reservarPedidoOng,
+    reservarDoacaoONG,
+    reservarSolicitacaoEmpresa,
     concluirDoacao,
-    cancelarReserva,
-    concluirPedido
+    concluirSolicitacao
 } from '../controllers/reservaController.js';
-import { verificarToken } from './authMiddleware.js'; 
 
 const router = express.Router();
 
-// --- ROTAS DE RESERVA ---
-router.put('/reservar-doacao', verificarToken, reservarDoacaoEmpresa);
-router.put('/reservar-pedido', verificarToken, reservarPedidoOng);
+// ONG reserva doação disponível
+router.post('/reservar-doacao', verificarToken, reservarDoacaoONG);
 
-// --- ROTAS DE AÇÃO ---
-router.put('/concluir-doacao', verificarToken, concluirDoacao);
-router.put('/concluir-pedido', verificarToken, concluirPedido);
-router.put('/cancelar-reserva', verificarToken, cancelarReserva);
+// Empresa reserva solicitação de ONG
+router.post('/reservar-solicitacao', verificarToken, reservarSolicitacaoEmpresa);
+
+// Concluir doação
+router.post('/concluir-doacao', verificarToken, concluirDoacao);
+
+// Concluir solicitação
+router.post('/concluir-solicitacao', verificarToken, concluirSolicitacao);
 
 export default router;

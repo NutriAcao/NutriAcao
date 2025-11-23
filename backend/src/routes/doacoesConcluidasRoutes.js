@@ -1,255 +1,151 @@
 import express from 'express';
-import { buscarExcedentesDisponiveisEmpresa } from '../model/doacoesEmpresaModel.js';
-import { buscarExcedentesReservadosPorEmpresa } from '../model/doacoesEmpresaModel.js';
-import { buscarDoacoesSolicitadasEmpresa } from '../model/doacoesEmpresaModel.js';
-import { buscarExcedentesConcluidosPorEmpresa } from '../model/doacoesEmpresaModel.js';
-import { buscarDoacoesSolicitadasConcluidasEmpresa } from '../model/doacoesEmpresaModel.js';
-const router = express.Router();
-import { buscarSolicitacoesDisponiveisONG } from '../model/doacoesONGModel.js';
-import { buscarSolicitacoesAndamentoONG } from '../model/doacoesONGModel.js';
-import { buscarExcedentesAndamentoONG } from '../model/doacoesONGModel.js';
-import { buscarSolicitacoesConcluidasONG } from '../model/doacoesONGModel.js';
-import { buscarExcedentesConcluidosONG } from '../model/doacoesONGModel.js';
-
 import { verificarToken } from './authMiddleware.js';
-import { getDetalhesExcedente, 
-    getDetalhesSolicitacao,
-    getMinhasSolicitacoesReservadas, 
-    getMeusExcedentesReservados } from '../controllers/doacaoDetalhesController.js';
-import { 
-    getMeusPedidosReservados, 
-    getDoacoesQueReservei 
-} from '../controllers/doacaoOngController.js';
+import { supabase } from '../config/supabaseClient.js';
 
-// Rota para a Tabela 2 em minhasSolicitacoes.html
-router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados); 
+const router = express.Router();
 
-// Rota para a Tabela 3 em minhasSolicitacoes.html
-router.get('/doacoesReservadas', verificarToken, getDoacoesQueReservei);
-router.get('/doacoesSolicitadasEmpresa', verificarToken, getMinhasSolicitacoesReservadas);
+// =====================================================
+// ROTAS PARA HISTÓRICO DE DOAÇÕES CONCLUÍDAS
+// =====================================================
 
-// O frontend chama "/doacoesConcluidasEmpresa/excedentesReservadosEmpresa"
-router.get('/excedentesReservadosEmpresa', verificarToken, getMeusExcedentesReservados);
-router.get('/detalhes/excedente/:id', verificarToken, getDetalhesExcedente);
-router.get('/detalhes/solicitacao/:id', verificarToken, getDetalhesSolicitacao);
-
-//Busca Excedentes disponíveis da empresa
-router.get('/doacoesEmpresa', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
+// Doações concluídas pela ONG
+router.get('/solicitacoesConcluidasONG', verificarToken, async (req, res) => {
     try {
-        const doacoes = await buscarExcedentesDisponiveisEmpresa(id);
-        
+        const { id } = req.query;
 
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma excedente disponível para este email' });
+        if (!id) {
+            return res.status(400).json({ error: 'ID é obrigatório' });
         }
 
-        res.status(200).json(doacoes);
+        // Buscar solicitações concluídas da ONG
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong_concluido')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                empresa:empresas(nome_fantasia, razao_social)
+            `)
+            .eq('ong_id', id)
+            .eq('status', 'concluído')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(solicitacoes || []);
+
     } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
+        console.error('Erro na rota /solicitacoesConcluidasONG:', err);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-//Busca excedentes da empresa que foram reservados por uma ONG
-router.get('/excedentesReservadosEmpresa1', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
+// Excedentes concluídos pela ONG
+router.get('/excedentesConcluidosONG', verificarToken, async (req, res) => {
     try {
-        const doacoes = await buscarExcedentesReservadosPorEmpresa(id);
-        
+        const { id } = req.query;
 
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhum excedente reservado para este email' });
+        if (!id) {
+            return res.status(400).json({ error: 'ID é obrigatório' });
         }
 
-        res.status(200).json(doacoes);
+        // Buscar doações concluídas da ONG
+        const { data: doacoes, error } = await supabase
+            .from('doacoes_concluidas')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                empresa:empresas(nome_fantasia, razao_social)
+            `)
+            .eq('ong_id', id)
+            .eq('status', 'concluída')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(doacoes || []);
+
     } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
+        console.error('Erro na rota /excedentesConcluidosONG:', err);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-// Busca doações solicitadas por ONGs que foram aceitas pela Empresa
-router.get('/doacoesSolicitadasEmpresa', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
+// Doações solicitadas concluídas pela Empresa
+router.get('/doacoesSolicitadasConcluidasEmpresa', verificarToken, async (req, res) => {
     try {
-        const doacoes = await buscarDoacoesSolicitadasEmpresa(id);
-        
+        const { id } = req.query;
 
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma doação solicitada para este email' });
+        if (!id) {
+            return res.status(400).json({ error: 'ID é obrigatório' });
         }
 
-        res.status(200).json(doacoes);
+        // Buscar solicitações concluídas pela empresa
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong_concluido')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                ong:ongs(nome_ong)
+            `)
+            .eq('empresa_id', id)
+            .eq('status', 'concluído')
+            .order('data_criacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(solicitacoes || []);
+
     } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
+        console.error('Erro na rota /doacoesSolicitadasConcluidasEmpresa:', err);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });
 
-// Busca excedentes concluídos pela empresa
-router.get('/excedentesConcluidosEmpresa', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
+// Excedentes concluídos pela Empresa
+router.get('/excedentesConcluidosEmpresa', verificarToken, async (req, res) => {
     try {
-        const doacoes = await buscarExcedentesConcluidosPorEmpresa(id);
-        
+        const { id } = req.query;
 
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhum excedente concluído para este email' });
+        if (!id) {
+            return res.status(400).json({ error: 'ID é obrigatório' });
         }
 
-        res.status(200).json(doacoes);
+        // Buscar excedentes concluídos pela empresa
+        const { data: excedentes, error } = await supabase
+            .from('doacoes_concluidas')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                ong:ongs(nome_ong)
+            `)
+            .eq('empresa_id', id)
+            .eq('status', 'concluída')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) throw error;
+
+        res.json(excedentes || []);
+
     } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-//Busca doações solicitadas por ONGs que foram concluídas pela empresa
-router.get('/doacoesSolicitadasConcluidasEmpresa', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarDoacoesSolicitadasConcluidasEmpresa(id);
-        
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma solicitação concluída para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-// ROTAS PARA ONGS
-router.get('/solicitacoesDisponiveisONG', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarSolicitacoesDisponiveisONG(id);
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma solicitação disponível para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-router.get('/solicitacoesAndamentoONG', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarSolicitacoesAndamentoONG(id);
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma solicitação em andamento para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-router.get('/excedentesAndamentoONG', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarExcedentesAndamentoONG(id);
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhum excedente em andamento para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-router.get('/solicitacoesConcluidasONG', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarSolicitacoesConcluidasONG(id);
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhuma solicitação concluída para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
-        res.status(500).json({ error: 'Erro interno do servidor' });
-    }
-});
-
-router.get('/excedentesConcluidosONG', async (req, res) => {
-    const { id } = req.query;
-
-    if (!id) {
-        return res.status(400).json({ error: 'ID é obrigatório' });
-    }
-
-    try {
-        const doacoes = await buscarExcedentesConcluidosONG(id);
-
-        if (!doacoes) {
-            return res.status(404).json({ message: 'Nenhum excedente concluído para este email' });
-        }
-
-        res.status(200).json(doacoes);
-    } catch (err) {
-        console.error('Erro na rota /doacoes:', err);
+        console.error('Erro na rota /excedentesConcluidosEmpresa:', err);
         res.status(500).json({ error: 'Erro interno do servidor' });
     }
 });

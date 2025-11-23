@@ -3,7 +3,6 @@ import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import cadastroRoutes from './src/routes/cadastroRoutes.js';
-import login from './src/routes/loginRoutes.js'
 import loginRoutes from './src/routes/loginRoutes.js';
 import './src/config/dbPool.js';
 import './src/config/supabaseClient.js';
@@ -13,8 +12,6 @@ import usuarioRoutes from "./src/routes/usuarioRoutes.js";
 import sgMail from '@sendgrid/mail';
 import doacoesConcluidasRoutes from './src/routes/doacoesConcluidasRoutes.js';
 import rateLimit from 'express-rate-limit';
-import reservaRoutes from './src/routes/reservaRoutes.js';
-import doacaoRoutes from './src/routes/doacoesRoutes.js';
 import historicoRoutes from './src/routes/historicoRoutes.js';
 import { supabase } from './src/config/supabaseClient.js'
 import crypto from 'crypto';
@@ -24,9 +21,9 @@ import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 import solicitacoesRoutes from './src/routes/solicitacoesRoutes.js';
 
-// IMPORTE OS CONTROLLERS CORRETAMENTE
-import * as excedentesController from './src/controllers/excedentesController.js';
-import * as doacaoOngController from './src/controllers/doacaoOngController.js';
+// CORREÇÃO: Importar os controllers corretamente
+import { cadastrarExcedente, listarCategorias, listarUnidadesMedida } from './src/controllers/excedentesController.js';
+import { cadastrarDoacaoOng } from './src/controllers/doacaoOngController.js';
 import { cadastrarDoacaoEmpresa } from './src/controllers/doacaoEmpresaController.js';
 
 // configuração de variáveis
@@ -65,32 +62,21 @@ import { verificarEmpresa, verificarOng } from './src/routes/tipoAuthMiddleware.
 import cookieParser from 'cookie-parser';
 app.use(cookieParser());
 
-
 app.use(express.static(publicPath));
 
 // usar Rotas
 app.use('/', testeBDRoute)
 app.use('/', dbRoutes);
 app.use('/api/cadastro', cadastroRoutes)
-app.use('/api/login', login)
+app.use('/api/login', loginRoutes)
 app.use("/api", usuarioRoutes);
-app.use('/api', reservaRoutes);
-app.use('/api', doacaoRoutes);
 app.use('/api', historicoRoutes);
-app.use('/', testeBDRoute);
-app.use('/', dbRoutes);
-app.use('/api/cadastro', cadastroRoutes);
 app.use('/api/empresas', empresaRoutes);
 app.use('/api/ongs', ongRoutes);
-app.use('/api/login', loginRoutes);
 app.use('/api/doacoes-concluidas', doacoesConcluidasRoutes);
 app.use('/api/minha-conta-ong', minhaContaOngRoutes);
-app.use("/api", usuarioRoutes);
-app.use('/api', reservaRoutes);
-app.use('/api', doacaoRoutes); 
-app.use('/api', historicoRoutes); 
 app.use('/api/auth', loginRoutes);
-app.use('/api', solicitacoesRoutes); 
+app.use('/api', solicitacoesRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
@@ -107,64 +93,60 @@ app.get('/api/usuarioToken', verificarToken, (req, res) => {
   res.json(req.usuario);
 });
 
-
-
-
 // ROTAS PROTEGIDAS PARA EMPRESA
 app.get('/visualizacaoOngs.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'visualizacaoOngs.html'));
-
 })
 
 app.get('/cadastrarExcedentes.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'cadastrarExcedentes.html'));
-
 })
+
 app.get('/HistoricoDoacoesEmpresa.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'HistoricoDoacoesEmpresa.html'));
-
 })
+
 app.get('/minhaContaEmpresa.html', verificarToken, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'minhaContaEmpresa.html'));
-
 })
+
 app.get('/suporteEmpresa.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'suporteEmpresa.html'));
-
 })
+
 app.get('/minhasDoacoesAtivasEmpresa.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'minhasDoacoesAtivasEmpresa.html'));
-
 })
+
 app.get('/relatorioImpacto.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'relatorioImpacto.html'));
-
 });
-
 
 //ROTAS PROTEGIDAS PARA ONG
 app.get('/visualizacaoDoacoes.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'visualizacaoDoacoes.html'));
-
 })
+
 app.get('/minhasSolicitacoes.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'minhasSolicitacoes.html'));
 })
+
 app.get('/HistoricoDoacoesONG.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'HistoricoDoacoesONG.html'));
-
 })
+
 app.get('/cadastrarDoacoesONG.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'cadastrarDoacoesONG.html'));
-
 })
+
 app.get('/relatorioOng.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'relatorioOng.html'));
-
 })
+
 app.get('/suporteONG.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'suporteONG.html'));
 })
+
 app.get('/minhaContaOng.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'minhaContaOng.html'));
 })
@@ -173,20 +155,356 @@ app.get('/resetarSenha.html', (req, res) => {
   res.sendFile(path.join(publicPath, 'pages', 'homepage', 'resetarSenha.html'));
 });
 
-
 app.use('/doacoesConcluidasEmpresa', doacoesConcluidasRoutes);
 app.use('/doacoesConcluidasONG', doacoesConcluidasRoutes);
-app.use('/api', minhaContaOngRoutes); 
 
-app.post('/api/excedentes', verificarToken, verificarEmpresa, excedentesController.cadastrarExcedente);
-app.get('/api/categorias', excedentesController.listarCategorias);
-app.get('/api/unidades-medida', excedentesController.listarUnidadesMedida);
-app.post('/api/solicitacoes-ong', verificarToken, verificarOng, doacaoOngController.cadastrarDoacaoOng);
-
+// CORREÇÃO: Rotas dos controllers com importações corretas
+app.post('/api/excedentes', verificarToken, verificarEmpresa, cadastrarExcedente);
+app.get('/api/categorias', listarCategorias);
+app.get('/api/unidades-medida', listarUnidadesMedida);
+app.post('/api/solicitacoes-ong', verificarToken, verificarOng, cadastrarDoacaoOng);
 app.post('/api/cadastro/doacaoEmpresa', verificarToken, verificarEmpresa, cadastrarDoacaoEmpresa);
 
+// =====================================================
+// ROTAS DIRETAS PARA RESERVA E DOAÇÕES DISPONÍVEIS
+// =====================================================
 
+// ROTA DE RESERVA CORRIGIDA
+// ROTA DE RESERVA CORRIGIDA - COM MAIS LOGS
+// ROTA DE RESERVA NOVA - NOME DIFERENTE
+app.post('/api/reservar-doacao-ong', verificarToken, verificarOng, async (req, res) => {
+    try {
+        console.log('🎯🎯🎯 ROTA RESERVA NOVA CHAMADA - doacao_id:', req.body.doacao_id);
+        
+        const { doacao_id } = req.body;
+        const usuario_id = req.usuario.id;
 
+        if (!doacao_id) {
+            return res.status(400).json({ 
+                success: false,
+                message: "ID da doação é obrigatório." 
+            });
+        }
+
+        // Buscar ID da ONG
+        const { data: ongData, error: ongError } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (ongError || !ongData) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'ONG não encontrada' 
+            });
+        }
+
+        const id_ong = ongData.id;
+
+        // 1. Buscar doação disponível
+        const { data: doacaoData, error: doacaoError } = await supabase
+            .from('doacoes_disponiveis')
+            .select('*')
+            .eq('id', doacao_id)
+            .eq('status', 'disponível')
+            .single();
+
+        if (doacaoError || !doacaoData) {
+            return res.status(409).json({ 
+                success: false,
+                message: "Doação não encontrada ou já foi reservada" 
+            });
+        }
+
+        // 2. Inserir na tabela de reservadas
+        const { data: reservaData, error: reservaError } = await supabase
+            .from('doacoes_reservadas')
+            .insert({
+                empresa_id: doacaoData.empresa_id,
+                ong_id: id_ong,
+                excedente_id: doacaoData.excedente_id,
+                titulo: doacaoData.titulo,
+                descricao: doacaoData.descricao,
+                quantidade: doacaoData.quantidade,
+                data_validade: doacaoData.data_validade,
+                status: 'reservado',
+                data_publicacao: doacaoData.data_publicacao
+            })
+            .select();
+
+        if (reservaError) {
+            console.error('❌ Erro ao criar reserva:', reservaError);
+            return res.status(500).json({ 
+                success: false,
+                message: "Erro ao reservar a doação",
+                error: reservaError.message 
+            });
+        }
+
+        // 3. Remover da tabela de disponíveis
+        await supabase
+            .from('doacoes_disponiveis')
+            .delete()
+            .eq('id', doacao_id);
+
+        console.log(`✅✅✅ Doação ${doacao_id} reservada com sucesso via NOVA ROTA!`);
+        res.json({ 
+            success: true,
+            message: 'Doação reservada com sucesso!',
+            data: reservaData[0]
+        });
+
+    } catch (error) {
+        console.error('❌ Erro interno:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+// ROTA PARA DOAÇÕES DISPONÍVEIS
+app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req, res) => {
+    try {
+        console.log("🔄 Buscando doações disponíveis para ONG...");
+        
+        const { data: doacoes, error } = await supabase
+            .from('doacoes_disponiveis')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                empresa:empresas(
+                    id,
+                    nome_fantasia,
+                    razao_social,
+                    email_institucional,
+                    telefone
+                ),
+                excedente:excedentes(
+                    categoria:categorias(nome),
+                    unidade_medida:unidades_medida(abreviacao)
+                )
+            `)
+            .eq('status', 'disponível')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro ao buscar doações:', error);
+            return res.status(500).json({ 
+                message: 'Erro ao carregar doações disponíveis',
+                error: error.message 
+            });
+        }
+
+        // Processar dados para formato mais amigável
+        const doacoesProcessadas = doacoes.map(doacao => ({
+            id: doacao.id,
+            titulo: doacao.titulo,
+            descricao: doacao.descricao,
+            quantidade: doacao.quantidade,
+            data_validade: doacao.data_validade,
+            status: doacao.status,
+            empresa: doacao.empresa,
+            categoria: doacao.excedente?.categoria?.nome || 'Não categorizado',
+            unidade_medida: doacao.excedente?.unidade_medida?.abreviacao || 'un'
+        }));
+
+        console.log(`✅ ${doacoesProcessadas.length} doações encontradas`);
+        res.json(doacoesProcessadas);
+
+    } catch (error) {
+        console.error('❌ Erro interno:', error);
+        res.status(500).json({ 
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+// =====================================================
+// ROTAS PARA MINHAS SOLICITAÇÕES DA ONG
+// =====================================================
+
+// Solicitações disponíveis da ONG
+app.get('/api/meus-pedidos-disponiveis', verificarToken, verificarOng, async (req, res) => {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        console.log('📥 Buscando pedidos disponíveis para ONG, usuário:', usuario_id);
+
+        // Buscar ID da ONG
+        const { data: ongData, error: ongError } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (ongError || !ongData) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'ONG não encontrada' 
+            });
+        }
+
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                categoria:categorias(nome)
+            `)
+            .eq('ong_id', ongData.id)
+            .eq('status', 'disponivel')
+            .order('data_criacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro ao buscar solicitações:', error);
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro ao carregar solicitações',
+                error: error.message 
+            });
+        }
+
+        console.log(`✅ ${solicitacoes.length} solicitações encontradas`);
+        res.json(solicitacoes);
+
+    } catch (error) {
+        console.error('❌ Erro interno:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+
+// Solicitações reservadas da ONG
+app.get('/api/meus-pedidos-reservados', verificarToken, verificarOng, async (req, res) => {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        console.log('📥 Buscando pedidos reservados para ONG, usuário:', usuario_id);
+
+        // Buscar ID da ONG
+        const { data: ongData, error: ongError } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (ongError || !ongData) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'ONG não encontrada' 
+            });
+        }
+
+        const { data: solicitacoes, error } = await supabase
+            .from('solicitacoes_ong_reservada')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade_desejada,
+                status,
+                data_criacao,
+                empresa:empresas(nome_fantasia, razao_social, email_institucional),
+                categoria:categorias(nome)
+            `)
+            .eq('ong_id', ongData.id)
+            .eq('status', 'reservado')
+            .order('data_criacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro ao buscar solicitações reservadas:', error);
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro ao carregar solicitações reservadas',
+                error: error.message 
+            });
+        }
+
+        console.log(`✅ ${solicitacoes.length} solicitações reservadas encontradas`);
+        res.json(solicitacoes);
+
+    } catch (error) {
+        console.error('❌ Erro interno:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
+
+// Doações reservadas pela ONG
+app.get('/api/doacoes-reservadas-ong', verificarToken, verificarOng, async (req, res) => {
+    try {
+        const usuario_id = req.usuario.id;
+        
+        console.log('📥 Buscando doações reservadas para ONG, usuário:', usuario_id);
+
+        // Buscar ID da ONG
+        const { data: ongData, error: ongError } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (ongError || !ongData) {
+            return res.status(400).json({ 
+                success: false,
+                message: 'ONG não encontrada' 
+            });
+        }
+
+        const { data: doacoes, error } = await supabase
+            .from('doacoes_reservadas')
+            .select(`
+                id,
+                titulo,
+                descricao,
+                quantidade,
+                data_validade,
+                status,
+                data_publicacao,
+                empresa:empresas(nome_fantasia, razao_social, email_institucional)
+            `)
+            .eq('ong_id', ongData.id)
+            .eq('status', 'reservado')
+            .order('data_publicacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro ao buscar doações reservadas:', error);
+            return res.status(500).json({ 
+                success: false,
+                message: 'Erro ao carregar doações reservadas',
+                error: error.message 
+            });
+        }
+
+        console.log(`✅ ${doacoes.length} doações reservadas encontradas`);
+        res.json(doacoes);
+
+    } catch (error) {
+        console.error('❌ Erro interno:', error);
+        res.status(500).json({ 
+            success: false,
+            message: 'Erro interno do servidor',
+            error: error.message 
+        });
+    }
+});
 // rota de contato/suporte
 app.post('/enviar-contato', contactLimiter, async (req, res) => {
   try {
@@ -217,15 +535,11 @@ app.post('/enviar-contato', contactLimiter, async (req, res) => {
   }
 });
 
-
-
-
 // Rota para enviar e-mail de recuperação
 app.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).send('Email required');
 
-  // 1) localizar usuário (ex: tabela users ou via auth)
   try {
     // consulta paralela em ongs e empresas
     const [ongsRes, empresasRes] = await Promise.all([
@@ -238,34 +552,25 @@ app.post('/forgot-password', async (req, res) => {
       return res.status(500).send('DB error');
     }
 
-    // prioriza ongs, depois empresas (ajuste conforme necessidade)
     const ong = ongsRes.data && ongsRes.data[0];
     const empresa = empresasRes.data && empresasRes.data[0];
-
     const found = ong || empresa;
-    console.log(found)
 
     if (!found) {
-      // não vaza informação sobre existência do email
-      // mas retorna sucesso mesmo assim por segurança
       return res.status(200).json({ message: 'Se o email existir, você receberá um link de recuperação.' });
     }
 
-    // 2) gerar token e salvar hash
+    // gerar token e salvar hash
     const token = crypto.randomBytes(32).toString('hex');
     const tokenHash = crypto.createHash('sha256').update(token).digest('hex');
     const expiresAt = new Date(Date.now() + 1000 * 60 * 60); // 1h
 
-    // Salvar token no banco com o user_id
     await supabase.from('password_resets').insert({
       user_id: found.id,
       token_hash: tokenHash,
       expires_at: expiresAt
     });
-    console.log(token)
-    console.log('token gerado')
 
-    // 3) enviar email com SendGrid - incluir email na URL
     const resetUrl = `http://localhost:5501/pages/homepage/resetarSenha.html?token=${token}&email=${encodeURIComponent(email)}`;
     const msg = {
       to: email,
@@ -276,8 +581,6 @@ app.post('/forgot-password', async (req, res) => {
     };
 
     await sgMail.send(msg);
-    console.log('Email enviado com sucesso');
-
     return res.status(200).json({ message: 'Email de recuperação enviado com sucesso!' });
 
   } catch (err) {
@@ -286,12 +589,10 @@ app.post('/forgot-password', async (req, res) => {
   }
 });
 
-
 // Rota para atualizar senha
 app.post('/reset-password', async (req, res) => {
   const { token, newPassword, email } = req.body;
 
-  // Remover espaços em branco do token
   const cleanToken = token ? token.trim() : '';
 
   if (!cleanToken || !newPassword || !email) {
@@ -299,11 +600,8 @@ app.post('/reset-password', async (req, res) => {
   }
 
   try {
-    console.log('Token recebido:', cleanToken);
     const tokenHash = crypto.createHash('sha256').update(cleanToken).digest('hex');
-    console.log('Token hash gerado:', tokenHash);
 
-    // Buscar token no banco
     const { data: resetData, error: resetError } = await supabase
       .from('password_resets')
       .select('user_id, expires_at, token_hash')
@@ -311,10 +609,7 @@ app.post('/reset-password', async (req, res) => {
       .limit(1)
       .single();
 
-    console.log('Resultado da busca:', { resetData, resetError });
-
     if (resetError || !resetData) {
-      console.log('Token não encontrado no banco');
       return res.status(400).json({ error: 'Token inválido' });
     }
 
@@ -322,7 +617,6 @@ app.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Token expirado' });
     }
 
-    // Verificar se o usuário é ONG ou Empresa
     const [ongRes, empresaRes] = await Promise.all([
       supabase.from('ongs').select('id').eq('email', email).limit(1),
       supabase.from('empresa').select('id').eq('email', email).limit(1)
@@ -335,11 +629,9 @@ app.post('/reset-password', async (req, res) => {
       return res.status(400).json({ error: 'Usuário não encontrado' });
     }
 
-    // Importar bcrypt para hash da senha
     const bcrypt = await import('bcrypt');
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // Atualizar senha na tabela correta
     const tableName = isOng ? 'ongs' : 'empresa';
     const { error: updateError } = await supabase
       .from(tableName)
@@ -351,7 +643,6 @@ app.post('/reset-password', async (req, res) => {
       return res.status(500).json({ error: 'Erro ao atualizar senha' });
     }
 
-    // Invalidar token
     await supabase.from('password_resets').delete().eq('token_hash', tokenHash);
 
     return res.status(200).json({ message: 'Senha atualizada com sucesso!' });
@@ -362,7 +653,6 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
-
 // inicia o Servidor
 app.listen(PORT, () => {
   console.log(`Servidor Express rodando em http://localhost:${PORT}`);
@@ -372,7 +662,7 @@ app.listen(PORT, () => {
 
 app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req, res) => {
     try {
-        const empresaId = req.usuario.id; // ID da empresa logada
+        const empresaId = req.usuario.id;
         
         console.log(`Buscando relatórios para empresa ID: ${empresaId}`);
 
@@ -411,7 +701,7 @@ app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req,
                 )
             `)
             .eq('empresa_id', empresaId)
-            .in('status', ['entregue', 'concluido', 'finalizado']) // Status de doações completas
+            .in('status', ['entregue', 'concluido', 'finalizado'])
             .order('data_doacao', { ascending: false });
 
         if (error) {
@@ -489,9 +779,3 @@ function calcularCO2EvitadoAPI(quantidade, co2PorKg) {
     const co2Fator = co2PorKg || 0.5;
     return parseFloat((quantidade * co2Fator).toFixed(2));
 }
-
-
-app.get('/relatorioImpacto.html', verificarToken, verificarEmpresa, (req, res) => {
-  res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'relatorioImpacto.html'));
-});
-

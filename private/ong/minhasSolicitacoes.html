@@ -26,25 +26,58 @@
             padding: 16px 24px; border-top: 1px solid #eee; background: #f7f7f7;
             border-radius: 0 0 8px 8px;
         }
-        .btn-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
-        .btn-details { /* Estilo do seu botão "Visualizar" */
-            background-color: #004aad; color: white; padding: 5px 10px; border: none;
-            border-radius: 4px; cursor: pointer; font-size: 0.9rem;
+        .btn-close { 
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; 
+            color: #666;
         }
-        .btn-primary { background-color: #28a745; color: white; }
-        .btn-danger { background-color: #dc3545; color: white; }
-        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-close:hover { color: #333; }
+        .btn-details { 
+            background-color: #004aad; color: white; padding: 8px 16px; border: none;
+            border-radius: 4px; cursor: pointer; font-size: 0.9rem; transition: background-color 0.3s;
+        }
+        .btn-details:hover { background-color: #003a8c; }
+        .btn-primary { 
+            background-color: #28a745; color: white; padding: 8px 16px; border: none;
+            border-radius: 4px; cursor: pointer; transition: background-color 0.3s;
+        }
+        .btn-primary:hover { background-color: #218838; }
+        .btn-danger { 
+            background-color: #dc3545; color: white; padding: 8px 16px; border: none;
+            border-radius: 4px; cursor: pointer; transition: background-color 0.3s;
+        }
+        .btn-danger:hover { background-color: #c82333; }
+        .btn-secondary { 
+            background-color: #6c757d; color: white; padding: 8px 16px; border: none;
+            border-radius: 4px; cursor: pointer; transition: background-color 0.3s;
+        }
+        .btn-secondary:hover { background-color: #5a6268; }
         .items-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
         .items-table th, .items-table td { 
-            border: 1px solid #ddd; padding: 8px; text-align: left; 
+            border: 1px solid #ddd; padding: 12px; text-align: left; 
         }
-        .items-table th { background-color: #f2f2f2; }
+        .items-table th { background-color: #f2f2f2; font-weight: 600; }
         .section-title { 
             margin-top: 20px; margin-bottom: 10px; font-size: 1.1rem; 
-            border-bottom: 2px solid #004aad; padding-bottom: 5px; 
+            border-bottom: 2px solid #004aad; padding-bottom: 5px; color: #004aad;
         }
-        .order-info p { margin: 8px 0; }
-        .order-info p strong { min-width: 120px; display: inline-block; }
+        .order-info p { margin: 12px 0; font-size: 1rem; }
+        .order-info p strong { min-width: 150px; display: inline-block; color: #333; }
+        
+        /* Status styles */
+        .status { 
+            padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600;
+            text-transform: capitalize;
+        }
+        .status.disponivel { background-color: #d4edda; color: #155724; }
+        .status.reservado { background-color: #fff3cd; color: #856404; }
+        .status.concluido { background-color: #d1ecf1; color: #0c5460; }
+        .status.cancelado { background-color: #f8d7da; color: #721c24; }
+        
+        /* Table actions column */
+        .actions { text-align: center; }
+        
+        /* No data style */
+        .no-data { text-align: center; color: #666; font-style: italic; padding: 20px !important; }
     </style>
 </head>
 <body>
@@ -77,6 +110,7 @@
                 </div>
             </div>
             
+            <!-- Tabela 1: Solicitações Disponíveis da ONG -->
             <div class="card">
                 <div class="card-header">
                     <h3>Solicitações Cadastradas (Disponíveis)</h3>
@@ -90,17 +124,18 @@
                                     <th>Quantidade (Kg/L)</th>
                                     <th>Parceiro</th>
                                     <th>Status</th>
-                                    <th>Ações</th>
+                                    <th class="actions">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr><td colspan="5">Carregando...</td></tr>
+                            <tbody id="tableBodyDisponiveis">
+                                <tr><td colspan="5" class="no-data">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <!-- Tabela 2: Pedidos Reservados da ONG -->
             <div class="card">
                 <div class="card-header">
                     <h3>Solicitações em Andamento (Reservadas por Empresas)</h3>
@@ -114,17 +149,18 @@
                                     <th>Quantidade (Kg/L)</th>
                                     <th>Empresa</th>
                                     <th>Status</th>
-                                    <th>Ações</th>
+                                    <th class="actions">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr><td colspan="5">Carregando...</td></tr>
+                            <tbody id="tableBodyReservados">
+                                <tr><td colspan="5" class="no-data">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
+            <!-- Tabela 3: Doações Reservadas pela ONG -->
             <div class="card">
                 <div class="card-header">
                     <h3>Excedentes em Andamento (Doações que eu Reservei)</h3>
@@ -138,11 +174,11 @@
                                     <th>Quantidade (Kg/L)</th>
                                     <th>Empresa</th>
                                     <th>Status</th>
-                                    <th>Ações</th>
+                                    <th class="actions">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <tr><td colspan="5">Carregando...</td></tr>
+                            <tbody id="tableBodyDoacoes">
+                                <tr><td colspan="5" class="no-data">Carregando...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -152,6 +188,7 @@
         </main>
     </div>
 
+    <!-- Modal de Detalhes -->
     <dialog id="orderModal" class="modal">
         <div class="modal-header">
             <h3 id="modalTitle">Carregando... <span id="orderId"></span></h3> 
@@ -174,17 +211,18 @@
                     </tr>
                 </thead>
                 <tbody id="itemsList">
+                    <tr><td colspan="4" class="no-data">Carregando itens...</td></tr>
                 </tbody>
             </table>
         </div>
         <div class="modal-actions">
-            <button classF="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
-            
+            <button class="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
             <button id="btnCancelar" class="btn-danger" style="display: none;">Cancelar Reserva</button>
             <button id="btnConcluir" class="btn-primary" style="display: none;">Concluir</button>
         </div>
     </dialog>
 
+    <!-- Modal de Confirmação -->
     <dialog id="confirmModal" class="modal">
         <div class="modal-header">
             <h3>Confirmar Ação</h3>

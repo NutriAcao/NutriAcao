@@ -60,7 +60,6 @@ async function carregarUsuario() {
   }
 }
 
-// O RESTANTE DO CÓDIGO PERMANECE IGUAL...
 async function carregarSelects() {
   try {
     console.log('12. Carregando selects...');
@@ -126,29 +125,46 @@ function configurarFormulario() {
         return;
       }
 
-      const dadosEmpresa = {
-        nome: dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome,
-        email_Institucional: dadosUsuario.email,
-        nome_alimento: dadosCompletos.nome_alimento,
+      // CORREÇÃO: Mapear campos para os nomes exatos que a API espera
+      const dadosEnvio = {
+        // CORREÇÃO: Campo obrigatório - usar 'titulo' em vez de 'nome_alimento'
+        titulo: dadosCompletos.nome_alimento, // ⬅️ CORREÇÃO AQUI
+        
+        // CORREÇÃO: Campo obrigatório - garantir que categoria_id seja enviado
+        categoria_id: parseInt(dadosCompletos.categoria), // ⬅️ CORREÇÃO AQUI
+        
+        // Campo obrigatório
         quantidade: parseFloat(dadosCompletos.quantidade),
-        data_validade: dadosCompletos.data_validade,
-        cep_retirada: dadosCompletos.cep_retirada,
-        telefone: dadosCompletos.telefone,
-        email: dadosCompletos.email,
-        id_empresa: dadosUsuario.id,
-        categoria_id: parseInt(dadosCompletos.categoria),
+        
+        // Campos opcionais mas importantes
+        descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`,
+        data_validade: dadosCompletos.data_validade || null,
+        
+        // Dados da empresa
+        empresa_id: dadosUsuario.id,
+        nome_empresa: dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome,
+        email_contato: dadosCompletos.email || dadosUsuario.email,
+        telefone_contato: dadosCompletos.telefone || '',
+        
+        // Outros campos
         unidade_medida_id: parseInt(dadosCompletos.unidade_medida),
-        descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`
+        cep_retirada: dadosCompletos.cep_retirada
       };
 
-      console.log('18. Dados para envio:', dadosEmpresa);
+      console.log('18. Dados para envio:', dadosEnvio);
 
-      // ... resto do código do formulário permanece igual
+      // VALIDAÇÃO: Verificar campos obrigatórios antes do envio
+      const erros = validarDados(dadosEnvio);
+      if (erros.length > 0) {
+        alert('❌ Erros no formulário:\n' + erros.join('\n'));
+        return;
+      }
+
       try {
         const response = await fetch('/api/cadastro/doacaoEmpresa', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify(dadosEmpresa)
+          body: JSON.stringify(dadosEnvio)
         });
 
         const resultado = await response.json();
@@ -157,6 +173,8 @@ function configurarFormulario() {
         if (resultado.success) {
           alert('✅ Doação cadastrada com sucesso!');
           form.reset();
+          // Opcional: redirecionar para outra página
+          // window.location.href = '/minhasDoacoes.html';
         } else {
           alert('❌ Erro ao cadastrar a doação: ' + resultado.message);
         }
@@ -168,9 +186,47 @@ function configurarFormulario() {
   }
 }
 
+// CORREÇÃO: Função de validação para garantir campos obrigatórios
+function validarDados(dados) {
+  const erros = [];
+  
+  if (!dados.titulo || dados.titulo.trim() === '') {
+    erros.push('• Título é obrigatório');
+  }
+  
+  if (!dados.categoria_id || isNaN(dados.categoria_id)) {
+    erros.push('• Categoria é obrigatória');
+  }
+  
+  if (!dados.quantidade || dados.quantidade <= 0 || isNaN(dados.quantidade)) {
+    erros.push('• Quantidade deve ser um número maior que zero');
+  }
+  
+  if (!dados.unidade_medida_id || isNaN(dados.unidade_medida_id)) {
+    erros.push('• Unidade de medida é obrigatória');
+  }
+  
+  if (!dados.empresa_id) {
+    erros.push('• ID da empresa não encontrado');
+  }
+  
+  return erros;
+}
+
+// Configurar data mínima para hoje
+function configurarDataMinima() {
+  const dataInput = document.getElementById('data_validade');
+  if (dataInput) {
+    const hoje = new Date().toISOString().split('T')[0];
+    dataInput.min = hoje;
+    console.log('Data mínima configurada:', hoje);
+  }
+}
+
 // Inicialização
 document.addEventListener('DOMContentLoaded', function() {
   console.log('0. DOM Carregado - Iniciando...');
   carregarUsuario();
   configurarFormulario();
+  configurarDataMinima();
 });

@@ -1,5 +1,4 @@
 // public/js/visualizacaoDoacoes.js
-// VERSÃO CORRIGIDA PARA O FLUXO SIMPLIFICADO: Disponível -> Reservado -> Concluído
 console.log(">>> ARQUIVO visualizacaoDoacoes.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
@@ -14,18 +13,42 @@ document.addEventListener('DOMContentLoaded', function() {
     loadDoacoesDisponiveis(); 
     setupSearch(); 
     setupModalListeners();
+    setupPaginationControls();
 });
 
 function setupModalListeners() {
     const modal = document.getElementById('orderModal');
     if (!modal) return;
     
-    // Fechar modal clicando fora
     modal.addEventListener('click', function(event) {
         if (event.target === this) {
             closeModal();
         }
     });
+}
+
+function setupPaginationControls() {
+    const prevPage = document.getElementById('prevPage');
+    const nextPage = document.getElementById('nextPage');
+    
+    if (prevPage) {
+        prevPage.addEventListener('click', () => {
+            if (currentPage > 1) {
+                currentPage--;
+                renderizarTabela(doacoesReais);
+            }
+        });
+    }
+    
+    if (nextPage) {
+        nextPage.addEventListener('click', () => {
+            const totalPages = Math.ceil(doacoesReais.length / itemsPerPage);
+            if (currentPage < totalPages) {
+                currentPage++;
+                renderizarTabela(doacoesReais);
+            }
+        });
+    }
 }
 
 async function carregarDadosUsuario() {
@@ -39,56 +62,42 @@ async function carregarDadosUsuario() {
         }
         
         const resultado = await response.json();
-        console.log('>>> Resposta completa:', resultado);
         
         if (resultado.success && resultado.data) {
             const dados = resultado.data;
             
-            // CORREÇÃO: Para ONG, usa nome_ong; para empresa, usa nome_fantasia
             const nomeInstituicaoValor = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
             
-            // Atualiza os elementos da UI
             atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
             atualizarElementoUI('textNomeInstituicao', nomeInstituicaoValor);
             
-            console.log('>>> Dados carregados:', {
-                nome: dados.nome,
-                instituicao: nomeInstituicaoValor
-            });
         } else {
             throw new Error(resultado.message || 'Erro na resposta da API');
         }
         
     } catch (error) {
         console.error('Erro ao carregar usuário:', error);
-        // Fallback em caso de erro
         atualizarElementoUI('textNomeUsuario', 'Usuário');
         atualizarElementoUI('textNomeInstituicao', 'Instituição');
     }
 }
 
-// Função auxiliar para atualizar elementos de forma segura
 function atualizarElementoUI(elementId, texto) {
     const elemento = document.getElementById(elementId);
     if (elemento) {
         elemento.textContent = texto;
-    } else {
-        console.warn(`Elemento com ID '${elementId}' não encontrado`);
     }
 }
 
-// === CARREGAMENTO DE DADOS (BACKEND) - ATUALIZADO ===
+// === CARREGAMENTO DE DOAÇÕES DISPONÍVEIS ===
 async function loadDoacoesDisponiveis() {
     try {
-        console.log("🔄 Iniciando carregamento de doações...");
+        console.log("🔄 Iniciando carregamento de doações disponíveis...");
         
         const response = await fetch('/api/doacoes-disponiveis-ong'); 
-        console.log("📡 Resposta da API:", response);
         
         if (!response.ok) {
-            const err = await response.json();
-            console.error("❌ Erro na resposta:", err);
-            throw new Error(err.message || `Erro no servidor: ${response.status}`);
+            throw new Error(`Erro no servidor: ${response.status}`);
         }
         
         doacoesReais = await response.json();
@@ -102,6 +111,8 @@ async function loadDoacoesDisponiveis() {
         alert('Falha ao carregar doações disponíveis. Tente novamente.');
     }
 }
+
+// CORREÇÃO: Função renderizarTabela com campos corretos
 function renderizarTabela(doacoes) {
     const tbody = document.getElementById('tableBody'); 
     tbody.innerHTML = ''; 
@@ -111,25 +122,33 @@ function renderizarTabela(doacoes) {
         return;
     }
     
-    console.log("Doações para renderizar:", doacoes); // DEBUG
-    
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const doacoesPaginadas = doacoes.slice(startIndex, endIndex);
 
     doacoesPaginadas.forEach(doacao => {
+        // CORREÇÃO: Usa os campos corretos da API
         const dataValidadeFormatada = doacao.data_validade 
             ? new Date(doacao.data_validade).toLocaleDateString('pt-BR')
             : 'N/A';
         
+        // CORREÇÃO: Campos ajustados para a estrutura real
+        const nomeProduto = doacao.nome_alimento || doacao.titulo || 'Produto';
+        const quantidade = doacao.quantidade || '0';
+        const unidade = doacao.unidade_medida || 'un';
+        const empresa = doacao.nome_empresa || doacao.empresa?.nome_fantasia || doacao.empresa?.razao_social || 'Empresa';
+        const categoria = doacao.categoria || 'Não categorizado';
+        const status = doacao.status || 'disponível';
+        
         const row = `
             <tr>
                 <td>${doacao.id}</td>
-                <td>${doacao.nome_alimento || doacao.titulo || 'Produto'}</td>
-                <td>${doacao.quantidade || '0'}kg</td> 
-                <td>Ver detalhes</td> <!-- Temporário -->
+                <td>${nomeProduto}</td>
+                <td>${quantidade} ${unidade}</td>
+                <td>${empresa}</td>
+                <td>${categoria}</td>
                 <td>${dataValidadeFormatada}</td>
-                <td><span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span></td>
+                <td><span class="status ${String(status).toLowerCase()}">${status}</span></td>
                 <td>
                     <button onclick="openModal(${doacao.id})" class="btn-visualizar">👁️ Ver</button>
                 </td>
@@ -141,14 +160,8 @@ function renderizarTabela(doacoes) {
     updateItemCount(doacoes.length);
     document.getElementById('totalPaginas').textContent = Math.ceil(doacoes.length / itemsPerPage);
 }
-// === MODAL E AÇÕES (LÓGICA CORRIGIDA) ===
 
-// Função auxiliar para preencher o conteúdo do modal com segurança
-const fillElement = (id, content) => {
-    const el = document.getElementById(id);
-    if (el) el.textContent = content;
-};
-
+// CORREÇÃO: Função openModal com campos corretos
 function openModal(doacaoId) {
     const modal = document.getElementById('orderModal');
     if (!modal) return;
@@ -157,62 +170,67 @@ function openModal(doacaoId) {
 
     if (!doacao) return;
 
-    // CORREÇÃO: Mostra informações disponíveis mesmo se empresa estiver vazia
+    // CORREÇÃO: Usa campos corretos da API
+    const nomeProduto = doacao.nome_alimento || doacao.titulo || 'Produto';
+    const empresa = doacao.nome_empresa || doacao.empresa?.nome_fantasia || doacao.empresa?.razao_social || "Empresa não informada";
+    const telefone = doacao.telefone_contato || doacao.empresa?.telefone || "Não informado";
+    const email = doacao.email_contato || doacao.empresa?.email_institucional || "Não informado";
+    const descricao = doacao.descricao || doacao.observacoes || '-';
+    const dataValidadeFormatada = doacao.data_validade 
+        ? new Date(doacao.data_validade).toLocaleDateString('pt-BR')
+        : 'N/A';
+    const status = doacao.status || 'disponível';
+
     modal.querySelector('.modal-header h3').textContent = `Detalhes da Doação #${doacao.id}`;
     fillElement('orderId', doacao.id);
-    fillElement('orderDate', new Date(doacao.data_validade).toLocaleDateString('pt-BR'));
-    fillElement('institution', doacao.nome_empresa || "Empresa não informada"); // CORREÇÃO
-    fillElement('contact', doacao.telefone_contato || "Ver detalhes");
-    fillElement('address', doacao.cep_retirada || "A combinar"); 
+    fillElement('orderDate', dataValidadeFormatada);
+    fillElement('institution', empresa);
+    fillElement('contact', telefone + (email !== "Não informado" ? ` | ${email}` : ''));
+    fillElement('address', "A combinar"); 
+    
     const statusElement = document.getElementById('orderStatus');
     if (statusElement) {
-        statusElement.innerHTML = `<span class="status ${String(doacao.status).toLowerCase()}">${doacao.status}</span>`;
+        statusElement.innerHTML = `<span class="status ${String(status).toLowerCase()}">${status}</span>`;
     }
 
     const itemsList = document.getElementById('itemsList');
     if (itemsList) {
         itemsList.innerHTML = `
             <tr>
-                <td>${doacao.nome_alimento}</td>
-                <td>${doacao.quantidade}</td>
-                <td>Kg</td> <td>-</td>
+                <td>${nomeProduto}</td>
+                <td>${doacao.quantidade || '0'}</td>
+                <td>${doacao.unidade_medida || 'un'}</td>
+                <td>${descricao}</td>
             </tr>
         `;
     }
 
-    // --- 2. Controlar Ações (REMOVIDO FLUXO 'EM ANDAMENTO') ---
     const actionButton = document.getElementById('actionButton');
     const statusUpdateSection = document.getElementById('statusUpdateSection');
 
-    // Reseta/Esconde tudo por padrão
     actionButton.style.display = 'none';
     if(statusUpdateSection) {
         statusUpdateSection.style.display = 'none'; 
     }
     
-    const status = String(doacao.status).toLowerCase();
+    const statusLower = String(status).toLowerCase();
 
-    if (status === 'disponível') {
+    if (statusLower === 'disponível' || statusLower === 'disponivel') {
         actionButton.textContent = 'Reservar Doação';
         actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';
-        // Chama a ação 'reservar' no novo sistema
-        actionButton.onclick = () => handleAction(doacao.id, 'reservar-doacao'); 
-
-    } else if (status === 'reservado') {
-        // Se a ONG vê um item reservado NESTA tela,
-        // só deve ver o botão de Cancelar (se o item foi ela quem reservou, que não é o caso aqui,
-        // pois esta tela deve filtrar para APENAS 'disponível'.
-        // O item reservado deve sumir desta lista e ir para "Minhas Doações Ativas" da ONG.
-        // Assim, este bloco só serve para debug/cache.
-        actionButton.style.display = 'none'; // Não deve haver ações nesta tela para status reservado/concluído.
+        actionButton.onclick = () => handleReserva(doacao.id);
     } else {
-        // Concluído, etc.
         actionButton.style.display = 'none';
     }
     
     modal.showModal();
 }
+
+const fillElement = (id, content) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = content;
+};
 
 function closeModal() {
     const modal = document.getElementById('orderModal');
@@ -221,53 +239,33 @@ function closeModal() {
     }
 }
 
-/**
- * Função ÚNICA para lidar com Reservar
- * @param {number} doacaoId - O ID da doação (da tabela doacoesDisponiveis)
- * @param {string} actionType - A ação a ser executada ('reservar-doacao')
- */
-async function handleAction(doacaoId, actionType) {
-    let endpoint = '';
-    const method = 'PUT'; // Usamos PUT para atualizações de status
-    let body = { doacao_id: doacaoId }; 
-
-    // Define o endpoint com base no tipo de ação
-    switch (actionType) {
-        case 'reservar-doacao':
-            endpoint = '/api/reservar-doacao';
-            body = { doacao_id: doacaoId };
-        case 'cancelar-doacao':
-            // Rota de cancelamento (Se fosse implementada, seria aqui)
-            alert('Ação de Cancelar deve ser feita na página de Itens Reservados.');
-            return;
-        default:
-            alert('Ação desconhecida.');
-            return;
-    }
+// === RESERVA DE DOAÇÃO ===
+async function handleReserva(doacaoId) {
+    console.log('🔄 Iniciando reserva para doação ID:', doacaoId);
     
-    closeModal(); 
-
     try {
-        const response = await fetch(endpoint, {
-            method: method,
+        const response = await fetch('/api/reservar-doacao-ong', {
+            method: 'POST',
             headers: { 
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
             },
-            body: JSON.stringify(body),
+            body: JSON.stringify({ 
+                doacao_id: doacaoId 
+            }),
         });
 
         const result = await response.json();
+        console.log('📨 Resposta da API:', result);
 
-        if (response.ok) {
-            alert(result.message);
-            // O item reservado deve sumir desta lista (pois o loadDoacoesDisponiveis filtra por 'disponível')
-            loadDoacoesDisponiveis(); 
+        if (response.ok && result.success) {
+            alert('✅ Doação reservada com sucesso!');
+            closeModal();
+            loadDoacoesDisponiveis(); // Recarrega a lista
         } else {
-            alert(`Falha: ${result.message}`);
+            alert(`❌ Falha: ${result.message || 'Erro desconhecido'}`);
         }
     } catch (error) {
-        console.error('Erro de rede:', error);
+        console.error('❌ Erro de rede:', error);
         alert('Erro de rede. Tente novamente.');
     }
 }
@@ -278,16 +276,23 @@ function updateItemCount(total) {
     if (el) el.textContent = total;
 }
 
+// CORREÇÃO: Função setupSearch com campos corretos
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
+    
     searchInput.addEventListener('input', function() {
         const searchText = this.value.toLowerCase();
         
         const doacoesFiltradas = doacoesReais.filter(doacao => 
             (doacao.nome_alimento && doacao.nome_alimento.toLowerCase().includes(searchText)) ||
-            (doacao.nomeEmpresa && doacao.nomeEmpresa.toLowerCase().includes(searchText)) ||
-            (doacao.NomeEmpresa && doacao.NomeEmpresa.toLowerCase().includes(searchText))
+            (doacao.titulo && doacao.titulo.toLowerCase().includes(searchText)) ||
+            (doacao.descricao && doacao.descricao.toLowerCase().includes(searchText)) ||
+            (doacao.observacoes && doacao.observacoes.toLowerCase().includes(searchText)) ||
+            (doacao.nome_empresa && doacao.nome_empresa.toLowerCase().includes(searchText)) ||
+            (doacao.empresa?.nome_fantasia && doacao.empresa.nome_fantasia.toLowerCase().includes(searchText)) ||
+            (doacao.empresa?.razao_social && doacao.empresa.razao_social.toLowerCase().includes(searchText)) ||
+            (doacao.categoria && doacao.categoria.toLowerCase().includes(searchText))
         );
         
         currentPage = 1; 
@@ -295,6 +300,7 @@ function setupSearch() {
         setupPagination(doacoesFiltradas.length);
     });
 }
+
 function setupPagination(totalItems) {
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const totalPaginasEl = document.getElementById('totalPaginas');
@@ -302,6 +308,4 @@ function setupPagination(totalItems) {
     
     if (totalPaginasEl) totalPaginasEl.textContent = totalPages;
     if (totalItensEl) totalItensEl.textContent = totalItems;
-    
-    console.log(`Pagination: ${totalItems} items, ${totalPages} pages`); // DEBUG
 }
