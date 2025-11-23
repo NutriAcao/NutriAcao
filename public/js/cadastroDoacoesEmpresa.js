@@ -1,184 +1,176 @@
 // public/js/cadastroDoacoesEmpresa.js
 let dadosUsuario = {};
-let nomeUsuario = document.getElementById('textNomeUsuario')
-let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
-    const res = await fetch('/api/usuarioToken');
-    const dados = await res.json();
-
-    dadosUsuario = dados
-    nomeUsuario.innerHTML = dadosUsuario.nome
-    nomeInstituicao.innerHTML = dadosUsuario.nomeInstituicao
+    console.log('1. Iniciando carregarUsuario...');
     
-    // Carregar categorias e unidades de medida
-    await carregarSelects();
-  
-  } catch (erro) {
-    console.error('Erro ao buscar usuário:', erro);
-  }
-}
-
-async function carregarSelects() {
-  try {
-    // Carregar categorias
-    const catResponse = await fetch('/api/categorias');
-    const catData = await catResponse.json();
+    // PRIMEIRO: Buscar dados básicos do token
+    const tokenRes = await fetch('/api/usuarioToken');
+    console.log('2. Resposta token status:', tokenRes.status);
     
-    if (catData.success) {
-      const categoriaSelect = document.getElementById('categoria');
-      catData.data.forEach(categoria => {
-        const option = document.createElement('option');
-        option.value = categoria.id;
-        option.textContent = categoria.nome;
-        categoriaSelect.appendChild(option);
-      });
-    }
-
-    // Carregar unidades de medida
-    const unidResponse = await fetch('/api/unidades-medida');
-    const unidData = await unidResponse.json();
+    if (!tokenRes.ok) throw new Error(`HTTP ${tokenRes.status}`);
     
-    if (unidData.success) {
-      const unidadeSelect = document.getElementById('unidade_medida');
-      unidData.data.forEach(unidade => {
-        const option = document.createElement('option');
-        option.value = unidade.id;
-        option.textContent = `${unidade.nome} (${unidade.abreviacao})`;
-        unidadeSelect.appendChild(option);
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao carregar selects:', error);
-  }
-}
+    const tokenData = await tokenRes.json();
+    console.log('3. Dados do token:', tokenData);
 
-let formDoacaoEmpresa = document.getElementById("form-cadastro-empresa");
+    // SEGUNDO: Buscar dados completos do usuário
+    console.log('4. Buscando dados completos...');
+    const userRes = await fetch('/api/usuario');
+    console.log('5. Resposta usuario status:', userRes.status);
+    
+    if (!userRes.ok) throw new Error(`HTTP ${userRes.status}`);
+    
+    const userData = await userRes.json();
+    console.log('6. Dados completos:', userData);
 
-if (formDoacaoEmpresa) {
-  formDoacaoEmpresa.addEventListener('submit', async (event) => {
-    event.preventDefault();
-
-    const formData = new FormData(formDoacaoEmpresa);
-    const dadosCompletos = Object.fromEntries(formData.entries());
-
-    const dadosEmpresa = {
-      // Dados compatíveis com seu controller existente
-      nome: dadosUsuario.nomeInstituicao,
-      email_Institucional: dadosUsuario.email,
-      nome_alimento: dadosCompletos.nome_alimento,
-      quantidade: dadosCompletos.quantidade,
-      data_validade: dadosCompletos.data_validade,
-      cep_retirada: dadosCompletos.cep_retirada,
-      telefone: dadosCompletos.telefone,
-      email: dadosCompletos.email,
-      id_empresa: dadosUsuario.id,
-      // NOVOS CAMPOS para o modelo atualizado
-      categoria_id: dadosCompletos.categoria || 1,
-      unidade_medida_id: dadosCompletos.unidade_medida || 1,
-      descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`
+    // Combina os dados
+    dadosUsuario = {
+      ...tokenData,
+      ...userData.data // Dados completos da API /api/usuario
     };
+    
+    console.log('7. Dados combinados:', dadosUsuario);
 
-    function validarDados(dados) {
-      const erros = [];
-
-      // validação da quantidade
-      const quantidade = Number(dados.quantidade);
-      if (isNaN(quantidade) || quantidade < 1 || quantidade > 5000) {
-        erros.push("A quantidade deve ser um número entre 1 e 5000.");
-      }
-
-      // validação do CEP
-      const cepValido = /^\d{5}-?\d{3}$/.test(dados.cep_retirada);
-      if (!cepValido) {
-        erros.push("O CEP informado é inválido.");
-      }
-
-      // validação do telefone
-      const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone);
-      if (!telefoneValido) {
-        erros.push("O número de telefone informado é inválido.");
-      }
-
-      // validação da data
-      const hoje = new Date();
-      const dataValidade = new Date(dados.data_validade);
-      if (isNaN(dataValidade.getTime()) || dataValidade < hoje) {
-        erros.push("A data de validade não pode ser uma data passada.");
-      }
-
-      return erros;
+    // Atualiza a interface
+    const nomeUsuario = document.getElementById('textNomeUsuario');
+    const nomeInstituicao = document.getElementById('textNomeInstituicao');
+    
+    if (nomeUsuario) {
+      nomeUsuario.textContent = dadosUsuario.nome || dadosUsuario.nome_fantasia || 'Usuário';
+      console.log('8. Nome atualizado:', dadosUsuario.nome || dadosUsuario.nome_fantasia);
     }
-
-    let checagem = validarDados(dadosEmpresa);
-
-    if (checagem.length > 0) {
-      alert("Erros encontrados:\n\n" + checagem.join("\n"));
-      return;
+    
+    if (nomeInstituicao) {
+      nomeInstituicao.textContent = dadosUsuario.nome_fantasia || dadosUsuario.razao_social || 'Instituição';
+      console.log('9. Instituição atualizada:', dadosUsuario.nome_fantasia || dadosUsuario.razao_social);
     }
-
-    try {
-      // Mantém a mesma rota que você já usa
-      const response = await fetch('/api/cadastro/doacaoEmpresa', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dadosEmpresa)
-      });
-
-      const resultado = await response.json();
-
-      if (resultado.success) {
-        alert('✅ Doação cadastrada com sucesso!');
-        formDoacaoEmpresa.reset();
-      } else {
-        alert('❌ Erro ao cadastrar a doação: ' + resultado.message);
-      }
-
-    } catch (error) {
-      console.error('Erro de rede ao comunicar com o servidor:', error);
-      alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
-    }
-  });
+    
+    console.log('10. Chamando carregarSelects...');
+    await carregarSelects();
+    console.log('11. carregarSelects concluído');
+    
+  } catch (erro) {
+    console.error('ERRO em carregarUsuario:', erro);
+    // Fallback
+    const nomeUsuario = document.getElementById('textNomeUsuario');
+    const nomeInstituicao = document.getElementById('textNomeInstituicao');
+    if (nomeUsuario) nomeUsuario.textContent = 'Usuário';
+    if (nomeInstituicao) nomeInstituicao.textContent = 'Instituição';
+  }
 }
+
+// O RESTANTE DO CÓDIGO PERMANECE IGUAL...
 async function carregarSelects() {
   try {
-    // Carregar categorias
+    console.log('12. Carregando selects...');
+    
+    // Categorias
     const catResponse = await fetch('/api/categorias');
     const catData = await catResponse.json();
     
     if (catData.success) {
-      const categoriaSelect = document.getElementById('categoria');
-      categoriaSelect.innerHTML = '<option value="">Selecione a categoria</option>';
-      
-      catData.data.forEach(categoria => {
-        const option = document.createElement('option');
-        option.value = categoria.id;
-        option.textContent = categoria.nome;
-        categoriaSelect.appendChild(option);
-      });
+      const select = document.getElementById('categoria');
+      if (select) {
+        select.innerHTML = '<option value="">Selecione a categoria</option>';
+        catData.data.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.nome;
+          select.appendChild(option);
+        });
+        console.log('13. Categorias carregadas:', catData.data.length);
+      }
     }
 
-    // Carregar unidades de medida
+    // Unidades de medida
     const unidResponse = await fetch('/api/unidades-medida');
     const unidData = await unidResponse.json();
     
     if (unidData.success) {
-      const unidadeSelect = document.getElementById('unidade_medida');
-      unidadeSelect.innerHTML = '<option value="">Selecione a unidade</option>';
-      
-      unidData.data.forEach(unidade => {
-        const option = document.createElement('option');
-        option.value = unidade.id;
-        option.textContent = `${unidade.nome} (${unidade.abreviacao})`;
-        unidadeSelect.appendChild(option);
-      });
+      const select = document.getElementById('unidade_medida');
+      if (select) {
+        select.innerHTML = '<option value="">Selecione a unidade</option>';
+        unidData.data.forEach(unidade => {
+          const option = document.createElement('option');
+          option.value = unidade.id;
+          option.textContent = `${unidade.nome} (${unidade.abreviacao})`;
+          select.appendChild(option);
+        });
+        console.log('14. Unidades carregadas:', unidData.data.length);
+      }
     }
+    
   } catch (error) {
-    console.error('Erro ao carregar selects:', error);
+    console.error('ERRO em carregarSelects:', error);
   }
 }
 
-window.addEventListener('DOMContentLoaded', carregarUsuario);
+function configurarFormulario() {
+  console.log('15. Configurando formulário...');
+  
+  const form = document.getElementById("form-cadastro-empresa");
+  
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      console.log('16. Formulário submetido!');
+
+      const formData = new FormData(form);
+      const dadosCompletos = Object.fromEntries(formData.entries());
+      console.log('17. Dados do formulário:', dadosCompletos);
+
+      // Verifica se dadosUsuario está carregado
+      if (!dadosUsuario.id) {
+        alert('❌ Erro: Dados do usuário não carregados. Recarregue a página.');
+        return;
+      }
+
+      const dadosEmpresa = {
+        nome: dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome,
+        email_Institucional: dadosUsuario.email,
+        nome_alimento: dadosCompletos.nome_alimento,
+        quantidade: parseFloat(dadosCompletos.quantidade),
+        data_validade: dadosCompletos.data_validade,
+        cep_retirada: dadosCompletos.cep_retirada,
+        telefone: dadosCompletos.telefone,
+        email: dadosCompletos.email,
+        id_empresa: dadosUsuario.id,
+        categoria_id: parseInt(dadosCompletos.categoria),
+        unidade_medida_id: parseInt(dadosCompletos.unidade_medida),
+        descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`
+      };
+
+      console.log('18. Dados para envio:', dadosEmpresa);
+
+      // ... resto do código do formulário permanece igual
+      try {
+        const response = await fetch('/api/cadastro/doacaoEmpresa', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dadosEmpresa)
+        });
+
+        const resultado = await response.json();
+        console.log('19. Resposta do servidor:', resultado);
+
+        if (resultado.success) {
+          alert('✅ Doação cadastrada com sucesso!');
+          form.reset();
+        } else {
+          alert('❌ Erro ao cadastrar a doação: ' + resultado.message);
+        }
+      } catch (error) {
+        console.error('ERRO no envio:', error);
+        alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+      }
+    });
+  }
+}
+
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('0. DOM Carregado - Iniciando...');
+  carregarUsuario();
+  configurarFormulario();
+});

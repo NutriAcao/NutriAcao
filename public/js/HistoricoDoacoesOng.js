@@ -5,46 +5,57 @@ let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
-    const res = await fetch('/api/usuarioToken');
-    const dados = await res.json();
+    const res = await fetch('/api/usuario');
+    const resultado = await res.json();
 
+    if (resultado.success && resultado.data) {
+        const dados = resultado.data;
+        
+        // CORREÇÃO: Acessa os dados corretamente
+        nomeUsuario.innerHTML = dados.nome || 'Usuário';
+        
+        // CORREÇÃO: Para ONG, usa nome_ong; para empresa, usa nome_fantasia
+        const nomeInstituicaoValor = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
+        nomeInstituicao.innerHTML = nomeInstituicaoValor;
+
+        let id_usuario = dados.id;
     
 
-    nomeUsuario.innerHTML = dados.nome
-    nomeInstituicao.innerHTML = dados.nomeInstituicao
+        const solicitacoes = await carregarDoacoesUsuario(id_usuario);
+        const excedentes = await carregarExcedentesUsuario(id_usuario);
 
-    let id_usuario = dados.id;
-  
+    // define os IDs com base no tipo
+        const tableId = 'doacoesTableOng';
+        const searchInputId = 'searchInputOng';
+        const totalItensId = 'totalItensOng';
+        const totalPaginasId = 'totalPaginasOng';
+        const paginationControlsId = 'paginationControlsOng';
 
-    const solicitacoes = await carregarDoacoesUsuario(id_usuario);
-    const excedentes = await carregarExcedentesUsuario(id_usuario);
+        const tableIdExcedente = 'doacoesTableOngExcedente';
+        const searchInputIdExcedente = 'searchInputOngExcedente';
+        const totalItensIdExcedente = 'totalItensOngExcedente';
+        const totalPaginasIdExcedente = 'totalPaginasOngExcedente';
+        const paginationControlsIdExcedente = 'paginationControlsOngExcedente';
 
-  // define os IDs com base no tipo
-    const tableId = 'doacoesTableOng';
-    const searchInputId = 'searchInputOng';
-    const totalItensId = 'totalItensOng';
-    const totalPaginasId = 'totalPaginasOng';
-    const paginationControlsId = 'paginationControlsOng';
+        // exibe apenas a tabela correspondente
+        document.getElementById(tableId).style.display = 'table';
+        document.getElementById(tableIdExcedente).style.display = 'table';
 
-    const tableIdExcedente = 'doacoesTableOngExcedente';
-    const searchInputIdExcedente = 'searchInputOngExcedente';
-    const totalItensIdExcedente = 'totalItensOngExcedente';
-    const totalPaginasIdExcedente = 'totalPaginasOngExcedente';
-    const paginationControlsIdExcedente = 'paginationControlsOngExcedente';
+        preencherTabelaComDoacoesConcluidas(solicitacoes, tableId);
+        preencherTabelaComExcedentesConcluidos(excedentes, tableIdExcedente);
 
-    // exibe apenas a tabela correspondente
-    document.getElementById(tableId).style.display = 'table';
-    document.getElementById(tableIdExcedente).style.display = 'table';
+        setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
+        setupTable(searchInputIdExcedente, tableIdExcedente, totalItensIdExcedente, totalPaginasIdExcedente, paginationControlsIdExcedente);
 
-    preencherTabelaComDoacoesConcluidas(solicitacoes, tableId);
-    preencherTabelaComExcedentesConcluidos(excedentes, tableIdExcedente);
-
-    setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
-    setupTable(searchInputIdExcedente, tableIdExcedente, totalItensIdExcedente, totalPaginasIdExcedente, paginationControlsIdExcedente);
-
+    } else {
+        throw new Error(resultado.message || 'Erro na resposta da API');
+    }
 
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
+    // Fallback em caso de erro
+    nomeUsuario.innerHTML = 'Usuário';
+    nomeInstituicao.innerHTML = 'Instituição';
   }
 }
 
@@ -82,10 +93,14 @@ function preencherTabelaComDoacoesConcluidas(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = ''; // Limpa a tabela
 
-   if (doacoes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
-            return;
-        }
+  // CORREÇÃO: Definir colspan ou usar mensagem simples
+  if (doacoes.length === 0) {
+    // Conta quantas colunas a tabela tem
+    const table = document.getElementById(tableId);
+    const colCount = table.querySelector('thead tr').cells.length;
+    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+    return;
+  }
 
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
@@ -103,10 +118,14 @@ function preencherTabelaComExcedentesConcluidos(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   tbody.innerHTML = ''; // Limpa a tabela
 
-   if (doacoes.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="${colspan}">Nenhuma solicitação ativa encontrada.</td></tr>`;
-            return;
-        }
+  // CORREÇÃO: Definir colspan ou usar mensagem simples
+  if (doacoes.length === 0) {
+    // Conta quantas colunas a tabela tem
+    const table = document.getElementById(tableId);
+    const colCount = table.querySelector('thead tr').cells.length;
+    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhuma solicitação ativa encontrada.</td></tr>`;
+    return;
+  }
 
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
@@ -178,4 +197,3 @@ function preencherTabelaComExcedentesConcluidos(doacoes, tableId) {
     
     carregarUsuario();
 });
-

@@ -1,58 +1,139 @@
-// contato.js
+// suporte.js
 
 document.addEventListener('DOMContentLoaded', function() {
+    inicializarFormularioContato();
+    inicializarAccordion();
+    carregarDadosUsuario();
+});
+
+// Função para carregar dados do usuário
+async function carregarDadosUsuario() {
+    try {
+        console.log('>>> Carregando dados do usuário...');
+        
+        const response = await fetch('/api/usuario');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+        
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+            
+            // Atualiza os elementos da UI
+            const nomeUsuario = document.querySelector('#userInfo h4') || document.getElementById('textNomeUsuario');
+            const nomeInstituicao = document.querySelector('#userInfo p') || document.getElementById('textNomeInstituicao');
+            
+            // CORREÇÃO: Definir a variável dentro do escopo
+            const nomeInstituicaoValor = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
+            
+            if (nomeUsuario) {
+                nomeUsuario.textContent = dados.nome || 'Usuário';
+            }
+            
+            if (nomeInstituicao) {
+                nomeInstituicao.textContent = nomeInstituicaoValor;
+            }
+            
+            console.log('>>> Dados carregados:', {
+                nome: dados.nome,
+                instituicao: nomeInstituicaoValor
+            });
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        // Fallback em caso de erro
+        const nomeUsuario = document.querySelector('#userInfo h4') || document.getElementById('textNomeUsuario');
+        const nomeInstituicao = document.querySelector('#userInfo p') || document.getElementById('textNomeInstituicao');
+        
+        if (nomeUsuario) nomeUsuario.textContent = 'Usuário';
+        if (nomeInstituicao) nomeInstituicao.textContent = 'Instituição';
+    }
+}
+
+// ... o resto do código permanece igual ...
+function inicializarFormularioContato() {
     const form = document.getElementById('contactForm');
     const feedback = document.getElementById('feedbackMessage');
     
-    if (form) {
-        form.addEventListener('submit', async function(event) {
-            // Impede o envio padrão do formulário
-            event.preventDefault(); 
+    if (!form) return;
 
-            const submitButton = this.querySelector('button[type="submit"]');
+    form.addEventListener('submit', async function(event) {
+        event.preventDefault();
 
-            feedback.textContent = 'Enviando...';
-            feedback.style.color = '#004AAD';
-            submitButton.disabled = true;
+        const submitButton = this.querySelector('button[type="submit"]');
+        const emailInput = this.querySelector('input[name="email"]');
+        const descricaoInput = this.querySelector('textarea[name="descricao"]');
 
-            // Coleta dos dados
-            const formData = {
-              email: this.querySelector('input[name="email"]').value, 
-              assunto: "Mensagem de Suporte - Empresa ABC",
-              descricao: this.querySelector('textarea[name="descricao"]').value
-            };
+        // Validação básica
+        if (!validarEmail(emailInput.value)) {
+            mostrarFeedback('Por favor, insira um email válido.', 'error');
+            return;
+        }
 
-            try {
-              const response = await fetch('/enviar-contato', { 
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-              });
+        if (!descricaoInput.value.trim()) {
+            mostrarFeedback('Por favor, insira uma mensagem.', 'error');
+            return;
+        }
 
-              const result = await response.json();
+        await enviarFormulario({
+            email: emailInput.value,
+            assunto: "Mensagem de Suporte - Sistema Doações",
+            descricao: descricaoInput.value.trim()
+        }, submitButton, feedback, form);
+    });
+}
 
-              if (response.ok) {
-                feedback.textContent = result.message;
-                feedback.style.color = 'green';
-                this.reset();
-              } else {
-                feedback.textContent = `Erro: ${result.message}`;
-                feedback.style.color = 'red';
-              }
-            } catch (error) {
-              console.error('Erro na requisição:', error);
-              feedback.textContent = 'Erro de conexão. Verifique o servidor.';
-              feedback.style.color = 'red';
-            } finally {
-              submitButton.disabled = false;
-            }
+function validarEmail(email) {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(email);
+}
+
+function mostrarFeedback(mensagem, tipo = 'info') {
+    const feedback = document.getElementById('feedbackMessage');
+    if (!feedback) return;
+    
+    feedback.textContent = mensagem;
+    feedback.style.color = tipo === 'success' ? 'green' : 
+                          tipo === 'error' ? 'red' : '#004AAD';
+}
+
+async function enviarFormulario(formData, submitButton, feedback, form) {
+    mostrarFeedback('Enviando...', 'info');
+    submitButton.disabled = true;
+
+    try {
+        const response = await fetch('/enviar-contato', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
         });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            mostrarFeedback(result.message, 'success');
+            form.reset();
+        } else {
+            mostrarFeedback(`Erro: ${result.message}`, 'error');
+        }
+    } catch (error) {
+        console.error('Erro na requisição:', error);
+        mostrarFeedback('Erro de conexão. Tente novamente.', 'error');
+    } finally {
+        submitButton.disabled = false;
     }
-});
-// --- JavaScript (Funcionalidade do Acordeão) ---
-document.addEventListener('DOMContentLoaded', function() {
+}
+
+function inicializarAccordion() {
     const accordionLinks = document.querySelectorAll('.accordion-link');
 
     accordionLinks.forEach(link => {
@@ -95,4 +176,4 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-});
+}

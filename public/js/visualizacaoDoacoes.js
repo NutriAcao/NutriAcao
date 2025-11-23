@@ -10,10 +10,10 @@ let currentPage = 1;
 
 // === CARREGAMENTO INICIAL ===
 document.addEventListener('DOMContentLoaded', function() {
-    carregarUsuario();
+    carregarDadosUsuario();
     loadDoacoesDisponiveis(); 
     setupSearch(); 
-    setupModalListeners(); // Novo setup para fechar modal
+    setupModalListeners();
 });
 
 function setupModalListeners() {
@@ -28,15 +28,52 @@ function setupModalListeners() {
     });
 }
 
-async function carregarUsuario() {
+async function carregarDadosUsuario() {
     try {
-        const res = await fetch('/api/usuarioToken');
-        if (!res.ok) throw new Error('Falha ao buscar usuário');
-        dadosUsuario = await res.json();
-        document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
-        document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'ONG';
-    } catch (erro) {
-        console.error('Erro ao buscar usuário:', erro);
+        console.log('>>> Carregando dados do usuário...');
+        
+        const response = await fetch('/api/usuario');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+        
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+            
+            // CORREÇÃO: Para ONG, usa nome_ong; para empresa, usa nome_fantasia
+            const nomeInstituicaoValor = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
+            
+            // Atualiza os elementos da UI
+            atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
+            atualizarElementoUI('textNomeInstituicao', nomeInstituicaoValor);
+            
+            console.log('>>> Dados carregados:', {
+                nome: dados.nome,
+                instituicao: nomeInstituicaoValor
+            });
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+        
+    } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+        // Fallback em caso de erro
+        atualizarElementoUI('textNomeUsuario', 'Usuário');
+        atualizarElementoUI('textNomeInstituicao', 'Instituição');
+    }
+}
+
+// Função auxiliar para atualizar elementos de forma segura
+function atualizarElementoUI(elementId, texto) {
+    const elemento = document.getElementById(elementId);
+    if (elemento) {
+        elemento.textContent = texto;
+    } else {
+        console.warn(`Elemento com ID '${elementId}' não encontrado`);
     }
 }
 
@@ -223,9 +260,6 @@ async function handleAction(doacaoId, actionType) {
         alert('Erro de rede. Tente novamente.');
     }
 }
-
-// REMOVIDA A FUNÇÃO 'updateStatus' (Obsoleta no novo fluxo)
-
 
 // === PESQUISA E PAGINAÇÃO ===
 function updateItemCount(total) {
