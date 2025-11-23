@@ -223,7 +223,7 @@ app.post('/forgot-password', async (req, res) => {
   try {
     // consulta paralela em ongs e empresas
     const [ongsRes, empresasRes] = await Promise.all([
-      supabase.from('ong').select('id, email').eq('email', email).limit(1),
+      supabase.from('ongs').select('id, email').eq('email', email).limit(1),
       supabase.from('empresa').select('id, email').eq('email', email).limit(1)
     ]);
 
@@ -318,7 +318,7 @@ app.post('/reset-password', async (req, res) => {
 
     // Verificar se o usuário é ONG ou Empresa
     const [ongRes, empresaRes] = await Promise.all([
-      supabase.from('ong').select('id').eq('email', email).limit(1),
+      supabase.from('ongs').select('id').eq('email', email).limit(1),
       supabase.from('empresa').select('id').eq('email', email).limit(1)
     ]);
 
@@ -334,7 +334,7 @@ app.post('/reset-password', async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
     // Atualizar senha na tabela correta
-    const tableName = isOng ? 'ong' : 'empresa';
+    const tableName = isOng ? 'ongs' : 'empresa';
     const { error: updateError } = await supabase
       .from(tableName)
       .update({ senha_hash: hashedPassword })

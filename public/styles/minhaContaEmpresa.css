@@ -268,13 +268,14 @@ body {
 .modal-content {
     background-color: #ffffff;
     width: 100%;
-    max-width: 500px;
+    max-width: 600px;
     border-radius: 12px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     animation: modalOpen 0.4s ease;
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    max-height: 90vh;
 }
 
 @keyframes modalOpen {
@@ -313,6 +314,7 @@ body {
     background-color: #fff;
     color: #333;
     flex: 1;
+    overflow-y: auto;
 }
 
 .modal-footer {

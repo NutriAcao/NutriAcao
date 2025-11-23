@@ -1,47 +1,36 @@
 import express from "express";
 import { verificarToken } from "./authMiddleware.js";
-import { buscarUsuarioPorId, atualizarResponsavelEmpresa, atualizarDadosEmpresa } from "../model/minhaContaEmpresaModel.js";
+import * as EmpresaController from "../controllers/minhaContaEmpresaController.js";
+import * as OngController from "../controllers/minhaContaOngController.js";
 
 const router = express.Router();
 
-router.get("/usuario", verificarToken, async (req, res) => {
-  try {
-    const { id, tipo } = req.usuario;
-
-    if (!id || !tipo)
-      return res.status(400).json({ success: false, message: "Token inválido." });
-
-    const dados = await buscarUsuarioPorId(id, tipo);
-    if (!dados)
-      return res.status(404).json({ success: false, message: "Usuário não encontrado." });
-
-    res.json({ success: true, message: "Dados retornados com sucesso.", data: dados });
-  } catch (erro) {
-    console.error("Erro ao buscar usuário:", erro);
-    res.status(500).json({ success: false, message: "Erro interno no servidor." });
-  }
+// GET /api/usuario -> despacha para controller correto baseado no tipo do token
+router.get("/usuario", verificarToken, (req, res) => {
+	const tipo = req.usuario && req.usuario.tipo;
+	if (tipo === "empresa") return EmpresaController.getEmpresaCompleta(req, res);
+	if (tipo === "ong") return OngController.getOngCompleta(req, res);
+	return res.status(400).json({ success: false, message: "Tipo de usuário inválido." });
 });
 
-router.put("/usuario", verificarToken, async (req, res) => {
-  try {
-    const userId = req.usuario.id;
-    await atualizarResponsavelEmpresa(userId, req.body);
-    res.status(200).json({ success: true, message: "Dados do responsável atualizados com sucesso!" });
-  } catch (erro) {
-    console.error("Erro ao atualizar usuário:", erro);
-    res.status(400).json({ success: false, message: erro.message });
-  }
+// PUT /api/usuario -> atualiza dados do responsável (despacha por tipo)
+router.put("/usuario", verificarToken, (req, res) => {
+	const tipo = req.usuario && req.usuario.tipo;
+	if (tipo === "empresa") return EmpresaController.putResponsavelEmpresa(req, res);
+	if (tipo === "ong") return OngController.putResponsavelOng(req, res);
+	return res.status(400).json({ success: false, message: "Tipo de usuário inválido." });
 });
 
-router.put("/empresa", verificarToken, async (req, res) => {
-  try {
-    const userId = req.usuario.id;
-    await atualizarDadosEmpresa(userId, req.body);
-    res.status(200).json({ success: true, message: "Dados da empresa atualizados com sucesso!" });
-  } catch (erro) {
-    console.error("Erro ao atualizar empresa:", erro);
-    res.status(400).json({ success: false, message: erro.message });
-  }
+// PUT /api/usuario/senha -> alterar senha (despacha por tipo)
+router.put("/usuario/senha", verificarToken, (req, res) => {
+  const tipo = req.usuario && req.usuario.tipo;
+  if (tipo === "empresa") return EmpresaController.putAlterarSenha(req, res);
+  if (tipo === "ong") return OngController.putAlterarSenha(req, res);
+  return res.status(400).json({ success: false, message: "Tipo de usuário inválido." });
 });
+
+// Endpoints específicos para atualizar dados completos
+router.put("/empresa", verificarToken, EmpresaController.putDadosEmpresa);
+router.put("/ong", verificarToken, OngController.putDadosOng);
 
 export default router;
