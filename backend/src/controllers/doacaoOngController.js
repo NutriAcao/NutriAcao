@@ -84,9 +84,6 @@ export async function getPedidosDisponiveis(req, res) {
     }
 }
 
-// -------------------------------------------------------------------
-// FUNÇÃO 3: Para a Tabela "Meus Pedidos Disponíveis" (Status: Disponível)
-// -------------------------------------------------------------------
 export async function getMeusPedidosDisponiveis(req, res) {
     const id_ong_logada = req.usuario.id; 
 
@@ -99,7 +96,7 @@ export async function getMeusPedidosDisponiveis(req, res) {
             .from('doacoesSolicitadas')
             .select('*')
             .eq('status', 'disponível') 
-            .eq('id_ong', id_ong_logada); // Filtro: Somente os pedidos que EU criei
+            .eq('id_ong', id_ong_logada);
 
         if (error) throw error;
         return res.status(200).json(data);
@@ -109,7 +106,6 @@ export async function getMeusPedidosDisponiveis(req, res) {
         return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }
-
 // -------------------------------------------------------------------
 // FUNÇÃO 4: Para a Tabela "Itens Recebidos/Reservados" (Status: Reservado)
 // -------------------------------------------------------------------

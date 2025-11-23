@@ -187,7 +187,7 @@ async function handleAction(doacaoId, actionType) {
     switch (actionType) {
         case 'reservar-doacao':
             endpoint = '/api/reservar-doacao';
-            break;
+            body = { doacao_id: doacaoId };
         case 'cancelar-doacao':
             // Rota de cancelamento (Se fosse implementada, seria aqui)
             alert('Ação de Cancelar deve ser feita na página de Itens Reservados.');

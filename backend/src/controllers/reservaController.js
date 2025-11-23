@@ -1,35 +1,48 @@
-// src/controllers/reservaController.js
+// src/controllers/reservaController.js - ATUALIZADO
 import { supabase } from '../config/supabaseClient.js';
 
 // =========================================================================
 // FUNÇÕES DE RESERVA (Empresa Reserva Doação / ONG Reserva Pedido)
-// CORRIGIDO: Agora usa req.usuario.id para garantir que o ID seja salvo
 // =========================================================================
 
 export async function reservarDoacaoEmpresa(req, res) {
     // A ONG está logada e quer reservar uma doação (excedente) de uma empresa.
     const { doacao_id } = req.body; 
     
-    // CORREÇÃO: Pegamos o ID da ONG diretamente do token autenticado
-    const id_ong_logada = req.usuario.id; 
+    const usuario_id = req.usuario.id;
 
     if (!doacao_id) {
         return res.status(400).json({ message: "ID da doação é obrigatório." });
     }
-    if (!id_ong_logada) {
+    if (!usuario_id) {
         return res.status(401).json({ message: "Usuário não autenticado." });
     }
 
     try {
+        // Buscar ID da ONG associada ao usuário
+        const { data: ongData, error: ongError } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (ongError || !ongData) {
+            return res.status(400).json({ 
+                message: 'Usuário não possui uma ONG cadastrada' 
+            });
+        }
+
+        const id_ong_logada = ongData.id;
+
         const { data, error } = await supabase
-            .from('doacoesDisponiveis')
+            .from('doacoes_disponiveis') // NOVA TABELA
             .update({ 
                 status: 'reservado',
-                id_ong_reserva: id_ong_logada, // Preenche a coluna corretamente
-                data_reserva: new Date().toISOString() // Opcional: registra a data
+                id_ong_reserva: id_ong_logada,
+                data_reserva: new Date().toISOString()
             })
             .eq('id', doacao_id)
-            .eq('status', 'disponível') // Garante que só reserva se estiver livre
+            .eq('status', 'disponível')
             .select();
 
         if (error) {
@@ -53,26 +66,40 @@ export async function reservarPedidoOng(req, res) {
     // A Empresa está logada e quer reservar um pedido solicitado por uma ONG.
     const { pedido_id } = req.body;
     
-    // CORREÇÃO: Pegamos o ID da Empresa diretamente do token autenticado
-    const id_empresa_logada = req.usuario.id; 
+    const usuario_id = req.usuario.id;
 
     if (!pedido_id) {
         return res.status(400).json({ message: "ID do pedido é obrigatório." });
     }
-    if (!id_empresa_logada) {
+    if (!usuario_id) {
         return res.status(401).json({ message: "Usuário não autenticado." });
     }
 
     try {
+        // Buscar ID da Empresa associada ao usuário
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ 
+                message: 'Usuário não possui uma empresa cadastrada' 
+            });
+        }
+
+        const id_empresa_logada = empresaData.id;
+
         const { data, error } = await supabase
-            .from('doacoesSolicitadas')
+            .from('solicitacoes_ong') // NOVA TABELA
             .update({ 
                 status: 'reservado',
-                id_empresa_reserva: id_empresa_logada, // Preenche a coluna corretamente
-                data_reserva: new Date().toISOString() // Opcional
+                id_empresa_reserva: id_empresa_logada,
+                data_reserva: new Date().toISOString()
             })
-            .eq('id', pedido_id) 
-            .eq('status', 'disponível') 
+            .eq('id', pedido_id)
+            .eq('status', 'disponivel')
             .select();
 
         if (error) {
@@ -92,26 +119,39 @@ export async function reservarPedidoOng(req, res) {
     }
 }
 
-
 // =========================================================================
-// FUNÇÕES DE AÇÃO (Concluir e Cancelar) 
-// Mantidas como estavam, pois a lógica do req.usuario.id já estava correta aqui
+// FUNÇÕES DE CONCLUSÃO (Atualizadas para novas tabelas)
 // =========================================================================
 
 export async function concluirDoacao(req, res) {
-    const id_usuario_logado = req.usuario.id; 
-    const { item_id } = req.body; 
+    const usuario_id = req.usuario.id;
+    const { item_id } = req.body;
 
     if (!item_id) return res.status(400).json({ message: "ID do item é obrigatório." });
 
     try {
+        // Buscar ID da empresa/ONG associada ao usuário
+        const { data: empresaData } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const { data: ongData } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const empresa_id = empresaData?.id;
+        const ong_id = ongData?.id;
+
         const { data, error } = await supabase
-            .from('doacoesDisponiveis')
+            .from('doacoes_disponiveis') // NOVA TABELA
             .update({ status: 'concluído' })
             .eq('id', item_id)
-            .eq('status', 'reservado') 
-            // Permite que a Empresa Criadora OU a ONG que reservou concluam
-            .or(`id_empresa.eq.${id_usuario_logado},id_ong_reserva.eq.${id_usuario_logado}`) 
+            .eq('status', 'reservado')
+            .or(`empresa_id.eq.${empresa_id},id_ong_reserva.eq.${ong_id}`)
             .select();
 
         if (error) {
@@ -129,19 +169,34 @@ export async function concluirDoacao(req, res) {
 }
 
 export async function concluirPedido(req, res) {
-    const id_usuario_logado = req.usuario.id;
-    const { item_id } = req.body; 
+    const usuario_id = req.usuario.id;
+    const { item_id } = req.body;
 
     if (!item_id) return res.status(400).json({ message: "ID do item é obrigatório." });
 
     try {
+        // Buscar ID da empresa/ONG associada ao usuário
+        const { data: empresaData } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const { data: ongData } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const empresa_id = empresaData?.id;
+        const ong_id = ongData?.id;
+
         const { data, error } = await supabase
-            .from('doacoesSolicitadas')
+            .from('solicitacoes_ong') // NOVA TABELA
             .update({ status: 'concluído' })
             .eq('id', item_id)
             .eq('status', 'reservado')
-            // Permite que ONG Criadora OU a Empresa que reservou concluam
-            .or(`id_ong.eq.${id_usuario_logado},id_empresa_reserva.eq.${id_usuario_logado}`)
+            .or(`ong_id.eq.${ong_id},id_empresa_reserva.eq.${empresa_id}`)
             .select();
 
         if (error) {
@@ -159,47 +214,60 @@ export async function concluirPedido(req, res) {
 }
 
 export async function cancelarReserva(req, res) {
-    const id_usuario_logado = req.usuario.id; 
-    const { item_id, tipo_item } = req.body; 
+    const usuario_id = req.usuario.id;
+    const { item_id, tipo_item } = req.body;
     
     if (!item_id || !tipo_item) {
         return res.status(400).json({ message: "ID do item e tipo são obrigatórios." });
     }
 
     try {
-        let tabela;
-        let campo_reserva_id; 
-        let campo_criador_id; 
+        let tabela, campo_reserva_id, campo_criador_id;
 
         if (tipo_item === 'doacao') {
-            tabela = 'doacoesDisponiveis';
-            campo_reserva_id = 'id_ong_reserva'; 
-            campo_criador_id = 'id_empresa'; 
+            tabela = 'doacoes_disponiveis'; // NOVA TABELA
+            campo_reserva_id = 'id_ong_reserva';
+            campo_criador_id = 'empresa_id';
         } else if (tipo_item === 'pedido') {
-            tabela = 'doacoesSolicitadas';
-            campo_reserva_id = 'id_empresa_reserva'; 
-            campo_criador_id = 'id_ong'; 
+            tabela = 'solicitacoes_ong'; // NOVA TABELA
+            campo_reserva_id = 'id_empresa_reserva';
+            campo_criador_id = 'ong_id';
         } else {
-             return res.status(400).json({ message: "Tipo de item inválido." });
+            return res.status(400).json({ message: "Tipo de item inválido." });
         }
-        
+
+        // Buscar IDs das entidades associadas ao usuário
+        const { data: empresaData } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const { data: ongData } = await supabase
+            .from('ongs')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        const empresa_id = empresaData?.id;
+        const ong_id = ongData?.id;
+
         const { data, error } = await supabase
             .from(tabela)
             .update({ 
-                status: 'disponível',
-                [campo_reserva_id]: null, // Limpa o ID de quem reservou
+                status: tabela === 'doacoes_disponiveis' ? 'disponível' : 'disponivel',
+                [campo_reserva_id]: null,
                 data_reserva: null
             })
             .eq('id', item_id)
-            .eq('status', 'reservado') 
-            // Garante que apenas quem criou OU quem reservou pode cancelar
-            .or(`${campo_criador_id}.eq.${id_usuario_logado},${campo_reserva_id}.eq.${id_usuario_logado}`) 
+            .eq('status', 'reservado')
+            .or(`${campo_criador_id}.eq.${tabela === 'doacoes_disponiveis' ? empresa_id : ong_id},${campo_reserva_id}.eq.${tabela === 'doacoes_disponiveis' ? ong_id : empresa_id}`)
             .select();
 
         if (error) throw error;
 
         if (!data || data.length === 0) {
-             return res.status(404).json({ message: "Reserva não encontrada ou sem permissão." });
+            return res.status(404).json({ message: "Reserva não encontrada ou sem permissão." });
         }
 
         return res.status(200).json({ 

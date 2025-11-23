@@ -1,4 +1,4 @@
-// backend/src/routes/doacoesRoutes.js - APENAS ROTAS GET
+// routes/doacoesRoutes.js
 import express from 'express';
 import { getPedidosDisponiveis } from '../controllers/doacaoOngController.js';
 import { verificarToken } from '../routes/authMiddleware.js';
@@ -7,18 +7,17 @@ import {
   getMeusPedidosDisponiveis, 
   getMeusPedidosReservados, 
   getDoacoesQueReservei 
-} from '../controllers/doacaoOngController.js'; 
+} from '../controllers/doacaoOngController.js';
+import { getDoacoesDisponiveisONG } from '../controllers/doacoesDisponiveisController.js';
 
 const router = express.Router();
 
-// Apenas rotas GET
+// Rotas de visualização (APENAS GET)
 router.get('/meusPedidosReservados', verificarToken, getMeusPedidosReservados); 
 router.get('/doacoesReservadas', verificarToken, getDoacoesQueReservei);
 router.get('/meus-pedidos-disponiveis', verificarToken, getMeusPedidosDisponiveis);
 router.get('/pedidos-disponiveis-empresa', verificarToken, getPedidosDisponiveis);
 router.get('/meus-excedentes-disponiveis', verificarToken, getMeusExcedentesDisponiveis);
-
-// REMOVA esta linha se estiver usando arquivo separado
-// router.post('/solicitacoes-ong', verificarToken, cadastrarSolicitacaoOng);
+router.get('/doacoes-disponiveis-ong', verificarToken, getDoacoesDisponiveisONG);
 
 export default router;
