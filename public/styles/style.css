@@ -90,11 +90,12 @@
 }
 
 
-header.rolagem {
-    background-color: rgba(255, 255, 255, 0.95);
-    padding: 0.5vh 20vh;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
+header, header.rolagem {
+        padding: 3vh 5vh;
+        justify-content: space-between;
+        background-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
 
 header.rolagem #menu-button > img {
     filter: brightness(0);

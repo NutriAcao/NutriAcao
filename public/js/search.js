@@ -1,10 +1,16 @@
 import { map } from "./map.js";
 
 export function initSearch() {
+  const searchBtn = document.getElementById("searchBtn");
+  const searchInput = document.getElementById("searchInput");
+
+  // Não fazer nada se o mapa ou elementos de busca não existirem
+  if (!map || !searchBtn || !searchInput) return;
+
   let marker;
 
   function buscarLocalizacao() {
-    const local = document.getElementById("searchInput").value;
+    const local = searchInput.value;
 
     if (!local) {
       alert("Digite uma localização válida.");
@@ -35,5 +41,5 @@ export function initSearch() {
       });
   }
 
-  document.getElementById("searchBtn").addEventListener("click", buscarLocalizacao);
+  searchBtn.addEventListener("click", buscarLocalizacao);
 }

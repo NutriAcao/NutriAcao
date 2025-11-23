@@ -7,9 +7,10 @@ async function getOngDetails(id_ong) {
 
     // CORREÇÃO FINAL: Usando aspas duplas ("nome") para forçar o reconhecimento 
     // do nome da coluna exato no PostgreSQL, resolvendo o erro 'column ongs.nome does not exist'.
+    // Buscar dados na tabela 'ongs' e complementar com dados do usuário (telefone/email) se necessário
     const { data, error } = await supabase
-        .from('ong')
-        .select('"nome", telefone, email') // <-- AQUI ESTÁ A MUDANÇA CRÍTICA
+        .from('ongs')
+        .select('id, usuario_id, responsavel_legal_id, email_institucional, cnpj, nome_ong')
         .eq('id', id_ong)
         .single();
         
@@ -18,8 +19,22 @@ async function getOngDetails(id_ong) {
         return null;
     }
     
-    // O objeto retornado já estará no formato correto
-    return data;
+    if (!data) return null;
+
+    // Tentar buscar telefone/email via tabela usuarios (se usuario_id estiver presente)
+    let usuarioInfo = null;
+    if (data.usuario_id) {
+        const { data: uData, error: uErr } = await supabase.from('usuarios').select('nome, telefone, email').eq('id', data.usuario_id).maybeSingle();
+        if (!uErr && uData) usuarioInfo = uData;
+    }
+
+    return {
+        id: data.id,
+        nome: data.nome_ong || null,
+        email: data.email_institucional || (usuarioInfo && usuarioInfo.email) || null,
+        telefone: (usuarioInfo && usuarioInfo.telefone) || null,
+        cnpj: data.cnpj || null
+    };
 }
 
 // 1. Detalhes do Excedente (Tabela 1: Disponível | Tabela 3: Reservado)
