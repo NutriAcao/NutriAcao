@@ -1,3 +1,4 @@
+// doacaoEmpresaController.js - VERSÃO COMPLETA
 import { supabase } from '../config/supabaseClient.js';
 
 export async function cadastrarDoacaoEmpresa(req, res) {
@@ -85,7 +86,7 @@ export async function cadastrarDoacaoEmpresa(req, res) {
                     data_validade: data_validade,
                     status: 'disponível',
                     data_publicacao: new Date(),
-                    // NOVOS CAMPOS ADICIONADOS
+                    // NOVOS CAMPOS ADICIONADIS
                     cep_retirada: cep_retirada,
                     telefone_contato: telefone,
                     email_contato: email
@@ -120,5 +121,47 @@ export async function cadastrarDoacaoEmpresa(req, res) {
             success: false,
             message: "Erro fatal ao processar a requisição."
         });
+    }
+}
+
+// FUNÇÃO ADICIONADA PARA A ROTA /meus-excedentes-disponiveis
+export async function getMeusExcedentesDisponiveis(req, res) {
+    // Pega o ID do usuário logado (do middleware de autenticação)
+    const usuario_id = req.usuario.id; 
+
+    if (!usuario_id) {
+        return res.status(401).json({ message: 'Usuário não autenticado.' });
+    }
+
+    try {
+        // Primeiro, buscar o ID da empresa associada ao usuário
+        const { data: empresaData, error: empresaError } = await supabase
+            .from('empresas')
+            .select('id')
+            .eq('usuario_id', usuario_id)
+            .single();
+
+        if (empresaError || !empresaData) {
+            return res.status(400).json({ 
+                message: 'Usuário não possui uma empresa cadastrada' 
+            });
+        }
+
+        const empresa_id = empresaData.id;
+
+        // Buscar excedentes disponíveis da empresa
+        const { data, error } = await supabase
+            .from('doacoes_disponiveis')
+            .select('*')
+            .eq('status', 'disponível')
+            .eq('empresa_id', empresa_id);
+
+        if (error) throw error;
+        
+        return res.status(200).json(data);
+
+    } catch (error) {
+        console.error('Erro ao buscar excedentes:', error.message);
+        return res.status(500).json({ message: 'Falha ao buscar dados.' });
     }
 }

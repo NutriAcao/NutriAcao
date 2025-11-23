@@ -22,6 +22,7 @@ import crypto from 'crypto';
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
+import solicitacoesRoutes from './src/routes/solicitacoesRoutes.js';
 
 // IMPORTE OS CONTROLLERS CORRETAMENTE
 import * as excedentesController from './src/controllers/excedentesController.js';
@@ -89,6 +90,7 @@ app.use('/api', reservaRoutes);
 app.use('/api', doacaoRoutes); 
 app.use('/api', historicoRoutes); 
 app.use('/api/auth', loginRoutes);
+app.use('/api', solicitacoesRoutes); 
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {

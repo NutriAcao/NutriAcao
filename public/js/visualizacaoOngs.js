@@ -272,8 +272,7 @@ async function handleAction(pedidoId, actionType) {
     switch (actionType) {
         case 'reservar-pedido':
             endpoint = '/api/reservar-pedido';
-            actionButton.disabled = true; // Desabilita para evitar clique duplo
-            break;
+            body = { pedido_id: pedidoId };
         case 'concluir-pedido':
             // *** NOVO CÓDIGO: BLOQUEIA A CONCLUSÃO NESTA PÁGINA ***
             alert('A conclusão de pedidos deve ser realizada apenas na página "Minhas Doações Ativas".');

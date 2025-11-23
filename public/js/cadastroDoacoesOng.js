@@ -1,5 +1,70 @@
 // public/js/cadastroDoacoesOng.js
 let dadosUsuario = {};
+<<<<<<< HEAD
+=======
+let nomeUsuario = document.getElementById('textNomeUsuario')
+let nomeInstituicao = document.getElementById('textNomeInstituicao')
+
+async function carregarUsuario() {
+  try {
+    const res = await fetch('/api/usuarioToken');
+    const dados = await res.json();
+
+    dadosUsuario = dados
+    nomeUsuario.innerHTML = dadosUsuario.nome
+    nomeInstituicao.innerHTML = dadosUsuario.nomeInstituicao
+    
+    // Carregar categorias para ONG também
+    await carregarCategorias();
+  
+  } catch (erro) {
+    console.error('Erro ao buscar usuário:', erro);
+  }
+}
+
+async function carregarCategorias() {
+  try {
+    const catResponse = await fetch('/api/categorias');
+    const catData = await catResponse.json();
+    
+    if (catData.success) {
+      const categoriaSelect = document.getElementById('categoria');
+      if (categoriaSelect) {
+        catData.data.forEach(categoria => {
+          const option = document.createElement('option');
+          option.value = categoria.id;
+          option.textContent = categoria.nome;
+          categoriaSelect.appendChild(option);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar categorias:', error);
+  }
+}
+
+let formDoacaoOng = document.getElementById("form-cadastro-ong");
+
+// Atualize a função de submit no frontend
+if (formDoacaoOng) {
+  formDoacaoOng.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const formData = new FormData(formDoacaoOng);
+    const dadosCompletos = Object.fromEntries(formData.entries());
+
+    const dadosSolicitacao = {
+      titulo: dadosCompletos.nome_alimento,
+      descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
+      categoria_id: parseInt(dadosCompletos.categoria) || 1,
+      quantidade_desejada: parseFloat(dadosCompletos.quantidade),
+      telefone_contato: dadosCompletos.telefone,
+      email_contato: dadosCompletos.email
+      // ong_id REMOVIDO - será buscado automaticamente pelo controller
+    };
+
+    // ... validações existentes ...
+>>>>>>> 45ee5d0118dae4b4edc29157e81e89dc278155a6
 
 // Função principal para carregar dados do usuário
 async function carregarDadosUsuario() {
