@@ -15,13 +15,13 @@ import rateLimit from 'express-rate-limit';
 import historicoRoutes from './src/routes/historicoRoutes.js';
 import { supabase } from './src/config/supabaseClient.js'
 import crypto from 'crypto';
-import doacoesAtivasRoutes from './src/routes/doacoesAtivasRoutes.js';
-
+import reservaRoutes from './src/routes/reservaRoutes.js';
+import rotasAcoes from './src/routes/rotasAcoes.js';
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 import solicitacoesRoutes from './src/routes/solicitacoesRoutes.js';
-
+import doacoesAtivasRoutes from './src/routes/doacoesAtivasRoutes.js';
 // CORREÇÃO: Importar os controllers corretamente
 import { cadastrarExcedente, listarCategorias, listarUnidadesMedida } from './src/controllers/excedentesController.js';
 import { cadastrarDoacaoOng } from './src/controllers/doacaoOngController.js';
@@ -78,7 +78,8 @@ app.use('/api/doacoes-concluidas', doacoesConcluidasRoutes);
 app.use('/api/minha-conta-ong', minhaContaOngRoutes);
 app.use('/api/auth', loginRoutes);
 app.use('/api', solicitacoesRoutes);
-app.use('/api/doacoes-ativas', doacoesAtivasRoutes);
+app.use('/api', rotasAcoes);
+app.use('/api', reservaRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
