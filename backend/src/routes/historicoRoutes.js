@@ -1,10 +1,11 @@
 import express from 'express';
-import { getMeuHistorico } from '../controllers/historicoController.js';
+import { getHistoricoONG } from '../controllers/historicoController.js';
 import { verificarToken } from '../routes/authMiddleware.js';
+import { verificarOng } from '../routes/tipoAuthMiddleware.js';
 
 const router = express.Router();
 
-// Rota única para histórico (funciona para ONG e Empresa)
-router.get('/meu-historico', verificarToken, getMeuHistorico);
+// Rota específica para histórico da ONG
+router.get('/historico-ong', verificarToken, verificarOng, getHistoricoONG);
 
 export default router;

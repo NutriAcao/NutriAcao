@@ -60,12 +60,14 @@
             <div class="header">
                 <h2>Histórico de Doações</h2> 
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG">
+                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
                     <div>
-                        <h4 id="textNomeUsuario">Carregando...</h4>
-                        <p id="textNomeInstituicao">Carregando...</p>
+                        <!-- VERIFIQUE SE ESTES IDs EXISTEM -->
+                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
+                        <p id="textNomeInstituicao">ONG Fome Zero</p>
                     </div>
                 </div>
+
             </div>
             
             <!-- Tabela de Solicitações Concluídas -->
@@ -79,19 +81,20 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="tableSolicitacoes">
+                       <table id="doacoesTableOng">
                             <thead>
                                 <tr>
                                     <th>Produto Recebido</th>
-                                    <th>Quantidade (Kg/L)</th>
-                                    <th>Empresa Doadora</th>
-                                    <th>Data de Conclusão</th>
+                                    <th>Quantidade (Kilos)</th>
+                                    <th>Empresa</th>
+                                    <th>Data de Conclusão</th> <!-- IMPORTANTE: Esta coluna deve existir -->
                                 </tr>
                             </thead>
-                            <tbody id="tbodySolicitacoes">
-                                <tr><td colspan="4">Carregando...</td></tr>
+                            <tbody>
+                                <!-- Os dados serão inseridos aqui -->
                             </tbody>
                         </table>
+
                     </div>
                     <div class="pagination">
                         <div class="pagination-info">
@@ -112,17 +115,17 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="tableExcedentes">
+                        <table id="doacoesTableOngExcedente">
                             <thead>
                                 <tr>
                                     <th>Produto Recebido</th>
-                                    <th>Quantidade (Kg/L)</th>
-                                    <th>Empresa Doadora</th>
-                                    <th>Data de Conclusão</th>
+                                    <th>Quantidade (Kilos)</th>
+                                    <th>Empresa</th>
+                                    <th>Data de Conclusão</th> <!-- IMPORTANTE: Esta coluna deve existir -->
                                 </tr>
                             </thead>
-                            <tbody id="tbodyExcedentes">
-                                <tr><td colspan="4">Carregando...</td></tr>
+                            <tbody>
+                                <!-- Os dados serão inseridos aqui -->
                             </tbody>
                         </table>
                     </div>
