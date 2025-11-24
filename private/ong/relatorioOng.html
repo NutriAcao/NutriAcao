@@ -3,15 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <title>Relatórios de Impacto - NutriAção</title>
-    <link rel="stylesheet" href="styles/style-relatorioImpacto.css">
+    <link rel="stylesheet" href="/styles/style-relatorioImpacto.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="shortcut icon" href="assets/Logo-white.png" type="image/x-icon">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <style>
+        /* Estilos para loading e mensagens */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #004AAD;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .mensagem {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        .mensagem.success { background-color: #2ecc71; }
+        .mensagem.error { background-color: #e74c3c; }
+        .mensagem.info { background-color: #3498db; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div id="divSideLine"><img src="assets/Logo-white.png" alt="Logo NutriAção"></div>
+        <div id="divSideLine"><img src="/assets/Logo-white.png" alt="Logo NutriAção"></div>
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
@@ -19,38 +75,37 @@
             
             <ul class="menu">
                 <li>
-                    <a href="visualizacaoOngs.html">
+                    <a href="/visualizacaoOngs.html">
                         <i class="fas fa-building"></i> Visualizar ONGs
                     </a>
                 </li>
                 <li>
-                    <a href="cadastrarExcedentes.html">
+                    <a href="/cadastrarExcedentes.html">
                         <i class="fas fa-plus-circle"></i> Cadastrar Excedentes
                     </a>
                 </li>
                 <li>
-                    <a href="/minhaContaOng.html">
-                    <a href="#">
+                    <a href="/minhasDoacoesAtivasEmpresa.html">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas
                     </a>
                 </li>
                 <li>
-                    <a href="HistoricoDoacoesEmpresa.html">
+                    <a href="/HistoricoDoacoesEmpresa.html">
                         <i class="fas fa-history"></i> Histórico de Doações
                     </a>
                 </li>
                 <li>
-                    <a href="relatorioImpacto.html" class="active">
+                    <a href="/relatorioImpacto.html" class="active">
                         <i class="fas fa-chart-line"></i> Relatórios de Impacto
                     </a>
                 </li>
                 <li>
-                    <a href="minhaContaEmpresa.html">
+                    <a href="/minhaContaEmpresa.html">
                         <i class="fas fa-user-circle"></i> Minha Conta
                     </a>
                 </li>
                 <li>
-                    <a href="suporteEmpresa.html">
+                    <a href="/suporteEmpresa.html">
                         <i class="fas fa-headset"></i> Suporte / FAQ
                     </a>
                 </li>
@@ -63,8 +118,8 @@
                 <div class="user-info">
                     <img src="https://ui-avatars.com/api/?name=Empresa+Exemplo&background=004AAD&color=fff" alt="Empresa Exemplo">
                     <div>
-                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
+                        <h4 id="textNomeUsuario">Carregando...</h4>
+                        <p id="textNomeInstituicao">Carregando...</p>
                     </div>
                 </div>
             </div>
@@ -79,6 +134,7 @@
                         <div class="filter-group">
                             <label for="periodo">Período</label>
                             <select id="periodo">
+                                <option value="todos">Todos os períodos</option>
                                 <option value="7">Últimos 7 dias</option>
                                 <option value="30" selected>Últimos 30 dias</option>
                                 <option value="90">Últimos 3 meses</option>
@@ -114,9 +170,7 @@
                             <label for="ong">ONG Beneficiada</label>
                             <select id="ong">
                                 <option value="todas">Todas</option>
-                                <option value="ong1">ONG Esperança</option>
-                                <option value="ong2">Instituto Solidariedade</option>
-                                <option value="ong3">Comunidade Unida</option>
+                                <!-- JavaScript vai preencher dinamicamente -->
                             </select>
                         </div>
                         
@@ -230,14 +284,16 @@
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <!-- Dados serão inseridos via JavaScript -->
+                                <tr>
+                                    <td colspan="7" class="no-data">Carregando dados...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     
                     <div class="pagination">
                         <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginas">1</span>
+                            Total de Páginas: <span id="totalPaginas">0</span>
                             | Itens encontrados: <span id="totalItens">0</span>
                         </div>
                         <div class="pagination-controls">
@@ -249,6 +305,14 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
     </div>
 
     <!-- Modal para Detalhes da Doação -->
@@ -265,6 +329,7 @@
                 <p><strong>Status:</strong> <span id="doacaoStatus">...</span></p>
                 <p><strong>Responsável:</strong> <span id="doacaoResponsavel">...</span></p>
                 <p><strong>Endereço de Entrega:</strong> <span id="doacaoEndereco">...</span></p>
+                <p><strong>Telefone:</strong> <span id="doacaoTelefone">...</span></p>
             </div>
 
             <h3 class="section-title">Itens Doados</h3>
@@ -307,6 +372,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
-    <script src="js/relatorioImpacto.js"></script>
+    <script src="/js/relatorioImpacto.js"></script>
 </body>
 </html>

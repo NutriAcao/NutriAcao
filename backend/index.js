@@ -96,7 +96,216 @@ app.get('/api/usuarioToken', verificarToken, (req, res) => {
   res.json(req.usuario);
 });
 
+// =====================================================
+// ROTAS DE RELATÓRIOS - ADICIONADAS AQUI
+// =====================================================
+
+// ROTA DA API PARA RELATÓRIOS DE IMPACTO - EMPRESA
+app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req, res) => {
+    try {
+        const empresaId = req.usuario.id;
+        
+        console.log(`📊 Buscando relatórios para empresa ID: ${empresaId}`);
+
+        // Buscar doações concluídas da empresa
+        const { data: doacoes, error } = await supabase
+            .from('doacoes')
+            .select(`
+                id,
+                data_doacao,
+                status,
+                quantidade_total,
+                created_at,
+                ong_id,
+                empresa_id,
+                ongs!inner(
+                    id,
+                    nome,
+                    endereco,
+                    telefone
+                ),
+                empresas!inner(
+                    id,
+                    nome_fantasia,
+                    email
+                ),
+                itens_doacao(
+                    id,
+                    alimento_id,
+                    quantidade,
+                    unidade_medida,
+                    alimentos!inner(
+                        id,
+                        nome,
+                        categoria,
+                        co2_por_kg
+                    )
+                )
+            `)
+            .eq('empresa_id', empresaId)
+            .in('status', ['entregue', 'concluido', 'finalizado'])
+            .order('data_doacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro Supabase:', error);
+            throw error;
+        }
+
+        console.log(`✅ Encontradas ${doacoes?.length || 0} doações`);
+
+        // Processar os dados
+        const doacoesProcessadas = processarDoacoesParaRelatorio(doacoes);
+
+        res.json({
+            success: true,
+            data: doacoesProcessadas,
+            total: doacoesProcessadas.length,
+            empresa: doacoesProcessadas[0]?.responsavel || 'Empresa'
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao buscar relatórios:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Erro ao buscar dados dos relatórios',
+            details: error.message 
+        });
+    }
+});
+
+// ROTA DA API PARA RELATÓRIOS DE CONSUMO - ONG
+app.get('/api/relatorios-consumo', verificarToken, verificarOng, async (req, res) => {
+    try {
+        const ongId = req.usuario.id;
+        
+        console.log(`📊 Buscando relatórios de consumo para ONG ID: ${ongId}`);
+
+        // Buscar doações recebidas pela ONG
+        const { data: doacoes, error } = await supabase
+            .from('doacoes')
+            .select(`
+                id,
+                data_doacao,
+                status,
+                quantidade_total,
+                created_at,
+                ong_id,
+                empresa_id,
+                ongs!inner(
+                    id,
+                    nome,
+                    endereco,
+                    telefone
+                ),
+                empresas!inner(
+                    id,
+                    nome_fantasia,
+                    email
+                ),
+                itens_doacao(
+                    id,
+                    alimento_id,
+                    quantidade,
+                    unidade_medida,
+                    alimentos!inner(
+                        id,
+                        nome,
+                        categoria,
+                        co2_por_kg
+                    )
+                )
+            `)
+            .eq('ong_id', ongId)
+            .in('status', ['entregue', 'concluido', 'finalizado'])
+            .order('data_doacao', { ascending: false });
+
+        if (error) {
+            console.error('❌ Erro Supabase:', error);
+            throw error;
+        }
+
+        console.log(`✅ Encontradas ${doacoes?.length || 0} doações recebidas`);
+
+        // Processar os dados
+        const doacoesProcessadas = processarDoacoesParaRelatorio(doacoes);
+
+        res.json({
+            success: true,
+            data: doacoesProcessadas,
+            total: doacoesProcessadas.length,
+            ong: doacoesProcessadas[0]?.ong || 'ONG'
+        });
+
+    } catch (error) {
+        console.error('❌ Erro ao buscar relatórios de consumo:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Erro ao buscar dados dos relatórios',
+            details: error.message 
+        });
+    }
+});
+
+// Função para processar doações para relatório
+function processarDoacoesParaRelatorio(doacoes) {
+    return doacoes?.map(doacao => {
+        const alimentos = doacao.itens_doacao?.map(item => {
+            const refeicoes = calcularRefeicoesAPI(item.quantidade, item.alimentos?.categoria);
+            const co2 = calcularCO2EvitadoAPI(item.quantidade, item.alimentos?.co2_por_kg);
+            
+            return {
+                nome: item.alimentos?.nome || 'Alimento não especificado',
+                quantidade: item.quantidade || 0,
+                unidade: item.unidade_medida || 'kg',
+                refeicoes: refeicoes,
+                co2: co2,
+                categoria: item.alimentos?.categoria || 'outros'
+            };
+        }) || [];
+
+        const totalRefeicoes = alimentos.reduce((sum, item) => sum + item.refeicoes, 0);
+        const totalCO2 = alimentos.reduce((sum, item) => sum + item.co2, 0);
+        const totalAlimentos = alimentos.reduce((sum, item) => sum + item.quantidade, 0);
+
+        return {
+            id: doacao.id,
+            data: doacao.data_doacao || doacao.created_at,
+            alimentos: alimentos,
+            ong: doacao.ongs?.nome || 'ONG não especificada',
+            status: doacao.status,
+            responsavel: doacao.empresas?.nome_fantasia || 'Empresa não especificada',
+            endereco: doacao.ongs?.endereco || 'Endereço não especificado',
+            telefone: doacao.ongs?.telefone || 'Telefone não informado',
+            totalRefeicoes: totalRefeicoes,
+            totalCO2: totalCO2,
+            totalAlimentos: totalAlimentos
+        };
+    }) || [];
+}
+
+// Funções auxiliares para cálculos
+function calcularRefeicoesAPI(quantidade, categoria) {
+    const fatores = {
+        'graos': 5,
+        'frutas': 4,
+        'legumes': 6,
+        'verduras': 8,
+        'laticinios': 2,
+        'outros': 3
+    };
+    
+    return Math.round(quantidade * (fatores[categoria] || 3));
+}
+
+function calcularCO2EvitadoAPI(quantidade, co2PorKg) {
+    const co2Fator = co2PorKg || 0.5;
+    return parseFloat((quantidade * co2Fator).toFixed(2));
+}
+
+// =====================================================
 // ROTAS PROTEGIDAS PARA EMPRESA
+// =====================================================
+
 app.get('/visualizacaoOngs.html', verificarToken, verificarEmpresa, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'visualizacaoOngs.html'));
 })
@@ -125,7 +334,10 @@ app.get('/relatorioImpacto.html', verificarToken, verificarEmpresa, (req, res) =
   res.sendFile(path.join(__dirname, '../', 'private', 'empresa', 'relatorioImpacto.html'));
 });
 
-//ROTAS PROTEGIDAS PARA ONG
+// =====================================================
+// ROTAS PROTEGIDAS PARA ONG
+// =====================================================
+
 app.get('/visualizacaoDoacoes.html', verificarToken, verificarOng, (req, res) => {
   res.sendFile(path.join(__dirname, '../', 'private', 'ong', 'visualizacaoDoacoes.html'));
 })
@@ -172,9 +384,7 @@ app.post('/api/cadastro/doacaoEmpresa', verificarToken, verificarEmpresa, cadast
 // ROTAS DIRETAS PARA RESERVA E DOAÇÕES DISPONÍVEIS
 // =====================================================
 
-// ROTA DE RESERVA CORRIGIDA
 // ROTA DE RESERVA CORRIGIDA - COM MAIS LOGS
-// ROTA DE RESERVA NOVA - NOME DIFERENTE
 app.post('/api/reservar-doacao-ong', verificarToken, verificarOng, async (req, res) => {
     try {
         console.log('🎯🎯🎯 ROTA RESERVA NOVA CHAMADA - doacao_id:', req.body.doacao_id);
@@ -267,6 +477,7 @@ app.post('/api/reservar-doacao-ong', verificarToken, verificarOng, async (req, r
         });
     }
 });
+
 // ROTA PARA DOAÇÕES DISPONÍVEIS
 app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req, res) => {
     try {
@@ -329,6 +540,7 @@ app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req
         });
     }
 });
+
 // =====================================================
 // ROTAS PARA MINHAS SOLICITAÇÕES DA ONG
 // =====================================================
@@ -508,6 +720,11 @@ app.get('/api/doacoes-reservadas-ong', verificarToken, verificarOng, async (req,
         });
     }
 });
+
+// =====================================================
+// ROTAS DE CONTATO E RECUPERAÇÃO DE SENHA
+// =====================================================
+
 // rota de contato/suporte
 app.post('/enviar-contato', contactLimiter, async (req, res) => {
   try {
@@ -663,122 +880,3 @@ app.listen(PORT, () => {
   console.log("Caminho Estático sendo usado:", publicPath);
 });
 
-app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req, res) => {
-    try {
-        const empresaId = req.usuario.id;
-        
-        console.log(`Buscando relatórios para empresa ID: ${empresaId}`);
-
-        const { data: doacoes, error } = await supabase
-            .from('doacoes')
-            .select(`
-                id,
-                data_doacao,
-                status,
-                quantidade_total,
-                created_at,
-                ong_id,
-                empresa_id,
-                ongs!inner(
-                    id,
-                    nome,
-                    endereco,
-                    telefone
-                ),
-                empresas!inner(
-                    id,
-                    nome_fantasia,
-                    email
-                ),
-                itens_doacao(
-                    id,
-                    alimento_id,
-                    quantidade,
-                    unidade_medida,
-                    alimentos!inner(
-                        id,
-                        nome,
-                        categoria,
-                        co2_por_kg
-                    )
-                )
-            `)
-            .eq('empresa_id', empresaId)
-            .in('status', ['entregue', 'concluido', 'finalizado'])
-            .order('data_doacao', { ascending: false });
-
-        if (error) {
-            console.error('Erro Supabase:', error);
-            throw error;
-        }
-
-        console.log(`Encontradas ${doacoes?.length || 0} doações`);
-
-        const doacoesProcessadas = doacoes?.map(doacao => {
-            const alimentos = doacao.itens_doacao?.map(item => {
-                const refeicoes = calcularRefeicoesAPI(item.quantidade, item.alimentos?.categoria);
-                const co2 = calcularCO2EvitadoAPI(item.quantidade, item.alimentos?.co2_por_kg);
-                
-                return {
-                    nome: item.alimentos?.nome || 'Alimento não especificado',
-                    quantidade: item.quantidade || 0,
-                    unidade: item.unidade_medida || 'kg',
-                    refeicoes: refeicoes,
-                    co2: co2,
-                    categoria: item.alimentos?.categoria || 'outros'
-                };
-            }) || [];
-
-            const totalRefeicoes = alimentos.reduce((sum, item) => sum + item.refeicoes, 0);
-            const totalCO2 = alimentos.reduce((sum, item) => sum + item.co2, 0);
-            const totalAlimentos = alimentos.reduce((sum, item) => sum + item.quantidade, 0);
-
-            return {
-                id: doacao.id,
-                data: doacao.data_doacao || doacao.created_at,
-                alimentos: alimentos,
-                ong: doacao.ongs?.nome || 'ONG não especificada',
-                status: doacao.status,
-                responsavel: doacao.empresas?.nome_fantasia || 'Empresa não especificada',
-                endereco: doacao.ongs?.endereco || 'Endereço não especificado',
-                telefone: doacao.ongs?.telefone || 'Telefone não informado',
-                totalRefeicoes: totalRefeicoes,
-                totalCO2: totalCO2,
-                totalAlimentos: totalAlimentos
-            };
-        }) || [];
-
-        res.json({
-            success: true,
-            data: doacoesProcessadas,
-            total: doacoesProcessadas.length,
-            empresa: doacoesProcessadas[0]?.responsavel || 'Empresa'
-        });
-
-    } catch (error) {
-        console.error('Erro ao buscar relatórios:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Erro ao buscar dados dos relatórios',
-            details: error.message 
-        });
-    }
-});
-
-function calcularRefeicoesAPI(quantidade, categoria) {
-    const fatores = {
-        'graos': 5,
-        'frutas': 4,
-        'legumes': 6,
-        'verduras': 8,
-        'laticinios': 2,
-        'outros': 3
-    };
-    
-    return Math.round(quantidade * (fatores[categoria] || 3));
-}
-
-function calcularCO2EvitadoAPI(quantidade, co2PorKg) {
-    const co2Fator = co2PorKg || 0.5;
-    return parseFloat((quantidade * co2Fator).toFixed(2));
-}
