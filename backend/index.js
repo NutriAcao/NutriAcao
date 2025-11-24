@@ -90,10 +90,8 @@ app.get("/", (req, res) => {
 app.get('/loginpage', (req, res) => {
   res.sendFile(path.join(publicPath, 'pages', 'homepage', 'loginpage.html'))
 })
-
-// Rota auxiliar para obter dados do usuário autenticado
 app.get('/api/usuarioToken', verificarToken, (req, res) => {
-  res.json(req.usuario);
+    res.json(req.usuario);
 });
 
 // ROTAS PROTEGIDAS PARA EMPRESA
@@ -782,3 +780,57 @@ function calcularCO2EvitadoAPI(quantidade, co2PorKg) {
     const co2Fator = co2PorKg || 0.5;
     return parseFloat((quantidade * co2Fator).toFixed(2));
 }
+app.get('/doacoesConcluidasONG/solicitacoesConcluidasONG', verificarToken, verificarOng, async (req, res) => {
+  try {
+    const ongId = req.query.id;
+    
+    const query = `
+      SELECT 
+        soc.id,
+        soc.titulo as nome_alimento,
+        soc.quantidade_desejada as quantidade,
+        soc.data_criacao,
+        soc.status,
+        e.nome_fantasia as empresa_nome,
+        e.id as empresa_id
+      FROM solicitacoes_ong_concluido soc
+      INNER JOIN empresas e ON soc.empresa_id = e.id
+      WHERE soc.ong_id = $1
+      ORDER BY soc.data_criacao DESC
+    `;
+    
+    const result = await pool.query(query, [ongId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar solicitações concluídas:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// Rota para buscar excedentes concluídos da ONG
+app.get('/doacoesConcluidasONG/excedentesConcluidosONG', verificarToken, verificarOng, async (req, res) => {
+  try {
+    const ongId = req.query.id;
+    
+    const query = `
+      SELECT 
+        dc.id,
+        dc.titulo as nome_alimento,
+        dc.quantidade,
+        dc.data_validade,
+        dc.status,
+        e.nome_fantasia as nomeempresa,
+        e.id as empresa_id
+      FROM doacoes_concluidas dc
+      INNER JOIN empresas e ON dc.empresa_id = e.id
+      WHERE dc.ong_id = $1 AND dc.excedente_id IS NOT NULL
+      ORDER BY dc.data_publicacao DESC
+    `;
+    
+    const result = await pool.query(query, [ongId]);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar excedentes concluídos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});

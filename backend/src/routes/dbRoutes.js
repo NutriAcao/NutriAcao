@@ -3,7 +3,7 @@
 import { Router } from 'express';
 import { pool } from '../config/dbPool.js'; 
 import { verificarToken } from './authMiddleware.js';
-import { verificarOng } from './tipoAuthMiddleware.js'; 
+import { verificarOng, verificarEmpresa } from './tipoAuthMiddleware.js'; 
 
 const router = Router();
 
@@ -27,27 +27,30 @@ router.get("/db-test", async (req, res) => {
     }
 });
 
-
 // ROTA 1: PAINEL DA ONG - Busca doações disponíveis (Excedentes de Empresas)
 router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req, res) => {
     try {
-        // CORRIGIDO: Usa e.nome (da tabela empresa) e d."dataCadastroDoacao"
-        // ❗️ ATENÇÃO: A CLÁUSULA 'WHERE' FOI REMOVIDA ABAIXO. LEIA A EXPLICAÇÃO NO FINAL.
         const query = `
-            SELECT 
+            SELECT
                 dd.id,
                 dd.titulo as nome_alimento,
                 dd.quantidade,
                 dd.data_validade,
                 dd.telefone_contato,
                 dd.email_contato,
-                dd.data_publicacao,
+                dd.data_publicacao as data_cadastro,
                 e.nome_fantasia as nome_empresa,
-                e.ramo_atuacao as cnae_empresa,
-                dd.status
-            FROM doacoes_disponiveis dd
-            LEFT JOIN empresas e ON dd.empresa_id = e.id
-            WHERE dd.status = 'disponível'`;
+                e.cnpj as cnae_empresa,
+                dd.status    
+            FROM
+                doacoes_disponiveis dd
+            INNER JOIN
+                empresas e ON dd.empresa_id = e.id
+            WHERE
+                dd.status ILIKE 'disponível'
+            ORDER BY
+                dd.data_validade ASC;
+        `;
         
         const result = await pool.query(query);
         res.status(200).json(result.rows);
@@ -82,197 +85,208 @@ router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) 
         
         const result = await pool.query(query);
         res.status(200).json(result.rows);
-
     } catch (error) {
-        console.error("Erro ao buscar pedidos disponíveis para Empresa:", error);
-        res.status(500).json({ 
-            message: 'Erro ao carregar lista de pedidos.', 
-            details: error.message 
-        });
+        console.error("Erro ao buscar pedidos:", error);
+        res.status(500).json({ message: 'Erro ao carregar pedidos.' });
     }
 });
-
-// ROTA 3: RESERVAR ITEM (Usa as novas colunas)
+// ROTA 3: RESERVAR ITEM
 router.post('/api/reservar-doacao', verificarToken, async (req, res) => {
-    console.log('🔔 REQUISIÇÃO RECEBIDA em /api/reservar-doacao');
-    console.log('Body:', req.body);
-    console.log('Usuário:', req.usuario);
+    const { doacaoId, tipoDoacao } = req.body; 
+    const usuarioId = req.usuario.id; 
     
-    const { doacao_id } = req.body;
-    const ongId = req.usuario.id;
-
-    if (!doacao_id) {
-        return res.status(400).json({ message: "ID da doação é obrigatório." });
-    }
-
-    console.log(`🔄 ONG ${ongId} reservando doação ${doacao_id}`);
-    // CORRIGIDO: Aponta para as novas colunas de reserva
-    let tableName, fkColumn;
+    let originalTable, reservaTable, usuarioColumn;
+    
     if (tipoDoacao === 'excedente') {
-        tableName = '"doacoesDisponiveis"';
-        fkColumn = 'id_ong_reserva'; // CORRIGIDO (Nova coluna)
+        originalTable = 'doacoes_disponiveis';
+        reservaTable = 'doacoes_reservadas';
+        usuarioColumn = 'ong_id';
     } else if (tipoDoacao === 'solicitacao') {
-        tableName = '"doacoesSolicitadas"';
-        fkColumn = 'id_empresa_reserva'; // CORRIGIDO (Nova coluna)
+        originalTable = 'solicitacoes_ong';
+        reservaTable = 'solicitacoes_ong_reservada';
+        usuarioColumn = 'empresa_id';
     } else {
         return res.status(400).json({ message: "Tipo de doação inválido." });
     }
 
     try {
-        const updateQuery = `
-            UPDATE ${tableName}
-            SET 
-                status = 'reservado', 
-                ${fkColumn} = $1 
-            WHERE id = $2 AND (status ILIKE 'Disponível' OR status ILIKE 'disponível')
-            RETURNING id, status;
-        `;
-        const result = await pool.query(updateQuery, [usuarioId, doacaoId]);
-
-        if (result.rowCount === 0) {
+        // Primeiro busca a doação original
+        const originalQuery = `SELECT * FROM ${originalTable} WHERE id = $1 AND status ILIKE 'disponível'`;
+        const originalResult = await pool.query(originalQuery, [doacaoId]);
+        
+        if (originalResult.rows.length === 0) {
             return res.status(400).json({ 
                 message: "Não foi possível reservar. O item pode já ter sido reservado." 
             });
         }
+
+        const item = originalResult.rows[0];
+        
+        // Insere na tabela de reservas
+        let insertQuery;
+        if (tipoDoacao === 'excedente') {
+            insertQuery = `
+                INSERT INTO doacoes_reservadas (empresa_id, ong_id, excedente_id, titulo, descricao, quantidade, data_validade, status, data_publicacao)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, 'reservado', $8)
+                RETURNING id, status;
+            `;
+        } else {
+            insertQuery = `
+                INSERT INTO solicitacoes_ong_reservada (empresa_id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, status, data_criacao)
+                VALUES ($1, $2, $3, $4, $5, $6, 'reservado', $7)
+                RETURNING id, status;
+            `;
+        }
+
+        const insertParams = tipoDoacao === 'excedente' 
+            ? [item.empresa_id, usuarioId, item.excedente_id, item.titulo, item.descricao, item.quantidade, item.data_validade, item.data_publicacao]
+            : [usuarioId, item.ong_id, item.titulo, item.descricao, item.categoria_id, item.quantidade_desejada, item.data_criacao];
+
+        const result = await pool.query(insertQuery, insertParams);
+        
+        // Remove da tabela de disponíveis
+        await pool.query(`DELETE FROM ${originalTable} WHERE id = $1`, [doacaoId]);
+
         res.status(200).json({ 
             message: "Item reservado com sucesso!", 
             doacao: result.rows[0] 
         });
-    } catch (error)
-    {
+    } catch (error) {
         console.error('Erro ao reservar item:', error);
         res.status(500).json({ message: "Erro interno do servidor ao tentar reservar o item." });
     }
 });
-// ROTA 4: EMPRESA RESERVA PEDIDO (COM COLUNAS CORRETAS)
-router.post('/api/reservar-pedido', verificarToken, async (req, res) => {
-    const { pedido_id } = req.body;
-    const empresaId = req.usuario.id;
 
-    console.log(`🔄 Empresa ${empresaId} reservando pedido ${pedido_id}`);
-
-    let client;
+// ROTA 4: CANCELAR RESERVA
+router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (req, res) => {
+    const { doacaoId, tipoDoacao } = req.body;
+    const usuarioId = req.usuario.id;
+    
     try {
-        client = await pool.connect();
-        await client.query('BEGIN');
+        if (tipoDoacao === 'excedente') {
+            // Busca o item reservado
+            const reservaQuery = `SELECT * FROM doacoes_reservadas WHERE id = $1 AND ong_id = $2`;
+            const reservaResult = await pool.query(reservaQuery, [doacaoId, usuarioId]);
+            
+            if (reservaResult.rows.length === 0) {
+                return res.status(400).json({ 
+                    message: "Reserva não encontrada ou você não tem permissão para cancelá-la." 
+                });
+            }
 
-        // 1. Buscar dados do pedido
-        const selectPedido = `
-            SELECT id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, 
-                   data_criacao, status
-            FROM solicitacoes_ong 
-            WHERE id = $1 AND status = 'disponivel'
-        `;
-        
-        console.log(`🔍 Buscando pedido ${pedido_id}...`);
-        const pedidoResult = await client.query(selectPedido, [pedido_id]);
-        
-        if (pedidoResult.rows.length === 0) {
-            await client.query('ROLLBACK');
-            console.log('❌ Pedido não encontrado ou já reservado');
-            return res.status(400).json({ message: "Pedido não encontrado ou já reservado." });
+            const item = reservaResult.rows[0];
+            
+            // Move de volta para doacoes_disponiveis
+            const insertQuery = `
+                INSERT INTO doacoes_disponiveis (empresa_id, excedente_id, titulo, descricao, quantidade, data_validade, status, data_publicacao, telefone_contato, email_contato)
+                VALUES ($1, $2, $3, $4, $5, $6, 'disponível', $7, $8, $9)
+            `;
+            await pool.query(insertQuery, [
+                item.empresa_id, item.excedente_id, item.titulo, item.descricao, 
+                item.quantidade, item.data_validade, item.data_publicacao,
+                item.telefone_contato, item.email_contato
+            ]);
+            
+            await pool.query('DELETE FROM doacoes_reservadas WHERE id = $1', [doacaoId]);
+            
+        } else if (tipoDoacao === 'solicitacao') {
+            // Busca o item reservado
+            const reservaQuery = `SELECT * FROM solicitacoes_ong_reservada WHERE id = $1 AND empresa_id = $2`;
+            const reservaResult = await pool.query(reservaQuery, [doacaoId, usuarioId]);
+            
+            if (reservaResult.rows.length === 0) {
+                return res.status(400).json({ 
+                    message: "Reserva não encontrada ou você não tem permissão para cancelá-la." 
+                });
+            }
+
+            const item = reservaResult.rows[0];
+            
+            // Move de volta para solicitacoes_ong
+            const insertQuery = `
+                INSERT INTO solicitacoes_ong (ong_id, titulo, descricao, categoria_id, quantidade_desejada, status, data_criacao, telefone_contato, email_contato)
+                VALUES ($1, $2, $3, $4, $5, 'disponível', $6, $7, $8)
+            `;
+            await pool.query(insertQuery, [
+                item.ong_id, item.titulo, item.descricao, item.categoria_id,
+                item.quantidade_desejada, item.data_criacao, item.telefone_contato, item.email_contato
+            ]);
+            
+            await pool.query('DELETE FROM solicitacoes_ong_reservada WHERE id = $1', [doacaoId]);
+        } else {
+            return res.status(400).json({ message: "Tipo de doação inválido." });
         }
 
-        const pedido = pedidoResult.rows[0];
-        console.log('✅ Pedido encontrado:', pedido);
-
-        // 2. Inserir na tabela de reservados (APENAS COLUNAS QUE EXISTEM)
-        const insertReserva = `
-            INSERT INTO solicitacoes_ong_reservada 
-            (empresa_id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, status, data_criacao)
-            VALUES ($1, $2, $3, $4, $5, $6, 'reservado', $7)
-            RETURNING id;
-        `;
-        
-        console.log('📝 Inserindo na tabela solicitacoes_ong_reservada...');
-        const reservaResult = await client.query(insertReserva, [
-            empresaId,
-            pedido.ong_id,
-            pedido.titulo,
-            pedido.descricao || '', // descricao pode ser null
-            pedido.categoria_id,
-            pedido.quantidade_desejada,
-            pedido.data_criacao
-        ]);
-
-        // 3. Remover da tabela de disponíveis
-        await client.query('DELETE FROM solicitacoes_ong WHERE id = $1', [pedido_id]);
-
-        await client.query('COMMIT');
-        
-        console.log(`✅ Pedido ${pedido_id} movido para reservados com ID: ${reservaResult.rows[0].id}`);
         res.status(200).json({ 
-            message: "Pedido reservado com sucesso!",
-            pedido_id: pedido_id
+            message: "Reserva cancelada. Item devolvido ao painel."
         });
-
     } catch (error) {
-        if (client) await client.query('ROLLBACK');
-        console.error('❌ Erro ao reservar pedido:', error.message);
-        res.status(500).json({ 
-            message: "Erro interno do servidor.",
-            details: error.message 
-        });
-    } finally {
-        if (client) client.release();
+        console.error('Erro ao cancelar reserva:', error);
+        res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
-// --- NOVA ROTA ---
 
-// ROTA 5: ATUALIZAR STATUS (em andamento / concluído)
+// ROTA 5: ATUALIZAR STATUS (concluir doação)
 router.post('/api/update-status', verificarToken, async (req, res) => {
-    // 1. Obter dados do frontend e do token
-    const { id, tipo, status: novoStatus } = req.body; // 'novoStatus' vem como 'em andamento' ou 'concluído'
+    const { id, tipo, status: novoStatus } = req.body;
     const usuarioId = req.usuario.id;
 
-    let tableName, fkColumn, statusAnterior, statusParaDB;
-
-    // 2. Determinar tabelas e status anterior/novo
-    if (tipo === 'excedente') {
-        tableName = '"doacoesDisponiveis"';
-        fkColumn = 'id_ong_reserva';
-    } else if (tipo === 'solicitacao') {
-        tableName = '"doacoesSolicitadas"';
-        fkColumn = 'id_empresa_reserva';
-    } else {
-        return res.status(400).json({ message: "Tipo de doação inválido." });
-    }
-
-    // 3. Determinar o fluxo de status (Máquina de Estados)
-    if (novoStatus === 'em andamento') {
-        statusAnterior = 'reservado';
-        statusParaDB = 'Em Andamento'; // Padronizando para maiúsculas no DB
-    } else if (novoStatus === 'concluído') {
-        statusAnterior = 'Em Andamento'; // Só pode concluir se estava 'Em Andamento'
-        statusParaDB = 'Concluído';
-    } else {
-        return res.status(400).json({ message: "Status de destino inválido." });
-    }
-
-    // 4. Executar a atualização no banco
     try {
-        const updateQuery = `
-            UPDATE ${tableName}
-            SET status = $1
-            WHERE id = $2                -- O item deve ser o correto
-              AND ${fkColumn} = $3        -- O usuário logado deve ser o dono da reserva
-              AND status = $4            -- O item deve estar no status anterior correto
-            RETURNING id, status;
-        `;
-        const result = await pool.query(updateQuery, [statusParaDB, id, usuarioId, statusAnterior]);
+        if (tipo === 'excedente' && novoStatus === 'concluído') {
+            // Busca o item reservado
+            const reservaQuery = `SELECT * FROM doacoes_reservadas WHERE id = $1 AND ong_id = $2`;
+            const reservaResult = await pool.query(reservaQuery, [id, usuarioId]);
+            
+            if (reservaResult.rows.length === 0) {
+                return res.status(400).json({ 
+                    message: "Item não encontrado ou você não tem permissão para concluí-lo." 
+                });
+            }
 
-        // 5. Verificar se a atualização foi bem-sucedida
-        if (result.rowCount === 0) {
-            // Se 0 linhas foram afetadas, o WHERE falhou
-            return res.status(400).json({ 
-                message: `Não foi possível atualizar o status. Verifique se o item está no status '${statusAnterior}' e se pertence a você.` 
-            });
+            const item = reservaResult.rows[0];
+            
+            // Move para doacoes_concluidas
+            const insertQuery = `
+                INSERT INTO doacoes_concluidas (empresa_id, ong_id, excedente_id, titulo, descricao, quantidade, data_validade, status, data_publicacao)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, 'concluída', $8)
+            `;
+            await pool.query(insertQuery, [
+                item.empresa_id, item.ong_id, item.excedente_id, item.titulo,
+                item.descricao, item.quantidade, item.data_validade, item.data_publicacao
+            ]);
+            
+            await pool.query('DELETE FROM doacoes_reservadas WHERE id = $1', [id]);
+            
+        } else if (tipo === 'solicitacao' && novoStatus === 'concluído') {
+            // Busca o item reservado
+            const reservaQuery = `SELECT * FROM solicitacoes_ong_reservada WHERE id = $1 AND empresa_id = $2`;
+            const reservaResult = await pool.query(reservaQuery, [id, usuarioId]);
+            
+            if (reservaResult.rows.length === 0) {
+                return res.status(400).json({ 
+                    message: "Item não encontrado ou você não tem permissão para concluí-lo." 
+                });
+            }
+
+            const item = reservaResult.rows[0];
+            
+            // Move para solicitacoes_ong_concluido
+            const insertQuery = `
+                INSERT INTO solicitacoes_ong_concluido (empresa_id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, status, data_criacao)
+                VALUES ($1, $2, $3, $4, $5, $6, 'concluído', $7)
+            `;
+            await pool.query(insertQuery, [
+                item.empresa_id, item.ong_id, item.titulo, item.descricao,
+                item.categoria_id, item.quantidade_desejada, item.data_criacao
+            ]);
+            
+            await pool.query('DELETE FROM solicitacoes_ong_reservada WHERE id = $1', [id]);
+        } else {
+            return res.status(400).json({ message: "Tipo de doação ou status inválido." });
         }
-        
-        // 6. Sucesso
+
         res.status(200).json({ 
-            message: "Status atualizado com sucesso!", 
-            item: result.rows[0] 
+            message: "Doação concluída com sucesso!"
         });
 
     } catch (error) {
@@ -280,7 +294,75 @@ router.post('/api/update-status', verificarToken, async (req, res) => {
         res.status(500).json({ message: "Erro interno do servidor." });
     }
 });
+// ROTA 6: HISTÓRICO DE DOAÇÕES CONCLUÍDAS PARA ONG
+router.get('/doacoesConcluidasONG/solicitacoesConcluidasONG', verificarToken, verificarOng, async (req, res) => {
+  try {
+    const ongId = req.usuario.ong_id;
+    
+    if (!ongId) {
+      return res.status(400).json({ error: 'ONG não vinculada a este usuário' });
+    }
 
+    console.log(`Buscando solicitações para ONG ID: ${ongId}, Usuário: ${req.usuario.id}`);
+    
+    const query = `
+      SELECT 
+        soc.id,
+        soc.titulo as nome_alimento,
+        soc.quantidade_desejada as quantidade,
+        soc.data_criacao as data_conclusao,
+        soc.status,
+        e.nome_fantasia as empresa_nome,
+        e.id as empresa_id
+      FROM solicitacoes_ong_concluido soc
+      INNER JOIN empresas e ON soc.empresa_id = e.id
+      WHERE soc.ong_id = $1
+      ORDER BY soc.data_criacao DESC
+    `;
+    
+    const result = await pool.query(query, [ongId]);
+    console.log(`✅ ${result.rows.length} solicitações encontradas para ONG ID: ${ongId}`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar solicitações concluídas:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
+
+// ROTA 7: HISTÓRICO DE EXCEDENTES CONCLUÍDOS PARA ONG
+router.get('/doacoesConcluidasONG/excedentesConcluidosONG', verificarToken, verificarOng, async (req, res) => {
+  try {
+    const ongId = req.usuario.ong_id;
+    
+    if (!ongId) {
+      return res.status(400).json({ error: 'ONG não vinculada a este usuário' });
+    }
+
+    console.log(`Buscando excedentes para ONG ID: ${ongId}, Usuário: ${req.usuario.id}`);
+    
+    const query = `
+      SELECT 
+        dc.id,
+        dc.titulo as nome_alimento,
+        dc.quantidade,
+        dc.data_validade,
+        dc.data_publicacao as data_conclusao,
+        dc.status,
+        e.nome_fantasia as nomeempresa,
+        e.id as empresa_id
+      FROM doacoes_concluidas dc
+      INNER JOIN empresas e ON dc.empresa_id = e.id
+      WHERE dc.ong_id = $1 AND dc.excedente_id IS NOT NULL
+      ORDER BY dc.data_publicacao DESC
+    `;
+    
+    const result = await pool.query(query, [ongId]);
+    console.log(`✅ ${result.rows.length} excedentes encontrados para ONG ID: ${ongId}`);
+    res.json(result.rows);
+  } catch (error) {
+    console.error('Erro ao buscar excedentes concluídos:', error);
+    res.status(500).json({ error: 'Erro interno do servidor' });
+  }
+});
 
 export default router;
-//commit teste

@@ -286,94 +286,35 @@ function closeModal() {
  * @param {string} actionType - A ação a ser executada ('reservar-pedido', 'concluir-pedido')
  */
 async function handleAction(pedidoId, actionType) {
-    let endpoint = '';
-    const method = 'PUT'; // Usamos PUT para atualizações de status
-    let body = { pedido_id: pedidoId }; // O corpo da requisição
-    const actionButton = document.getElementById('actionButton');
-    const modalBody = document.querySelector('#orderModal .modal-body');
+    if (actionType === 'reservar-pedido') {
+        try {
+            const response = await fetch('/api/reservar-doacao', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    doacaoId: pedidoId,
+                    tipoDoacao: 'solicitacao'  // ← MUDEI AQUI
+                }),
+            });
 
-    // Define o endpoint com base no tipo de ação
-    switch (actionType) {
-        case 'reservar-pedido':
-            endpoint = '/api/reservar-pedido';
-            body = { pedido_id: pedidoId };
-        case 'concluir-pedido':
-            // *** NOVO CÓDIGO: BLOQUEIA A CONCLUSÃO NESTA PÁGINA ***
-            alert('A conclusão de pedidos deve ser realizada apenas na página "Minhas Doações Ativas".');
-            closeModal();
-            return;
-            // *** FIM NOVO CÓDIGO ***
-        default:
-            alert('Ação desconhecida.');
-            return;
-    }
-    
-    // Mantemos o modal aberto para mostrar a mensagem de sucesso da reserva
-    console.log(`Enviando ${method} para ${endpoint} com ID: ${pedidoId}`);
+            const result = await response.json();
 
-    try {
-        const response = await fetch(endpoint, {
-            method: method,
-            headers: { 
-                'Content-Type': 'application/json',
-                // Importante: Enviar o token de autenticação
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify(body),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            
-            // *** NOVA LÓGICA DE SUCESSO PÓS-RESERVA (PADRÃO ONG) ***
-            if (actionType === 'reservar-pedido') {
-                const statusElement = document.getElementById('orderStatus');
-                if (statusElement) {
-                    // Atualiza o status visual no modal
-                    statusElement.innerHTML = `<span class="status reservado">reservado</span>`;
-                }
-
-                // 1. Remove o botão de ação (Reservar)
-                actionButton.style.display = 'none';
-
-                // 2. Adiciona/Atualiza a mensagem de sucesso no modal
-                let successMessage = document.getElementById('reservationSuccessMessage');
-                if (!successMessage) {
-                    successMessage = document.createElement('p');
-                    successMessage.id = 'reservationSuccessMessage';
-                    // Adicionei um ícone para melhor feedback visual (assumindo Font Awesome)
-                    successMessage.innerHTML = '<strong><i class="fas fa-check-circle"></i> Pedido Reservado com Sucesso!</strong> Por favor, utilize o contato acima para negociar a entrega. Você pode acompanhar o processo e concluir o pedido na página **Minhas Doações Ativas**.';
-                    // Estilos de feedback visual
-                    successMessage.style.cssText = 'color: #155724; margin-top: 15px; padding: 10px; border: 1px solid #c3e6cb; background-color: #d4edda; border-radius: 5px;';
-                    
-                    // Insere logo abaixo dos detalhes básicos
-                    const detailsSection = modalBody.querySelector('.modal-details');
-                    if (detailsSection) {
-                         detailsSection.after(successMessage);
-                    } else {
-                        modalBody.prepend(successMessage);
-                    }
-                } else {
-                    successMessage.style.display = 'block'; // Garante que a mensagem apareça se já existir
-                }
+            if (response.ok) {
+                alert("✅ Pedido reservado com sucesso!");
+                closeModal();
+                loadPedidosDisponiveis();
+            } else {
+                alert(`❌ Erro: ${result.message}`);
             }
-            
-            // 3. Recarrega a lista para que o item reservado suma da lista de "disponíveis"
-            loadPedidosDisponiveis(); 
-
-        } else {
-            alert(`Falha: ${result.message}`);
+        } catch (error) {
+            console.error('Erro de rede:', error);
+            alert('Erro de rede. Tente novamente.');
         }
-    } catch (error) {
-        console.error('Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
-    } finally {
-        actionButton.disabled = false; // Reabilita o botão
     }
 }
-
-
 // === PESQUISA E PAGINAÇÃO ===
 function updateItemCount(total) {
     const el = document.getElementById('totalItens');

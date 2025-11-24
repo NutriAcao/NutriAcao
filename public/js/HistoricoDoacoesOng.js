@@ -1,186 +1,234 @@
-// frontend/js/HistoricoDoacoesOng.js
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('🚀 Script HistoricoDoacoesOng.js carregado - Modo Sessão');
-
     let dadosUsuario = null;
 
-    // ==================== CARREGAR USUÁRIO (igual outras páginas) ====================
     async function carregarUsuario() {
         try {
-            console.log('📋 Carregando dados do usuário...');
             const res = await fetch('/api/usuarioToken');
-            
-            if (!res.ok) {
-                throw new Error('Falha ao buscar usuário: ' + res.status);
-            }
+            if (!res.ok) throw new Error('Falha ao buscar usuário');
             
             dadosUsuario = await res.json();
-            console.log('👤 Dados do usuário:', dadosUsuario);
+            console.log('Dados do usuário:', dadosUsuario);
 
-            // Atualiza a interface (igual outras páginas)
-            document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
-            document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'Instituição';
+            // Atualiza a interface
+            const nomeUsuarioElement = document.getElementById('textNomeUsuario');
+            const nomeInstituicaoElement = document.getElementById('textNomeInstituicao');
+            
+            if (nomeUsuarioElement) {
+                nomeUsuarioElement.innerHTML = dadosUsuario.nome || 'Usuário';
+            }
+            
+            if (nomeInstituicaoElement) {
+                nomeInstituicaoElement.innerHTML = dadosUsuario.nomeInstituicao || 'Instituição';
+            }
 
-            // Se chegou aqui, o usuário está autenticado, então carrega o histórico
-            await carregarHistorico();
+            // Agora carrega as doações com o ID do usuário
+            if (dadosUsuario && dadosUsuario.id) {
+                await carregarDoacoesEExcedentes(dadosUsuario.id);
+            } else {
+                console.error('ID do usuário não encontrado');
+            }
 
         } catch (erro) {
-            console.error('❌ Erro ao buscar usuário:', erro);
-            
-            // Se deu erro, provavelmente não está logado - redireciona para login
-            console.log('🔐 Redirecionando para login...');
-            window.location.href = '/loginpage';
+            console.error('Erro ao buscar usuário:', erro);
         }
     }
 
-    // ==================== CARREGAR HISTÓRICO ====================
-    async function carregarHistorico() {
+    async function carregarDoacoesEExcedentes(idUsuario) {
         try {
-            console.log('📊 Carregando histórico...');
-            
-            const response = await fetch('/api/historico-ong');
-            console.log('📨 Status da resposta:', response.status);
+            const solicitacoes = await carregarDoacoesUsuario(idUsuario);
+            const excedentes = await carregarExcedentesUsuario(idUsuario);
 
-            if (!response.ok) {
-                throw new Error(`Erro ${response.status} ao carregar histórico`);
+            // Configura as tabelas
+            const tableId = 'doacoesTableOng';
+            const searchInputId = 'searchInputOng';
+            const totalItensId = 'totalItensOng';
+            const totalPaginasId = 'totalPaginasOng';
+            const paginationControlsId = 'paginationControlsOng';
+
+            const tableIdExcedente = 'doacoesTableOngExcedente';
+            const searchInputIdExcedente = 'searchInputOngExcedente';
+            const totalItensIdExcedente = 'totalItensOngExcedente';
+            const totalPaginasIdExcedente = 'totalPaginasOngExcedente';
+            const paginationControlsIdExcedente = 'paginationControlsOngExcedente';
+
+            // Exibe as tabelas
+            const tableElement = document.getElementById(tableId);
+            const tableExcedenteElement = document.getElementById(tableIdExcedente);
+            
+            if (tableElement) tableElement.style.display = 'table';
+            if (tableExcedenteElement) tableExcedenteElement.style.display = 'table';
+
+            // Preenche as tabelas
+            preencherTabelaComDoacoesConcluidas(solicitacoes, tableId);
+            preencherTabelaComExcedentesConcluidos(excedentes, tableIdExcedente);
+
+            // Configura a paginação apenas se os elementos existirem
+            if (document.getElementById(searchInputId)) {
+                setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
             }
-
-            const historicoData = await response.json();
-            console.log('📦 Dados recebidos:', historicoData);
             
-            if (!Array.isArray(historicoData)) {
-                throw new Error('Formato de dados inválido');
+            if (document.getElementById(searchInputIdExcedente)) {
+                setupTable(searchInputIdExcedente, tableIdExcedente, totalItensIdExcedente, totalPaginasIdExcedente, paginationControlsIdExcedente);
             }
-            
-            // Separar dados por tipo
-            const solicitacoesConcluidas = historicoData.filter(item => item.tipo === 'solicitacao');
-            const excedentesRecebidos = historicoData.filter(item => item.tipo === 'excedente');
-            
-            console.log(`📊 Solicitações: ${solicitacoesConcluidas.length}, Excedentes: ${excedentesRecebidos.length}`);
-
-            // Preencher as tabelas
-            preencherTabelaSolicitacoes(solicitacoesConcluidas);
-            preencherTabelaExcedentes(excedentesRecebidos);
-
-            // Atualizar contadores
-            atualizarContadores(solicitacoesConcluidas.length, excedentesRecebidos.length);
-
-            console.log('✅ Histórico carregado com sucesso');
 
         } catch (erro) {
-            console.error('❌ Erro ao carregar histórico:', erro);
-            mostrarMensagem('Erro ao carregar histórico de doações', 'error');
-            
-            // Mostra mensagem de erro nas tabelas
-            const tbody1 = document.querySelector('#doacoesTableOng tbody');
-            const tbody2 = document.querySelector('#doacoesTableOngExcedente tbody');
-            
-            if (tbody1) {
-                tbody1.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Erro ao carregar dados</td></tr>`;
-            }
-            if (tbody2) {
-                tbody2.innerHTML = `<tr><td colspan="4" style="text-align: center; color: red;">Erro ao carregar dados</td></tr>`;
-            }
+            console.error('Erro ao carregar doações:', erro);
         }
     }
 
-    // ==================== PREENCHER TABELAS ====================
-    function preencherTabelaSolicitacoes(doacoes) {
-        const tbody = document.querySelector('#doacoesTableOng tbody');
-        
-        if (!tbody) {
-            console.error('❌ Tabela doacoesTableOng não encontrada');
-            return;
-        }
-        
-        tbody.innerHTML = '';
-
-        if (doacoes.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align: center; padding: 20px;">
-                        Nenhuma solicitação concluída encontrada.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        doacoes.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.produto || 'N/A'}</td>
-                <td>${item.quantidade} ${item.unidade || 'kg'}</td>
-                <td>${item.empresa || 'Empresa'}</td>
-                <td>${formatarData(item.data_conclusao)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function preencherTabelaExcedentes(doacoes) {
-        const tbody = document.querySelector('#doacoesTableOngExcedente tbody');
-        
-        if (!tbody) {
-            console.error('❌ Tabela doacoesTableOngExcedente não encontrada');
-            return;
-        }
-        
-        tbody.innerHTML = '';
-
-        if (doacoes.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="4" style="text-align: center; padding: 20px;">
-                        Nenhum excedente recebido encontrado.
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        doacoes.forEach(item => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${item.produto || 'N/A'}</td>
-                <td>${item.quantidade} ${item.unidade || 'kg'}</td>
-                <td>${item.empresa || 'Empresa'}</td>
-                <td>${formatarData(item.data_conclusao)}</td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function atualizarContadores(totalSolicitacoes, totalExcedentes) {
-        const totalItensOng = document.getElementById('totalItensOng');
-        const totalItensOngExcedente = document.getElementById('totalItensOngExcedente');
-
-        if (totalItensOng) {
-            totalItensOng.textContent = totalSolicitacoes;
-        }
-
-        if (totalItensOngExcedente) {
-            totalItensOngExcedente.textContent = totalExcedentes;
-        }
-    }
-
-    // ==================== FUNÇÕES AUXILIARES ====================
-    function formatarData(dataString) {
-        if (!dataString) return 'N/A';
+    async function carregarDoacoesUsuario(id) {
         try {
-            const data = new Date(dataString);
-            return data.toLocaleDateString('pt-BR');
-        } catch (error) {
-            return dataString;
+            const res = await fetch(`/doacoesConcluidasONG/solicitacoesConcluidasONG?id=${encodeURIComponent(id)}`);
+            
+            if (!res.ok) {
+                throw new Error(`Erro HTTP: ${res.status}`);
+            }
+            
+            const doacoes = await res.json();
+            console.log('Solicitações concluídas:', doacoes);
+            return doacoes;
+        } catch (erro) {
+            console.error('Erro ao carregar doações do usuário:', erro);
+            return [];
         }
     }
 
-    function mostrarMensagem(mensagem, tipo) {
-        console.log(`${tipo}: ${mensagem}`);
-        // Pode adicionar um toast/alert visual aqui se quiser
+    async function carregarExcedentesUsuario(id) {
+        try {
+            const res = await fetch(`/doacoesConcluidasONG/excedentesConcluidosONG?id=${encodeURIComponent(id)}`);
+            
+            if (!res.ok) {
+                throw new Error(`Erro HTTP: ${res.status}`);
+            }
+            
+            const doacoes = await res.json();
+            console.log('Excedentes concluídos:', doacoes);
+            return doacoes;
+        } catch (erro) {
+            console.error('Erro ao carregar excedentes do usuário:', erro);
+            return [];
+        }
     }
 
-    // ==================== INICIALIZAÇÃO ====================
-    // Inicia carregando o usuário (que vai verificar a autenticação)
+ function preencherTabelaComDoacoesConcluidas(doacoes, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) {
+    console.error(`Tabela com ID ${tableId} não encontrada`);
+    return;
+  }
+  
+  tbody.innerHTML = '';
+
+  if (doacoes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">Nenhuma solicitação concluída encontrada.</td></tr>`;
+    return;
+  }
+
+  doacoes.forEach(item => {
+    const tr = document.createElement('tr');
+    const dataConclusao = item.data_conclusao ? new Date(item.data_conclusao).toLocaleDateString('pt-BR') : 'N/A';
+    
+    tr.innerHTML = `
+      <td>${item.nome_alimento || 'N/A'}</td>
+      <td>${item.quantidade || 'N/A'}</td>
+      <td>${item.empresa_nome || 'N/A'}</td>
+      <td>${dataConclusao}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function preencherTabelaComExcedentesConcluidos(doacoes, tableId) {
+  const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) {
+    console.error(`Tabela com ID ${tableId} não encontrada`);
+    return;
+  }
+  
+  tbody.innerHTML = '';
+
+  if (doacoes.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4">Nenhum excedente concluído encontrado.</td></tr>`;
+    return;
+  }
+
+  doacoes.forEach(item => {
+    const tr = document.createElement('tr');
+    const dataConclusao = item.data_conclusao ? new Date(item.data_conclusao).toLocaleDateString('pt-BR') : 'N/A';
+    
+    tr.innerHTML = `
+      <td>${item.nome_alimento || 'N/A'}</td>
+      <td>${item.quantidade || 'N/A'}</td>
+      <td>${item.nomeempresa || 'N/A'}</td>
+      <td>${dataConclusao}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+    function setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId) {
+        const searchInput = document.getElementById(searchInputId);
+        const table = document.getElementById(tableId);
+        const totalItens = document.getElementById(totalItensId);
+        const totalPaginas = document.getElementById(totalPaginasId);
+        const paginationControls = document.getElementById(paginationControlsId);
+
+        // Verifica se todos os elementos existem
+        if (!searchInput || !table || !totalItens || !totalPaginas || !paginationControls) {
+            console.error('Elementos da tabela não encontrados:', {
+                searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId
+            });
+            return;
+        }
+
+        let currentPage = 1;
+        const itemsPerPage = 10;
+
+        function getRows() {
+            return Array.from(table.querySelectorAll('tbody tr'));
+        }
+
+        function renderTable() {
+            const rows = getRows();
+            const searchTerm = searchInput.value.toLowerCase();
+            const filteredRows = rows.filter(row =>
+                row.textContent.toLowerCase().includes(searchTerm)
+            );
+            
+            totalItens.textContent = filteredRows.length;
+            const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+            totalPaginas.textContent = totalPages;
+
+            rows.forEach(row => row.style.display = 'none');
+            filteredRows
+                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+                .forEach(row => row.style.display = '');
+
+            renderPagination(totalPages);
+        }
+
+        function renderPagination(totalPages) {
+            paginationControls.innerHTML = '';
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = (i === currentPage) ? 'active' : '';
+                btn.addEventListener('click', () => {
+                    currentPage = i;
+                    renderTable();
+                });
+                paginationControls.appendChild(btn);
+            }
+        }
+
+        searchInput.addEventListener('input', () => {
+            currentPage = 1;
+            renderTable();
+        });
+
+        renderTable();
+    }
+    
+    // Inicia o carregamento
     carregarUsuario();
 });
