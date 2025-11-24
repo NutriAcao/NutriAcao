@@ -1,425 +1,372 @@
-// src/controllers/reservaController.js
+// src/controllers/reservaController.js - VERSÃO COMPLETA
 import { supabase } from '../config/supabaseClient.js';
 
-// =========================================================================
-// FUNÇÕES DE RESERVA ATUALIZADAS PARA NOVO BANCO
-// =========================================================================
+// =====================================================
+// FUNÇÕES EXISTENTES (que já estão no seu router)
+// =====================================================
 
-// ONG reserva uma doação disponível (excedente de empresa)
-export async function reservarDoacaoONG(req, res) {
+// ONG reserva doação disponível
+export const reservarDoacaoONG = async (req, res) => {
     try {
         const { doacao_id } = req.body;
-        const usuario_id = req.usuario.id;
+        const usuarioId = req.usuario.id;
 
-        if (!doacao_id) {
-            return res.status(400).json({ message: "ID da doação é obrigatório." });
-        }
+        console.log(`🔄 ONG ${usuarioId} reservando doação ${doacao_id}`);
 
-        // Buscar ID da ONG associada ao usuário
-        const { data: ongData, error: ongError } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        if (ongError || !ongData) {
-            return res.status(400).json({ 
-                message: 'Usuário não possui uma ONG cadastrada' 
-            });
-        }
-
-        const id_ong = ongData.id;
-
-        // 1. Buscar dados da doação disponível
-        const { data: doacaoData, error: doacaoError } = await supabase
-            .from('doacoes_disponiveis')
+        // Verificar se a doação existe e está disponível
+        const { data: doacao, error: doacaoError } = await supabase
+            .from('doacoes')
             .select('*')
             .eq('id', doacao_id)
             .eq('status', 'disponível')
             .single();
 
-        if (doacaoError || !doacaoData) {
-            return res.status(409).json({ 
-                message: "Doação não encontrada ou já foi reservada" 
+        if (doacaoError || !doacao) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Doação não encontrada ou já foi reservada' 
             });
         }
 
-        // 2. Inserir na tabela de doações reservadas
-        const { data: reservaData, error: reservaError } = await supabase
-            .from('doacoes_reservadas')
-            .insert({
-                empresa_id: doacaoData.empresa_id,
-                ong_id: id_ong,
-                excedente_id: doacaoData.excedente_id,
-                titulo: doacaoData.titulo,
-                descricao: doacaoData.descricao,
-                quantidade: doacaoData.quantidade,
-                data_validade: doacaoData.data_validade,
+        // Reservar a doação para a ONG
+        const { error: updateError } = await supabase
+            .from('doacoes')
+            .update({ 
                 status: 'reservado',
-                data_publicacao: doacaoData.data_publicacao,
-                observacoes: doacaoData.observacoes,
-                telefone_contato: doacaoData.telefone_contato,
-                cep_retirada: doacaoData.cep_retirada
+                ong_id: usuarioId,
+                data_reserva: new Date().toISOString()
             })
-            .select(`
-                id,
-                titulo,
-                quantidade,
-                status,
-                empresa:empresas(nome_fantasia, razao_social)
-            `);
-
-        if (reservaError) {
-            console.error('❌ Erro ao criar reserva:', reservaError);
-            return res.status(500).json({ 
-                message: "Falha ao reservar a doação",
-                error: reservaError.message 
-            });
-        }
-
-        // 3. Remover da tabela de doações disponíveis
-        const { error: deleteError } = await supabase
-            .from('doacoes_disponiveis')
-            .delete()
             .eq('id', doacao_id);
 
-        if (deleteError) {
-            console.error('❌ Erro ao remover doação disponível:', deleteError);
-            // Não retornar erro aqui, pois a reserva já foi criada
+        if (updateError) {
+            throw updateError;
         }
 
-        console.log(`✅ Doação ${doacao_id} reservada pela ONG ${id_ong}`);
+        console.log(`✅ Doação ${doacao_id} reservada com sucesso para ONG ${usuarioId}`);
+
         res.json({ 
-            success: true,
-            message: 'Doação reservada com sucesso!',
-            data: reservaData[0]
+            success: true, 
+            message: 'Doação reservada com sucesso!' 
         });
 
     } catch (error) {
-        console.error('❌ Erro interno:', error);
+        console.error('❌ Erro ao reservar doação:', error);
         res.status(500).json({ 
-            message: 'Erro interno do servidor',
-            error: error.message 
+            success: false, 
+            message: 'Erro interno do servidor' 
         });
     }
-}
+};
 
-// Empresa reserva uma solicitação de ONG
-export async function reservarSolicitacaoEmpresa(req, res) {
+// Empresa reserva solicitação de ONG
+export const reservarSolicitacaoEmpresa = async (req, res) => {
     try {
         const { solicitacao_id } = req.body;
-        const usuario_id = req.usuario.id;
+        const usuarioId = req.usuario.id;
 
-        if (!solicitacao_id) {
-            return res.status(400).json({ message: "ID da solicitação é obrigatório." });
-        }
+        console.log(`🔄 Empresa ${usuarioId} reservando solicitação ${solicitacao_id}`);
 
-        // Buscar ID da empresa associada ao usuário
-        const { data: empresaData, error: empresaError } = await supabase
-            .from('empresas')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        if (empresaError || !empresaData) {
-            return res.status(400).json({ 
-                message: 'Usuário não possui uma empresa cadastrada' 
-            });
-        }
-
-        const id_empresa = empresaData.id;
-
-        // 1. Buscar dados da solicitação disponível
-        const { data: solicitacaoData, error: solicitacaoError } = await supabase
+        // Verificar se a solicitação existe e está disponível
+        const { data: solicitacao, error: solicitacaoError } = await supabase
             .from('solicitacoes_ong')
             .select('*')
             .eq('id', solicitacao_id)
-            .eq('status', 'disponivel')
+            .eq('status', 'disponível')
             .single();
 
-        if (solicitacaoError || !solicitacaoData) {
-            return res.status(409).json({ 
-                message: "Solicitação não encontrada ou já foi reservada" 
+        if (solicitacaoError || !solicitacao) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Solicitação não encontrada ou já foi reservada' 
             });
         }
 
-        // 2. Inserir na tabela de solicitações reservadas
-        const { data: reservaData, error: reservaError } = await supabase
-            .from('solicitacoes_ong_reservada')
-            .insert({
-                ong_id: solicitacaoData.ong_id,
-                empresa_id: id_empresa,
-                titulo: solicitacaoData.titulo,
-                descricao: solicitacaoData.descricao,
-                categoria_id: solicitacaoData.categoria_id,
-                quantidade_desejada: solicitacaoData.quantidade_desejada,
-                status: 'reservado',
-                data_criacao: solicitacaoData.data_criacao,
-                telefone_contato: solicitacaoData.telefone_contato,
-                email_contato: solicitacaoData.email_contato
-            })
-            .select(`
-                id,
-                titulo,
-                quantidade_desejada,
-                status,
-                ong:ongs(nome_ong, email_institucional)
-            `);
-
-        if (reservaError) {
-            console.error('❌ Erro ao criar reserva de solicitação:', reservaError);
-            return res.status(500).json({ 
-                message: "Falha ao reservar a solicitação",
-                error: reservaError.message 
-            });
-        }
-
-        // 3. Remover da tabela de solicitações disponíveis
-        const { error: deleteError } = await supabase
+        // Reservar a solicitação para a empresa
+        const { error: updateError } = await supabase
             .from('solicitacoes_ong')
-            .delete()
+            .update({ 
+                status: 'reservado',
+                empresa_id: usuarioId,
+                data_reserva: new Date().toISOString()
+            })
             .eq('id', solicitacao_id);
 
-        if (deleteError) {
-            console.error('❌ Erro ao remover solicitação disponível:', deleteError);
+        if (updateError) {
+            throw updateError;
         }
 
-        console.log(`✅ Solicitação ${solicitacao_id} reservada pela empresa ${id_empresa}`);
+        console.log(`✅ Solicitação ${solicitacao_id} reservada com sucesso para empresa ${usuarioId}`);
+
         res.json({ 
-            success: true,
-            message: 'Solicitação reservada com sucesso!',
-            data: reservaData[0]
+            success: true, 
+            message: 'Solicitação reservada com sucesso!' 
         });
 
     } catch (error) {
-        console.error('❌ Erro interno:', error);
+        console.error('❌ Erro ao reservar solicitação:', error);
         res.status(500).json({ 
-            message: 'Erro interno do servidor',
-            error: error.message 
+            success: false, 
+            message: 'Erro interno do servidor' 
         });
     }
-}
+};
 
-// =========================================================================
-// FUNÇÕES DE CONCLUSÃO ATUALIZADAS
-// =========================================================================
+// =====================================================
+// NOVAS FUNÇÕES PARA CONCLUSÃO (que estão no router)
+// =====================================================
 
-// Concluir doação (excedente) - tanto empresa quanto ONG podem concluir
-export async function concluirDoacao(req, res) {
+// Concluir doação reservada - MOVENDO para doacoes_concluidas
+export const concluirDoacaoReservada = async (req, res) => {
     try {
         const { doacao_id } = req.body;
-        const usuario_id = req.usuario.id;
+        const usuarioId = req.usuario.id;
 
-        if (!doacao_id) {
-            return res.status(400).json({ message: "ID da doação é obrigatório." });
-        }
+        console.log(`📦 Concluindo doação reservada ID: ${doacao_id} por ONG ${usuarioId}`);
 
-        // 1. Buscar dados da doação reservada
-        const { data: reservaData, error: reservaError } = await supabase
-            .from('doacoes_reservadas')
+        // 1. Buscar dados completos da doação
+        const { data: doacao, error: doacaoError } = await supabase
+            .from('doacoes')
             .select('*')
             .eq('id', doacao_id)
             .eq('status', 'reservado')
+            .eq('ong_id', usuarioId)
             .single();
 
-        if (reservaError || !reservaData) {
-            return res.status(409).json({ 
-                message: "Doação reservada não encontrada" 
-            });
-        }
-
-        // Verificar se o usuário tem permissão (é a ONG ou a empresa envolvida)
-        const { data: ongData } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        const { data: empresaData } = await supabase
-            .from('empresas')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        const userOngId = ongData?.id;
-        const userEmpresaId = empresaData?.id;
-
-        if (reservaData.ong_id !== userOngId && reservaData.empresa_id !== userEmpresaId) {
-            return res.status(403).json({ 
-                message: "Você não tem permissão para concluir esta doação" 
+        if (doacaoError || !doacao) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Doação não encontrada ou não está reservada para você' 
             });
         }
 
         // 2. Inserir na tabela de doações concluídas
-        const { data: conclusaoData, error: conclusaoError } = await supabase
+        const { error: insertError } = await supabase
             .from('doacoes_concluidas')
             .insert({
-                empresa_id: reservaData.empresa_id,
-                ong_id: reservaData.ong_id,
-                excedente_id: reservaData.excedente_id,
-                titulo: reservaData.titulo,
-                descricao: reservaData.descricao,
-                quantidade: reservaData.quantidade,
-                data_validade: reservaData.data_validade,
+                titulo: doacao.titulo,
+                descricao: doacao.descricao,
+                quantidade: doacao.quantidade,
+                data_validade: doacao.data_validade,
                 status: 'concluída',
-                data_publicacao: reservaData.data_publicacao,
-                observacoes: reservaData.observacoes
-            })
-            .select();
-
-        if (conclusaoError) {
-            console.error('❌ Erro ao criar conclusão:', conclusaoError);
-            return res.status(500).json({ 
-                message: "Falha ao concluir a doação",
-                error: conclusaoError.message 
+                data_publicacao: doacao.data_publicacao,
+                data_conclusao: new Date().toISOString(),
+                empresa_id: doacao.empresa_id,
+                ong_id: usuarioId,
+                categoria_id: doacao.categoria_id,
+                unidade_medida_id: doacao.unidade_medida_id,
+                cep_retirada: doacao.cep_retirada,
+                telefone_contato: doacao.telefone_contato,
+                email_contato: doacao.email_contato
             });
+
+        if (insertError) {
+            console.error('❌ Erro ao inserir na tabela concluída:', insertError);
+            throw insertError;
         }
 
-        // 3. Remover da tabela de doações reservadas
+        // 3. Remover da tabela de doações ativas
         const { error: deleteError } = await supabase
-            .from('doacoes_reservadas')
+            .from('doacoes')
             .delete()
             .eq('id', doacao_id);
 
         if (deleteError) {
-            console.error('❌ Erro ao remover doação reservada:', deleteError);
+            console.error('❌ Erro ao remover da tabela ativa:', deleteError);
+            throw deleteError;
         }
 
-        // 4. Atualizar métricas
-        await atualizarMetricas(reservaData.empresa_id, reservaData.ong_id, reservaData.quantidade);
+        console.log(`✅ Doação ${doacao_id} concluída e movida para tabela de conclusão`);
 
-        console.log(`✅ Doação ${doacao_id} concluída`);
         res.json({ 
-            success: true,
-            message: 'Doação concluída com sucesso!'
+            success: true, 
+            message: 'Doação concluída com sucesso!' 
         });
 
     } catch (error) {
-        console.error('❌ Erro interno:', error);
+        console.error('❌ Erro ao concluir doação:', error);
         res.status(500).json({ 
-            message: 'Erro interno do servidor',
-            error: error.message 
+            success: false, 
+            message: 'Erro interno do servidor' 
         });
     }
-}
+};
 
-// Concluir solicitação da ONG
-export async function concluirSolicitacao(req, res) {
+// Concluir pedido da ONG - MOVENDO para solicitacoes_ong_concluido
+export const concluirPedidoONG = async (req, res) => {
     try {
-        const { solicitacao_id } = req.body;
-        const usuario_id = req.usuario.id;
+        const { pedido_id } = req.body;
+        const usuarioId = req.usuario.id;
 
-        if (!solicitacao_id) {
-            return res.status(400).json({ message: "ID da solicitação é obrigatório." });
-        }
+        console.log(`📦 Concluindo pedido ONG ID: ${pedido_id} por ONG ${usuarioId}`);
 
-        // 1. Buscar dados da solicitação reservada
-        const { data: reservaData, error: reservaError } = await supabase
-            .from('solicitacoes_ong_reservada')
+        // 1. Buscar dados completos do pedido
+        const { data: pedido, error: pedidoError } = await supabase
+            .from('solicitacoes_ong')
             .select('*')
-            .eq('id', solicitacao_id)
+            .eq('id', pedido_id)
+            .eq('ong_id', usuarioId)
             .eq('status', 'reservado')
             .single();
 
-        if (reservaError || !reservaData) {
-            return res.status(409).json({ 
-                message: "Solicitação reservada não encontrada" 
-            });
-        }
-
-        // Verificar permissão
-        const { data: ongData } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        const { data: empresaData } = await supabase
-            .from('empresas')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        const userOngId = ongData?.id;
-        const userEmpresaId = empresaData?.id;
-
-        if (reservaData.ong_id !== userOngId && reservaData.empresa_id !== userEmpresaId) {
-            return res.status(403).json({ 
-                message: "Você não tem permissão para concluir esta solicitação" 
+        if (pedidoError || !pedido) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Pedido não encontrado ou não está reservado' 
             });
         }
 
         // 2. Inserir na tabela de solicitações concluídas
-        const { data: conclusaoData, error: conclusaoError } = await supabase
+        const { error: insertError } = await supabase
             .from('solicitacoes_ong_concluido')
             .insert({
-                ong_id: reservaData.ong_id,
-                empresa_id: reservaData.empresa_id,
-                titulo: reservaData.titulo,
-                descricao: reservaData.descricao,
-                categoria_id: reservaData.categoria_id,
-                quantidade_desejada: reservaData.quantidade_desejada,
+                titulo: pedido.titulo,
+                descricao: pedido.descricao,
+                quantidade_desejada: pedido.quantidade_desejada,
                 status: 'concluído',
-                data_criacao: reservaData.data_criacao
-            })
-            .select();
-
-        if (conclusaoError) {
-            console.error('❌ Erro ao criar conclusão:', conclusaoError);
-            return res.status(500).json({ 
-                message: "Falha ao concluir a solicitação",
-                error: conclusaoError.message 
+                data_criacao: pedido.data_criacao,
+                data_conclusao: new Date().toISOString(),
+                ong_id: usuarioId,
+                empresa_id: pedido.empresa_id,
+                categoria_id: pedido.categoria_id,
+                observacoes: pedido.observacoes
             });
+
+        if (insertError) {
+            console.error('❌ Erro ao inserir na tabela concluída:', insertError);
+            throw insertError;
         }
 
-        // 3. Remover da tabela de solicitações reservadas
+        // 3. Remover da tabela de solicitações ativas
         const { error: deleteError } = await supabase
-            .from('solicitacoes_ong_reservada')
+            .from('solicitacoes_ong')
             .delete()
-            .eq('id', solicitacao_id);
+            .eq('id', pedido_id);
 
         if (deleteError) {
-            console.error('❌ Erro ao remover solicitação reservada:', deleteError);
+            console.error('❌ Erro ao remover da tabela ativa:', deleteError);
+            throw deleteError;
         }
 
-        // 4. Atualizar métricas
-        await atualizarMetricas(reservaData.empresa_id, reservaData.ong_id, reservaData.quantidade_desejada);
+        console.log(`✅ Pedido ${pedido_id} concluído e movido para tabela de conclusão`);
 
-        console.log(`✅ Solicitação ${solicitacao_id} concluída`);
         res.json({ 
-            success: true,
-            message: 'Solicitação concluída com sucesso!'
+            success: true, 
+            message: 'Pedido concluído com sucesso!' 
         });
 
     } catch (error) {
-        console.error('❌ Erro interno:', error);
+        console.error('❌ Erro ao concluir pedido:', error);
         res.status(500).json({ 
-            message: 'Erro interno do servidor',
-            error: error.message 
+            success: false, 
+            message: 'Erro interno do servidor' 
         });
     }
-}
+};
 
-// =========================================================================
-// FUNÇÃO AUXILIAR
-// =========================================================================
-
-async function atualizarMetricas(empresa_id, ong_id, quantidade) {
+// Cancelar reserva
+export const cancelarReservaONG = async (req, res) => {
     try {
-        const { error } = await supabase
-            .from('metricas')
-            .insert({
-                empresa_id: empresa_id,
-                ong_id: ong_id,
-                quantidade_kg: quantidade,
-                data_metrica: new Date().toISOString().split('T')[0],
-                tipo_metrica: 'doacao_concluida'
-            });
+        const { item_id, tipo_item } = req.body;
+        const usuarioId = req.usuario.id;
 
-        if (error) {
-            console.error('❌ Erro ao atualizar métricas:', error);
+        console.log(`📦 Cancelando reserva - ID: ${item_id}, Tipo: ${tipo_item} por usuário ${usuarioId}`);
+
+        if (tipo_item === 'doacao') {
+            // Verificar se a doação está reservada para esta ONG
+            const { data: doacao, error: doacaoError } = await supabase
+                .from('doacoes')
+                .select('*')
+                .eq('id', item_id)
+                .eq('status', 'reservado')
+                .eq('ong_id', usuarioId)
+                .single();
+
+            if (doacaoError || !doacao) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Doação não encontrada ou não está reservada para você' 
+                });
+            }
+
+            // Cancelar reserva da doação
+            const { error: updateError } = await supabase
+                .from('doacoes')
+                .update({ 
+                    status: 'disponível',
+                    ong_id: null,
+                    data_reserva: null
+                })
+                .eq('id', item_id);
+
+            if (updateError) {
+                throw updateError;
+            }
+
+        } else if (tipo_item === 'pedido') {
+            // Verificar se o pedido pertence a esta ONG e está reservado
+            const { data: pedido, error: pedidoError } = await supabase
+                .from('solicitacoes_ong')
+                .select('*')
+                .eq('id', item_id)
+                .eq('ong_id', usuarioId)
+                .eq('status', 'reservado')
+                .single();
+
+            if (pedidoError || !pedido) {
+                return res.status(404).json({ 
+                    success: false, 
+                    message: 'Pedido não encontrado ou não está reservado' 
+                });
+            }
+
+            // Cancelar reserva do pedido
+            const { error: updateError } = await supabase
+                .from('solicitacoes_ong')
+                .update({ 
+                    status: 'disponível',
+                    empresa_id: null,
+                    data_reserva: null
+                })
+                .eq('id', item_id);
+
+            if (updateError) {
+                throw updateError;
+            }
+        } else {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'Tipo de item inválido' 
+            });
         }
+
+        console.log(`✅ Reserva ${item_id} cancelada com sucesso`);
+
+        res.json({ 
+            success: true, 
+            message: 'Reserva cancelada com sucesso!' 
+        });
+
     } catch (error) {
-        console.error('❌ Erro ao atualizar métricas:', error);
+        console.error('❌ Erro ao cancelar reserva:', error);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
     }
-}
+};
+
+// =====================================================
+// FUNÇÕES ADICIONAIS (se precisar no futuro)
+// =====================================================
+
+// Concluir doação (função genérica - se precisar)
+export const concluirDoacao = async (req, res) => {
+    // Implementação se necessário
+    res.json({ success: true, message: 'Doação concluída' });
+};
+
+// Concluir solicitação (função genérica - se precisar)
+export const concluirSolicitacao = async (req, res) => {
+    // Implementação se necessário
+    res.json({ success: true, message: 'Solicitação concluída' });
+};

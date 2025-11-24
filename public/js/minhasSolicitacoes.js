@@ -335,6 +335,94 @@ function confirmarAcao(acao, id, tipo, mensagem) {
     
     openModal('confirmModal');
 }
+    // Rota para concluir doação (ONG marca doação como recebida)
+router.put('/concluir-doacao', verificarToken, async (req, res) => {
+    try {
+        const { item_id, tipo_item } = req.body;
+
+        if (!item_id) {
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ID do item é obrigatório' 
+            });
+        }
+
+        console.log(`🔄 Concluindo doação ID: ${item_id}, Tipo: ${tipo_item}`);
+
+        // Buscar a doação reservada
+        const { data: doacaoReservada, error: errorBusca } = await supabase
+            .from('doacoes_reservadas')
+            .select('*')
+            .eq('id', item_id)
+            .single();
+
+        if (errorBusca) {
+            console.error('Erro ao buscar doação reservada:', errorBusca);
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Doação não encontrada' 
+            });
+        }
+
+        if (!doacaoReservada) {
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Doação não encontrada' 
+            });
+        }
+
+        // Inserir na tabela de doações concluídas
+        const { data: doacaoConcluida, error: errorConcluir } = await supabase
+            .from('doacoes_concluidas')
+            .insert({
+                empresa_id: doacaoReservada.empresa_id,
+                ong_id: doacaoReservada.ong_id,
+                excedente_id: doacaoReservada.excedente_id,
+                titulo: doacaoReservada.titulo,
+                descricao: doacaoReservada.descricao,
+                quantidade: doacaoReservada.quantidade,
+                data_validade: doacaoReservada.data_validade,
+                status: 'concluída',
+                data_publicacao: new Date()
+            })
+            .select()
+            .single();
+
+        if (errorConcluir) {
+            console.error('Erro ao concluir doação:', errorConcluir);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Erro ao concluir doação' 
+            });
+        }
+
+        // Remover da tabela de doações reservadas
+        const { error: errorRemover } = await supabase
+            .from('doacoes_reservadas')
+            .delete()
+            .eq('id', item_id);
+
+        if (errorRemover) {
+            console.error('Erro ao remover doação reservada:', errorRemover);
+            // Mesmo com erro na remoção, a doação já foi concluída
+        }
+
+        console.log('✅ Doação concluída com sucesso:', doacaoConcluida.id);
+
+        res.json({
+            success: true,
+            message: 'Doação concluída com sucesso!',
+            data: doacaoConcluida
+        });
+
+    } catch (err) {
+        console.error('Erro na rota /concluir-doacao:', err);
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor' 
+        });
+    }
+});
 
 async function executarAcao(acao, id, tipo) {
     closeModal('confirmModal');
