@@ -80,6 +80,7 @@ app.use('/api/auth', loginRoutes);
 app.use('/api', solicitacoesRoutes);
 app.use('/api', rotasAcoes);
 app.use('/api', reservaRoutes);
+app.use('/api/doacoes-ativas', doacoesAtivasRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
@@ -91,7 +92,7 @@ app.get('/loginpage', (req, res) => {
   res.sendFile(path.join(publicPath, 'pages', 'homepage', 'loginpage.html'))
 })
 app.get('/api/usuarioToken', verificarToken, (req, res) => {
-    res.json(req.usuario);
+  res.json(req.usuario);
 });
 
 // ROTAS PROTEGIDAS PARA EMPRESA
@@ -174,105 +175,105 @@ app.post('/api/cadastro/doacaoEmpresa', verificarToken, verificarEmpresa, cadast
 // ROTA DE RESERVA CORRIGIDA - COM MAIS LOGS
 // ROTA DE RESERVA NOVA - NOME DIFERENTE
 app.post('/api/reservar-doacao-ong', verificarToken, verificarOng, async (req, res) => {
-    try {
-        console.log('🎯🎯🎯 ROTA RESERVA NOVA CHAMADA - doacao_id:', req.body.doacao_id);
-        
-        const { doacao_id } = req.body;
-        const usuario_id = req.usuario.id;
+  try {
+    console.log('🎯🎯🎯 ROTA RESERVA NOVA CHAMADA - doacao_id:', req.body.doacao_id);
 
-        if (!doacao_id) {
-            return res.status(400).json({ 
-                success: false,
-                message: "ID da doação é obrigatório." 
-            });
-        }
+    const { doacao_id } = req.body;
+    const usuario_id = req.usuario.id;
 
-        // Buscar ID da ONG
-        const { data: ongData, error: ongError } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        if (ongError || !ongData) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'ONG não encontrada' 
-            });
-        }
-
-        const id_ong = ongData.id;
-
-        // 1. Buscar doação disponível
-        const { data: doacaoData, error: doacaoError } = await supabase
-            .from('doacoes_disponiveis')
-            .select('*')
-            .eq('id', doacao_id)
-            .eq('status', 'disponível')
-            .single();
-
-        if (doacaoError || !doacaoData) {
-            return res.status(409).json({ 
-                success: false,
-                message: "Doação não encontrada ou já foi reservada" 
-            });
-        }
-
-        // 2. Inserir na tabela de reservadas
-        const { data: reservaData, error: reservaError } = await supabase
-            .from('doacoes_reservadas')
-            .insert({
-                empresa_id: doacaoData.empresa_id,
-                ong_id: id_ong,
-                excedente_id: doacaoData.excedente_id,
-                titulo: doacaoData.titulo,
-                descricao: doacaoData.descricao,
-                quantidade: doacaoData.quantidade,
-                data_validade: doacaoData.data_validade,
-                status: 'reservado',
-                data_publicacao: doacaoData.data_publicacao
-            })
-            .select();
-
-        if (reservaError) {
-            console.error('❌ Erro ao criar reserva:', reservaError);
-            return res.status(500).json({ 
-                success: false,
-                message: "Erro ao reservar a doação",
-                error: reservaError.message 
-            });
-        }
-
-        // 3. Remover da tabela de disponíveis
-        await supabase
-            .from('doacoes_disponiveis')
-            .delete()
-            .eq('id', doacao_id);
-
-        console.log(`✅✅✅ Doação ${doacao_id} reservada com sucesso via NOVA ROTA!`);
-        res.json({ 
-            success: true,
-            message: 'Doação reservada com sucesso!',
-            data: reservaData[0]
-        });
-
-    } catch (error) {
-        console.error('❌ Erro interno:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Erro interno do servidor',
-            error: error.message 
-        });
+    if (!doacao_id) {
+      return res.status(400).json({
+        success: false,
+        message: "ID da doação é obrigatório."
+      });
     }
+
+    // Buscar ID da ONG
+    const { data: ongData, error: ongError } = await supabase
+      .from('ongs')
+      .select('id')
+      .eq('usuario_id', usuario_id)
+      .single();
+
+    if (ongError || !ongData) {
+      return res.status(400).json({
+        success: false,
+        message: 'ONG não encontrada'
+      });
+    }
+
+    const id_ong = ongData.id;
+
+    // 1. Buscar doação disponível
+    const { data: doacaoData, error: doacaoError } = await supabase
+      .from('doacoes_disponiveis')
+      .select('*')
+      .eq('id', doacao_id)
+      .eq('status', 'disponível')
+      .single();
+
+    if (doacaoError || !doacaoData) {
+      return res.status(409).json({
+        success: false,
+        message: "Doação não encontrada ou já foi reservada"
+      });
+    }
+
+    // 2. Inserir na tabela de reservadas
+    const { data: reservaData, error: reservaError } = await supabase
+      .from('doacoes_reservadas')
+      .insert({
+        empresa_id: doacaoData.empresa_id,
+        ong_id: id_ong,
+        excedente_id: doacaoData.excedente_id,
+        titulo: doacaoData.titulo,
+        descricao: doacaoData.descricao,
+        quantidade: doacaoData.quantidade,
+        data_validade: doacaoData.data_validade,
+        status: 'reservado',
+        data_publicacao: doacaoData.data_publicacao
+      })
+      .select();
+
+    if (reservaError) {
+      console.error('❌ Erro ao criar reserva:', reservaError);
+      return res.status(500).json({
+        success: false,
+        message: "Erro ao reservar a doação",
+        error: reservaError.message
+      });
+    }
+
+    // 3. Remover da tabela de disponíveis
+    await supabase
+      .from('doacoes_disponiveis')
+      .delete()
+      .eq('id', doacao_id);
+
+    console.log(`✅✅✅ Doação ${doacao_id} reservada com sucesso via NOVA ROTA!`);
+    res.json({
+      success: true,
+      message: 'Doação reservada com sucesso!',
+      data: reservaData[0]
+    });
+
+  } catch (error) {
+    console.error('❌ Erro interno:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
 });
 // ROTA PARA DOAÇÕES DISPONÍVEIS
 app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req, res) => {
-    try {
-        console.log("🔄 Buscando doações disponíveis para ONG...");
-        
-        const { data: doacoes, error } = await supabase
-            .from('doacoes_disponiveis')
-            .select(`
+  try {
+    console.log("🔄 Buscando doações disponíveis para ONG...");
+
+    const { data: doacoes, error } = await supabase
+      .from('doacoes_disponiveis')
+      .select(`
                 id,
                 titulo,
                 descricao,
@@ -292,40 +293,40 @@ app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req
                     unidade_medida:unidades_medida(abreviacao)
                 )
             `)
-            .eq('status', 'disponível')
-            .order('data_publicacao', { ascending: false });
+      .eq('status', 'disponível')
+      .order('data_publicacao', { ascending: false });
 
-        if (error) {
-            console.error('❌ Erro ao buscar doações:', error);
-            return res.status(500).json({ 
-                message: 'Erro ao carregar doações disponíveis',
-                error: error.message 
-            });
-        }
-
-        // Processar dados para formato mais amigável
-        const doacoesProcessadas = doacoes.map(doacao => ({
-            id: doacao.id,
-            titulo: doacao.titulo,
-            descricao: doacao.descricao,
-            quantidade: doacao.quantidade,
-            data_validade: doacao.data_validade,
-            status: doacao.status,
-            empresa: doacao.empresa,
-            categoria: doacao.excedente?.categoria?.nome || 'Não categorizado',
-            unidade_medida: doacao.excedente?.unidade_medida?.abreviacao || 'un'
-        }));
-
-        console.log(`✅ ${doacoesProcessadas.length} doações encontradas`);
-        res.json(doacoesProcessadas);
-
-    } catch (error) {
-        console.error('❌ Erro interno:', error);
-        res.status(500).json({ 
-            message: 'Erro interno do servidor',
-            error: error.message 
-        });
+    if (error) {
+      console.error('❌ Erro ao buscar doações:', error);
+      return res.status(500).json({
+        message: 'Erro ao carregar doações disponíveis',
+        error: error.message
+      });
     }
+
+    // Processar dados para formato mais amigável
+    const doacoesProcessadas = doacoes.map(doacao => ({
+      id: doacao.id,
+      titulo: doacao.titulo,
+      descricao: doacao.descricao,
+      quantidade: doacao.quantidade,
+      data_validade: doacao.data_validade,
+      status: doacao.status,
+      empresa: doacao.empresa,
+      categoria: doacao.excedente?.categoria?.nome || 'Não categorizado',
+      unidade_medida: doacao.excedente?.unidade_medida?.abreviacao || 'un'
+    }));
+
+    console.log(`✅ ${doacoesProcessadas.length} doações encontradas`);
+    res.json(doacoesProcessadas);
+
+  } catch (error) {
+    console.error('❌ Erro interno:', error);
+    res.status(500).json({
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
 });
 // =====================================================
 // ROTAS PARA MINHAS SOLICITAÇÕES DA ONG
@@ -333,28 +334,28 @@ app.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (req
 
 // Solicitações disponíveis da ONG
 app.get('/api/meus-pedidos-disponiveis', verificarToken, verificarOng, async (req, res) => {
-    try {
-        const usuario_id = req.usuario.id;
-        
-        console.log('📥 Buscando pedidos disponíveis para ONG, usuário:', usuario_id);
+  try {
+    const usuario_id = req.usuario.id;
 
-        // Buscar ID da ONG
-        const { data: ongData, error: ongError } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
+    console.log('📥 Buscando pedidos disponíveis para ONG, usuário:', usuario_id);
 
-        if (ongError || !ongData) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'ONG não encontrada' 
-            });
-        }
+    // Buscar ID da ONG
+    const { data: ongData, error: ongError } = await supabase
+      .from('ongs')
+      .select('id')
+      .eq('usuario_id', usuario_id)
+      .single();
 
-        const { data: solicitacoes, error } = await supabase
-            .from('solicitacoes_ong')
-            .select(`
+    if (ongError || !ongData) {
+      return res.status(400).json({
+        success: false,
+        message: 'ONG não encontrada'
+      });
+    }
+
+    const { data: solicitacoes, error } = await supabase
+      .from('solicitacoes_ong')
+      .select(`
                 id,
                 titulo,
                 descricao,
@@ -363,56 +364,56 @@ app.get('/api/meus-pedidos-disponiveis', verificarToken, verificarOng, async (re
                 data_criacao,
                 categoria:categorias(nome)
             `)
-            .eq('ong_id', ongData.id)
-            .eq('status', 'disponivel')
-            .order('data_criacao', { ascending: false });
+      .eq('ong_id', ongData.id)
+      .eq('status', 'disponivel')
+      .order('data_criacao', { ascending: false });
 
-        if (error) {
-            console.error('❌ Erro ao buscar solicitações:', error);
-            return res.status(500).json({ 
-                success: false,
-                message: 'Erro ao carregar solicitações',
-                error: error.message 
-            });
-        }
-
-        console.log(`✅ ${solicitacoes.length} solicitações encontradas`);
-        res.json(solicitacoes);
-
-    } catch (error) {
-        console.error('❌ Erro interno:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Erro interno do servidor',
-            error: error.message 
-        });
+    if (error) {
+      console.error('❌ Erro ao buscar solicitações:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao carregar solicitações',
+        error: error.message
+      });
     }
+
+    console.log(`✅ ${solicitacoes.length} solicitações encontradas`);
+    res.json(solicitacoes);
+
+  } catch (error) {
+    console.error('❌ Erro interno:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
 });
 
 // Solicitações reservadas da ONG
 app.get('/api/meus-pedidos-reservados', verificarToken, verificarOng, async (req, res) => {
-    try {
-        const usuario_id = req.usuario.id;
-        
-        console.log('📥 Buscando pedidos reservados para ONG, usuário:', usuario_id);
+  try {
+    const usuario_id = req.usuario.id;
 
-        // Buscar ID da ONG
-        const { data: ongData, error: ongError } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
+    console.log('📥 Buscando pedidos reservados para ONG, usuário:', usuario_id);
 
-        if (ongError || !ongData) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'ONG não encontrada' 
-            });
-        }
+    // Buscar ID da ONG
+    const { data: ongData, error: ongError } = await supabase
+      .from('ongs')
+      .select('id')
+      .eq('usuario_id', usuario_id)
+      .single();
 
-        const { data: solicitacoes, error } = await supabase
-            .from('solicitacoes_ong_reservada')
-            .select(`
+    if (ongError || !ongData) {
+      return res.status(400).json({
+        success: false,
+        message: 'ONG não encontrada'
+      });
+    }
+
+    const { data: solicitacoes, error } = await supabase
+      .from('solicitacoes_ong_reservada')
+      .select(`
                 id,
                 titulo,
                 descricao,
@@ -422,56 +423,56 @@ app.get('/api/meus-pedidos-reservados', verificarToken, verificarOng, async (req
                 empresa:empresas(nome_fantasia, razao_social, email_institucional),
                 categoria:categorias(nome)
             `)
-            .eq('ong_id', ongData.id)
-            .eq('status', 'reservado')
-            .order('data_criacao', { ascending: false });
+      .eq('ong_id', ongData.id)
+      .eq('status', 'reservado')
+      .order('data_criacao', { ascending: false });
 
-        if (error) {
-            console.error('❌ Erro ao buscar solicitações reservadas:', error);
-            return res.status(500).json({ 
-                success: false,
-                message: 'Erro ao carregar solicitações reservadas',
-                error: error.message 
-            });
-        }
-
-        console.log(`✅ ${solicitacoes.length} solicitações reservadas encontradas`);
-        res.json(solicitacoes);
-
-    } catch (error) {
-        console.error('❌ Erro interno:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Erro interno do servidor',
-            error: error.message 
-        });
+    if (error) {
+      console.error('❌ Erro ao buscar solicitações reservadas:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao carregar solicitações reservadas',
+        error: error.message
+      });
     }
+
+    console.log(`✅ ${solicitacoes.length} solicitações reservadas encontradas`);
+    res.json(solicitacoes);
+
+  } catch (error) {
+    console.error('❌ Erro interno:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
 });
 
 // Doações reservadas pela ONG
 app.get('/api/doacoes-reservadas-ong', verificarToken, verificarOng, async (req, res) => {
-    try {
-        const usuario_id = req.usuario.id;
-        
-        console.log('📥 Buscando doações reservadas para ONG, usuário:', usuario_id);
+  try {
+    const usuario_id = req.usuario.id;
 
-        // Buscar ID da ONG
-        const { data: ongData, error: ongError } = await supabase
-            .from('ongs')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
+    console.log('📥 Buscando doações reservadas para ONG, usuário:', usuario_id);
 
-        if (ongError || !ongData) {
-            return res.status(400).json({ 
-                success: false,
-                message: 'ONG não encontrada' 
-            });
-        }
+    // Buscar ID da ONG
+    const { data: ongData, error: ongError } = await supabase
+      .from('ongs')
+      .select('id')
+      .eq('usuario_id', usuario_id)
+      .single();
 
-        const { data: doacoes, error } = await supabase
-            .from('doacoes_reservadas')
-            .select(`
+    if (ongError || !ongData) {
+      return res.status(400).json({
+        success: false,
+        message: 'ONG não encontrada'
+      });
+    }
+
+    const { data: doacoes, error } = await supabase
+      .from('doacoes_reservadas')
+      .select(`
                 id,
                 titulo,
                 descricao,
@@ -481,30 +482,30 @@ app.get('/api/doacoes-reservadas-ong', verificarToken, verificarOng, async (req,
                 data_publicacao,
                 empresa:empresas(nome_fantasia, razao_social, email_institucional)
             `)
-            .eq('ong_id', ongData.id)
-            .eq('status', 'reservado')
-            .order('data_publicacao', { ascending: false });
+      .eq('ong_id', ongData.id)
+      .eq('status', 'reservado')
+      .order('data_publicacao', { ascending: false });
 
-        if (error) {
-            console.error('❌ Erro ao buscar doações reservadas:', error);
-            return res.status(500).json({ 
-                success: false,
-                message: 'Erro ao carregar doações reservadas',
-                error: error.message 
-            });
-        }
-
-        console.log(`✅ ${doacoes.length} doações reservadas encontradas`);
-        res.json(doacoes);
-
-    } catch (error) {
-        console.error('❌ Erro interno:', error);
-        res.status(500).json({ 
-            success: false,
-            message: 'Erro interno do servidor',
-            error: error.message 
-        });
+    if (error) {
+      console.error('❌ Erro ao buscar doações reservadas:', error);
+      return res.status(500).json({
+        success: false,
+        message: 'Erro ao carregar doações reservadas',
+        error: error.message
+      });
     }
+
+    console.log(`✅ ${doacoes.length} doações reservadas encontradas`);
+    res.json(doacoes);
+
+  } catch (error) {
+    console.error('❌ Erro interno:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Erro interno do servidor',
+      error: error.message
+    });
+  }
 });
 // rota de contato/suporte
 app.post('/enviar-contato', contactLimiter, async (req, res) => {
@@ -662,14 +663,14 @@ app.listen(PORT, () => {
 });
 
 app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req, res) => {
-    try {
-        const empresaId = req.usuario.id;
-        
-        console.log(`Buscando relatórios para empresa ID: ${empresaId}`);
+  try {
+    const empresaId = req.usuario.id;
 
-        const { data: doacoes, error } = await supabase
-            .from('doacoes')
-            .select(`
+    console.log(`Buscando relatórios para empresa ID: ${empresaId}`);
+
+    const { data: doacoes, error } = await supabase
+      .from('doacoes')
+      .select(`
                 id,
                 data_doacao,
                 status,
@@ -701,89 +702,89 @@ app.get('/api/relatorios-impacto', verificarToken, verificarEmpresa, async (req,
                     )
                 )
             `)
-            .eq('empresa_id', empresaId)
-            .in('status', ['entregue', 'concluido', 'finalizado'])
-            .order('data_doacao', { ascending: false });
+      .eq('empresa_id', empresaId)
+      .in('status', ['entregue', 'concluido', 'finalizado'])
+      .order('data_doacao', { ascending: false });
 
-        if (error) {
-            console.error('Erro Supabase:', error);
-            throw error;
-        }
-
-        console.log(`Encontradas ${doacoes?.length || 0} doações`);
-
-        const doacoesProcessadas = doacoes?.map(doacao => {
-            const alimentos = doacao.itens_doacao?.map(item => {
-                const refeicoes = calcularRefeicoesAPI(item.quantidade, item.alimentos?.categoria);
-                const co2 = calcularCO2EvitadoAPI(item.quantidade, item.alimentos?.co2_por_kg);
-                
-                return {
-                    nome: item.alimentos?.nome || 'Alimento não especificado',
-                    quantidade: item.quantidade || 0,
-                    unidade: item.unidade_medida || 'kg',
-                    refeicoes: refeicoes,
-                    co2: co2,
-                    categoria: item.alimentos?.categoria || 'outros'
-                };
-            }) || [];
-
-            const totalRefeicoes = alimentos.reduce((sum, item) => sum + item.refeicoes, 0);
-            const totalCO2 = alimentos.reduce((sum, item) => sum + item.co2, 0);
-            const totalAlimentos = alimentos.reduce((sum, item) => sum + item.quantidade, 0);
-
-            return {
-                id: doacao.id,
-                data: doacao.data_doacao || doacao.created_at,
-                alimentos: alimentos,
-                ong: doacao.ongs?.nome || 'ONG não especificada',
-                status: doacao.status,
-                responsavel: doacao.empresas?.nome_fantasia || 'Empresa não especificada',
-                endereco: doacao.ongs?.endereco || 'Endereço não especificado',
-                telefone: doacao.ongs?.telefone || 'Telefone não informado',
-                totalRefeicoes: totalRefeicoes,
-                totalCO2: totalCO2,
-                totalAlimentos: totalAlimentos
-            };
-        }) || [];
-
-        res.json({
-            success: true,
-            data: doacoesProcessadas,
-            total: doacoesProcessadas.length,
-            empresa: doacoesProcessadas[0]?.responsavel || 'Empresa'
-        });
-
-    } catch (error) {
-        console.error('Erro ao buscar relatórios:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Erro ao buscar dados dos relatórios',
-            details: error.message 
-        });
+    if (error) {
+      console.error('Erro Supabase:', error);
+      throw error;
     }
+
+    console.log(`Encontradas ${doacoes?.length || 0} doações`);
+
+    const doacoesProcessadas = doacoes?.map(doacao => {
+      const alimentos = doacao.itens_doacao?.map(item => {
+        const refeicoes = calcularRefeicoesAPI(item.quantidade, item.alimentos?.categoria);
+        const co2 = calcularCO2EvitadoAPI(item.quantidade, item.alimentos?.co2_por_kg);
+
+        return {
+          nome: item.alimentos?.nome || 'Alimento não especificado',
+          quantidade: item.quantidade || 0,
+          unidade: item.unidade_medida || 'kg',
+          refeicoes: refeicoes,
+          co2: co2,
+          categoria: item.alimentos?.categoria || 'outros'
+        };
+      }) || [];
+
+      const totalRefeicoes = alimentos.reduce((sum, item) => sum + item.refeicoes, 0);
+      const totalCO2 = alimentos.reduce((sum, item) => sum + item.co2, 0);
+      const totalAlimentos = alimentos.reduce((sum, item) => sum + item.quantidade, 0);
+
+      return {
+        id: doacao.id,
+        data: doacao.data_doacao || doacao.created_at,
+        alimentos: alimentos,
+        ong: doacao.ongs?.nome || 'ONG não especificada',
+        status: doacao.status,
+        responsavel: doacao.empresas?.nome_fantasia || 'Empresa não especificada',
+        endereco: doacao.ongs?.endereco || 'Endereço não especificado',
+        telefone: doacao.ongs?.telefone || 'Telefone não informado',
+        totalRefeicoes: totalRefeicoes,
+        totalCO2: totalCO2,
+        totalAlimentos: totalAlimentos
+      };
+    }) || [];
+
+    res.json({
+      success: true,
+      data: doacoesProcessadas,
+      total: doacoesProcessadas.length,
+      empresa: doacoesProcessadas[0]?.responsavel || 'Empresa'
+    });
+
+  } catch (error) {
+    console.error('Erro ao buscar relatórios:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Erro ao buscar dados dos relatórios',
+      details: error.message
+    });
+  }
 });
 
 function calcularRefeicoesAPI(quantidade, categoria) {
-    const fatores = {
-        'graos': 5,
-        'frutas': 4,
-        'legumes': 6,
-        'verduras': 8,
-        'laticinios': 2,
-        'outros': 3
-    };
-    
-    return Math.round(quantidade * (fatores[categoria] || 3));
+  const fatores = {
+    'graos': 5,
+    'frutas': 4,
+    'legumes': 6,
+    'verduras': 8,
+    'laticinios': 2,
+    'outros': 3
+  };
+
+  return Math.round(quantidade * (fatores[categoria] || 3));
 }
 
 function calcularCO2EvitadoAPI(quantidade, co2PorKg) {
-    const co2Fator = co2PorKg || 0.5;
-    return parseFloat((quantidade * co2Fator).toFixed(2));
+  const co2Fator = co2PorKg || 0.5;
+  return parseFloat((quantidade * co2Fator).toFixed(2));
 }
 app.get('/doacoesConcluidasONG/solicitacoesConcluidasONG', verificarToken, verificarOng, async (req, res) => {
   try {
     const ongId = req.query.id;
-    
+
     const query = `
       SELECT 
         soc.id,
@@ -798,7 +799,7 @@ app.get('/doacoesConcluidasONG/solicitacoesConcluidasONG', verificarToken, verif
       WHERE soc.ong_id = $1
       ORDER BY soc.data_criacao DESC
     `;
-    
+
     const result = await pool.query(query, [ongId]);
     res.json(result.rows);
   } catch (error) {
@@ -811,7 +812,7 @@ app.get('/doacoesConcluidasONG/solicitacoesConcluidasONG', verificarToken, verif
 app.get('/doacoesConcluidasONG/excedentesConcluidosONG', verificarToken, verificarOng, async (req, res) => {
   try {
     const ongId = req.query.id;
-    
+
     const query = `
       SELECT 
         dc.id,
@@ -826,7 +827,7 @@ app.get('/doacoesConcluidasONG/excedentesConcluidosONG', verificarToken, verific
       WHERE dc.ong_id = $1 AND dc.excedente_id IS NOT NULL
       ORDER BY dc.data_publicacao DESC
     `;
-    
+
     const result = await pool.query(query, [ongId]);
     res.json(result.rows);
   } catch (error) {
