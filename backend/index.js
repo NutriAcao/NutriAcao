@@ -15,6 +15,7 @@ import rateLimit from 'express-rate-limit';
 import historicoRoutes from './src/routes/historicoRoutes.js';
 import { supabase } from './src/config/supabaseClient.js'
 import crypto from 'crypto';
+import doacoesAtivasRoutes from './src/routes/doacoesAtivasRoutes.js';
 
 import empresaRoutes from './src/routes/empresaRoutes.js';
 import ongRoutes from './src/routes/ongRoutes.js';
@@ -77,6 +78,7 @@ app.use('/api/doacoes-concluidas', doacoesConcluidasRoutes);
 app.use('/api/minha-conta-ong', minhaContaOngRoutes);
 app.use('/api/auth', loginRoutes);
 app.use('/api', solicitacoesRoutes);
+app.use('/api/doacoes-ativas', doacoesAtivasRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {

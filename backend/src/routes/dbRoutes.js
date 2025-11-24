@@ -61,7 +61,6 @@ router.get('/api/doacoes-disponiveis-ong', verificarToken, verificarOng, async (
     }
 });
 
-
 // ROTA 2: PAINEL DA EMPRESA - Busca pedidos disponíveis (Solicitações de ONGs)
 router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) => {
     try {
@@ -78,6 +77,7 @@ router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) 
             FROM solicitacoes_ong so
             LEFT JOIN ongs o ON so.ong_id = o.id
             WHERE so.status = 'disponivel'
+            ORDER BY so.data_criacao DESC;
         `;
         
         const result = await pool.query(query);
@@ -94,9 +94,18 @@ router.get('/api/pedidos-disponiveis-empresa', verificarToken, async (req, res) 
 
 // ROTA 3: RESERVAR ITEM (Usa as novas colunas)
 router.post('/api/reservar-doacao', verificarToken, async (req, res) => {
-    const { doacaoId, tipoDoacao } = req.body; 
-    const usuarioId = req.usuario.id; 
+    console.log('🔔 REQUISIÇÃO RECEBIDA em /api/reservar-doacao');
+    console.log('Body:', req.body);
+    console.log('Usuário:', req.usuario);
     
+    const { doacao_id } = req.body;
+    const ongId = req.usuario.id;
+
+    if (!doacao_id) {
+        return res.status(400).json({ message: "ID da doação é obrigatório." });
+    }
+
+    console.log(`🔄 ONG ${ongId} reservando doação ${doacao_id}`);
     // CORRIGIDO: Aponta para as novas colunas de reserva
     let tableName, fkColumn;
     if (tipoDoacao === 'excedente') {
@@ -135,50 +144,79 @@ router.post('/api/reservar-doacao', verificarToken, async (req, res) => {
         res.status(500).json({ message: "Erro interno do servidor ao tentar reservar o item." });
     }
 });
+// ROTA 4: EMPRESA RESERVA PEDIDO (COM COLUNAS CORRETAS)
+router.post('/api/reservar-pedido', verificarToken, async (req, res) => {
+    const { pedido_id } = req.body;
+    const empresaId = req.usuario.id;
 
+    console.log(`🔄 Empresa ${empresaId} reservando pedido ${pedido_id}`);
 
-// ROTA 4: CANCELAR RESERVA (Usa as novas colunas)
-router.post('/api/cancelar-reserva-e-devolver-estoque', verificarToken, async (req, res) => {
-    const { doacaoId, tipoDoacao } = req.body;
-    
-    // CORRIGIDO: Aponta para as novas colunas de reserva
-    let tableName, fkColumn;
-    if (tipoDoacao === 'excedente') {
-        tableName = '"doacoesDisponiveis"';
-        fkColumn = 'id_ong_reserva'; // CORRIGIDO (Nova coluna)
-    } else if (tipoDoacao === 'solicitacao') {
-        tableName = '"doacoesSolicitadas"';
-        fkColumn = 'id_empresa_reserva'; // CORRIGIDO (Nova coluna)
-    } else {
-        return res.status(400).json({ message: "Tipo de doação inválido." });
-    }
-    
+    let client;
     try {
-        const updateQuery = `
-            UPDATE ${tableName}
-            SET 
-                status = 'disponível', -- Padronizando para 'Disponível' (maiúsculo)
-                ${fkColumn} = NULL
-            WHERE id = $1 AND status = 'reservado'
-            RETURNING id, status;
-        `;
-        const result = await pool.query(updateQuery, [doacaoId]);
+        client = await pool.connect();
+        await client.query('BEGIN');
 
-        if (result.rowCount === 0) {
-            return res.status(400).json({ 
-                message: "Não foi possível cancelar. A doação não está em status 'reservado'." 
-            });
+        // 1. Buscar dados do pedido
+        const selectPedido = `
+            SELECT id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, 
+                   data_criacao, status
+            FROM solicitacoes_ong 
+            WHERE id = $1 AND status = 'disponivel'
+        `;
+        
+        console.log(`🔍 Buscando pedido ${pedido_id}...`);
+        const pedidoResult = await client.query(selectPedido, [pedido_id]);
+        
+        if (pedidoResult.rows.length === 0) {
+            await client.query('ROLLBACK');
+            console.log('❌ Pedido não encontrado ou já reservado');
+            return res.status(400).json({ message: "Pedido não encontrado ou já reservado." });
         }
+
+        const pedido = pedidoResult.rows[0];
+        console.log('✅ Pedido encontrado:', pedido);
+
+        // 2. Inserir na tabela de reservados (APENAS COLUNAS QUE EXISTEM)
+        const insertReserva = `
+            INSERT INTO solicitacoes_ong_reservada 
+            (empresa_id, ong_id, titulo, descricao, categoria_id, quantidade_desejada, status, data_criacao)
+            VALUES ($1, $2, $3, $4, $5, $6, 'reservado', $7)
+            RETURNING id;
+        `;
+        
+        console.log('📝 Inserindo na tabela solicitacoes_ong_reservada...');
+        const reservaResult = await client.query(insertReserva, [
+            empresaId,
+            pedido.ong_id,
+            pedido.titulo,
+            pedido.descricao || '', // descricao pode ser null
+            pedido.categoria_id,
+            pedido.quantidade_desejada,
+            pedido.data_criacao
+        ]);
+
+        // 3. Remover da tabela de disponíveis
+        await client.query('DELETE FROM solicitacoes_ong WHERE id = $1', [pedido_id]);
+
+        await client.query('COMMIT');
+        
+        console.log(`✅ Pedido ${pedido_id} movido para reservados com ID: ${reservaResult.rows[0].id}`);
         res.status(200).json({ 
-            message: "Reserva cancelada. Item devolvido ao painel.", 
-            doacao: result.rows[0] 
+            message: "Pedido reservado com sucesso!",
+            pedido_id: pedido_id
         });
+
     } catch (error) {
-        console.error('Erro ao cancelar reserva:', error);
-        res.status(500).json({ message: "Erro interno do servidor." });
+        if (client) await client.query('ROLLBACK');
+        console.error('❌ Erro ao reservar pedido:', error.message);
+        res.status(500).json({ 
+            message: "Erro interno do servidor.",
+            details: error.message 
+        });
+    } finally {
+        if (client) client.release();
     }
 });
-
 // --- NOVA ROTA ---
 
 // ROTA 5: ATUALIZAR STATUS (em andamento / concluído)

@@ -166,33 +166,16 @@ function openModal(pedidoId) {
     const pedido = pedidosReais.find(p => p.id == pedidoId);
     
     if (!pedido) return;
-    console.log("DEBUG 4: Pedido encontrado!", pedido);
-
-    // --- NOVO CÓDIGO: Lógica de Redirecionamento ---
-    // A variável 'dadosUsuario' é global e contém o ID da Empresa logada.
-    // pedido.id_empresa_reserva é a coluna na tabela doacoesSolicitadas (Pedidos)
-    const isReservedByMe = String(pedido.status).toLowerCase() === 'reservado' && pedido.id_empresa_reserva === dadosUsuario.id;
-
-    if (isReservedByMe) {
-        console.log(`DEBUG: Pedido #${pedido.id} reservado por você. Redirecionando...`);
-        // Caminho para a página "Minhas Doações Ativas" (ajuste o URL se for diferente)
-        window.location.href = '/minhasDoacoesAtivas.html'; 
-        return; // Impede que o modal abra
-    }
-    // --- FIM NOVO CÓDIGO (Redirecionamento) ---
-
-    // Oculta mensagem de sucesso antiga, se houver
-    const successMessage = document.getElementById('reservationSuccessMessage');
-    if (successMessage) {
-        successMessage.style.display = 'none';
-    }
+    console.log("📋 Pedido encontrado:", pedido);
 
     // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
     modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
+    
     const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
+    const dataFormatada = dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A';
 
     fillElement('orderId', pedido.id);
-    fillElement('orderDate', dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A');
+    fillElement('orderDate', dataFormatada);
     fillElement('institution', pedido.nome_ong || pedido.nomeONG);
     fillElement('contact', pedido.telefone_contato || pedido.telefoneContato); 
     fillElement('address', 'Entrar em contato com a ONG');
@@ -208,45 +191,87 @@ function openModal(pedidoId) {
             <tr>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td>
-                <td>N/A</td> <td>-</td>
+                <td>kg</td>
+                <td>-</td>
             </tr>
         `;
     }
-    // ----------------------------------------
-    
-    // --- 2. CONTROLAR AÇÕES COM BASE NO STATUS (FLUXO SIMPLIFICADO) ---
-    const status = String(pedido.status).toLowerCase();
+
+    // --- 2. CONTROLAR AÇÕES ---
     const actionButton = document.getElementById('actionButton');
-    const statusUpdateSection = document.getElementById('statusUpdateSection');
+    const successMessage = document.getElementById('reservationSuccessMessage');
 
-    // Reseta visibilidade
+    // Esconder mensagem de sucesso e resetar botão
+    if (successMessage) successMessage.style.display = 'none';
     actionButton.style.display = 'none';
-    if(statusUpdateSection) {
-        statusUpdateSection.style.display = 'none'; // Esconde a seção de dropdown
-    }
+    actionButton.disabled = false;
+    
+    const status = String(pedido.status).toLowerCase();
 
-    // LÓGICA DE STATUS SIMPLIFICADA
-    if (status === 'disponível') {
-        actionButton.textContent = 'Reservar Pedido';
-        actionButton.style.backgroundColor = '#3498db'; // Azul
+    if (status === 'disponível' || status === 'disponivel') {
+        // MOSTRAR BOTÃO DE RESERVA
+        actionButton.textContent = '📋 Reservar Pedido';
+        actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';
-        // Chama a função 'handleAction' com a ação 'reservar-pedido'
-        actionButton.onclick = () => handleAction(pedido.id, 'reservar-pedido'); 
+        
+        // Configurar clique do botão
+        actionButton.onclick = async () => {
+            actionButton.disabled = true;
+            actionButton.textContent = 'Reservando...';
+            
+            try {
+                console.log(`🔄 Reservando pedido ${pedido.id}...`);
+                
+                const response = await fetch('/api/reservar-pedido', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        pedido_id: pedido.id
+                    }),
+                });
 
-    } else if (status === 'reservado') {
-        // *** NOVO FLUXO: Item reservado não tem ação nesta página ***
-        actionButton.style.display = 'none'; 
+                const result = await response.json();
 
-    } else if (status === 'concluído') {
-        // Se está concluído, não há ações.
+                if (response.ok) {
+                    // SUCESSO: Mostrar mensagem e atualizar status
+                    if (successMessage) successMessage.style.display = 'block';
+                    actionButton.style.display = 'none';
+                    
+                    // Atualizar status no modal
+                    if (statusElement) {
+                        statusElement.innerHTML = `<span class="status reservado">reservado</span>`;
+                    }
+                    
+                    // Recarregar a lista após 2 segundos
+                    setTimeout(() => {
+                        closeModal();
+                        loadPedidosDisponiveis();
+                    }, 2000);
+                    
+                } else {
+                    alert(`❌ Erro: ${result.message}`);
+                    actionButton.disabled = false;
+                    actionButton.textContent = '📋 Reservar Pedido';
+                }
+            } catch (error) {
+                console.error('Erro de rede:', error);
+                alert('Erro de rede. Tente novamente.');
+                actionButton.disabled = false;
+                actionButton.textContent = '📋 Reservar Pedido';
+            }
+        };
+
+    } else {
+        // Status não é disponível - esconder botão
         actionButton.style.display = 'none';
     }
     
     // --- 3. Abrir o Modal ---
     modal.showModal();
-    console.log("DEBUG 7: Modal aberto com SUCESSO. ---");
 }
-
 // Fecha a modal
 function closeModal() {
     const modal = document.getElementById('orderModal');

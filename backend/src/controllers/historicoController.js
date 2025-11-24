@@ -2,10 +2,10 @@
 import { supabase } from '../config/supabaseClient.js';
 
 export async function getMeuHistorico(req, res) {
-    const id_usuario_logado = req.user.id;
+    const id_usuario_logado = req.usuario.id;
     // Precisamos saber se o usuário é 'empresa' ou 'ong'
     // Assumo que seu authMiddleware salva isso em req.user.tipo (ex: 'empresa' ou 'ong')
-    const tipo_usuario = req.user.tipo; 
+    const tipo_usuario = req.usuario.tipo; 
 
     if (!id_usuario_logado || !tipo_usuario) {
          return res.status(401).json({ message: 'Usuário não autenticado ou tipo de usuário desconhecido.' });

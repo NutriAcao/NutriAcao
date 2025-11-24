@@ -109,10 +109,9 @@
                 </div>
             </div>
         </main>
-    </div>
-<dialog id="orderModal" class="modal">
+    </div><dialog id="orderModal" class="modal">
     <div class="modal-header">
-        <h3>Detalhes #<span id="orderId"></span></h3> 
+        <h3>Detalhes do Pedido #<span id="orderId"></span></h3> 
         <button class="btn-close" onclick="closeModal()">&times;</button>
     </div>
     <div class="modal-body">
@@ -139,19 +138,16 @@
             </tbody>
         </table>
 
-        <div id="statusUpdateSection" style="display: none; margin-top: 20px;">
-            <h3 class="section-title">Avançar Status</h3>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <select id="statusSelect" class="form-control" style="flex: 1;">
-                    </select>
-                <button id="updateStatusButton" class="btn-primary">Atualizar</button>
-            </div>
+        <!-- MENSAGEM DE SUCESSO (aparece após reserva) -->
+        <div id="reservationSuccessMessage" style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+            <strong>✅ Pedido Reservado com Sucesso!</strong> Entre em contato com a ONG para combinar a entrega.
         </div>
-        </div>
+    </div>
+    
     <div class="modal-actions">
         <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-        
-        <button id="actionButton" >Aguardando...</button>
+        <!-- BOTÃO DE RESERVA -->
+        <button id="actionButton" class="btn-primary" style="display: none;">Reservar Pedido</button>
     </div>
 </dialog>
     <script src="/js/visualizacaoOngs.js"></script>

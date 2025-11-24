@@ -1,12 +1,12 @@
-// Arquivo: doacoesAtivasEmpresa.js (VERSÃO ATUALIZADA COMPLETA)
-
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('🚀 Inicializando Doações Ativas...');
+    
+    // Inicializa os listeners de modal
+    setupModalButtons();
 
     let nomeUsuario = document.getElementById('textNomeUsuario');
     let nomeInstituicao = document.getElementById('textNomeInstituicao');
-    
-    // --- Armazena o ID do usuário globalmente ---
-    let ID_USUARIO_LOGADO = null;
+    let ID_EMPRESA_LOGADA = null;
 
     async function carregarUsuario() {
         try {
@@ -16,166 +16,208 @@ document.addEventListener('DOMContentLoaded', function() {
             nomeUsuario.innerHTML = dados.nome;
             nomeInstituicao.innerHTML = dados.nomeInstituicao;
             
-            // --- Salva o ID do usuário ---
-            ID_USUARIO_LOGADO = dados.id;
+            // Assumindo que o objeto do usuário contém empresa_id
+            ID_EMPRESA_LOGADA = dados.empresa_id || dados.id;
 
-            //Importa os dados em forma de lista para popular as tabelas
-            const excedentesCadastrados = await ExcedentesCadastradosEmpresa(ID_USUARIO_LOGADO);
-            const listaExcedentesAndamentoEmpresa = await excedentesAndamentoEmpresa(ID_USUARIO_LOGADO);
-            const listaSolicitacoesAndamentoEmpresa = await solicitacoesAndamentoEmpresa(ID_USUARIO_LOGADO);
-        
-            // ... (IDs das tabelas, inputs, etc.) ...
-            const tableIdExcedentesCadastrados = 'doacoesCadastradasTableEmpresa';
-            const searchInputIdExcedentesCadastrados ='searchInputEmpresaExcedentesCadastrados';
-            const totalItensIdExcedentesCadastrados ='totalItensEmpresaExcedentesCadastrados';
-            const totalPaginasIdExcedentesCadastrados = 'totalPaginasEmpresaExcedentesCadastrados';
-            const paginationControlsIdExcedentesCadastrados = 'paginationControlsEmpresaExcedentesCadastrados';
-            const tableIdPedidosAndamento = 'doacoesTableEmpresaPedidosAndamento';
-            const searchInputIdPedidosAndamento ='searchInputEmpresaPedidosAndamento';
-            const totalItensIdPedidosAndamento ='totalItensEmpresaPedidosAndamento';
-            const totalPaginasIdPedidosAndamento = 'totalPaginasEmpresaPedidosAndamento';
-            const paginationControlsIdPedidosAndamento = 'paginationControlsEmpresaPedidosAndamento';
-            const tableIdExcedentesAndamento = 'excedentesAndamentoTableEmpresa';
-            const searchInputIdExcedentesAndamento ='searchInputEmpresaExcedentesAndamento';
-            const totalItensIdExcedentesAndamento ='totalItensEmpresaExcedentesAndamento';
-            const totalPaginasIdExcedentesAndamento = 'totalPaginasEmpresaExcedentesAndamento';
-            const paginationControlsIdExcedentesAndamento = 'paginationControlsEmpresaExcedentesAndamento';
-
-            document.getElementById(tableIdExcedentesCadastrados).style.display = 'table'; 
-            document.getElementById(tableIdPedidosAndamento).style.display = 'table'; 
-            document.getElementById(tableIdExcedentesAndamento).style.display = 'table'; 
-
-            // Preenche as 3 tabelas
-            preencherTabelaComDoacoesEmpresa(excedentesCadastrados, tableIdExcedentesCadastrados);
-            preencherTabelaComSolicitacoesAndamentoEmpresa(listaSolicitacoesAndamentoEmpresa, tableIdPedidosAndamento);
-            preencherTabelaComExcedentesAndamentoEmpresa(listaExcedentesAndamentoEmpresa, tableIdExcedentesAndamento);
-
-            // Configura paginação/busca para as 3 tabelas
-            setupTable(searchInputIdExcedentesCadastrados, tableIdExcedentesCadastrados, totalItensIdExcedentesCadastrados, totalPaginasIdExcedentesCadastrados, paginationControlsIdExcedentesCadastrados);
-            setupTable(searchInputIdPedidosAndamento, tableIdPedidosAndamento, totalItensIdPedidosAndamento, totalPaginasIdPedidosAndamento, paginationControlsIdPedidosAndamento);
-            setupTable(searchInputIdExcedentesAndamento, tableIdExcedentesAndamento, totalItensIdExcedentesAndamento, totalPaginasIdExcedentesAndamento, paginationControlsIdExcedentesAndamento );
-
+            await carregarTodasTabelas();
+            
         } catch (erro) {
             console.error('Erro ao buscar usuário:', erro);
         }
     }
 
-    // --- Funções de Fetch de Dados (sem alteração) ---
-    async function ExcedentesCadastradosEmpresa(id) {
+    async function carregarTodasTabelas() {
         try {
-            let res = await fetch(`/doacoesConcluidasEmpresa/doacoesEmpresa?id=${encodeURIComponent(id)}`);
-            const doacoes = await res.json();
-            return doacoes; 
+            const [
+                excedentesCadastrados, 
+                solicitacoesAndamento, 
+                excedentesAndamento
+            ] = await Promise.all([
+                ExcedentesCadastradosEmpresa(ID_EMPRESA_LOGADA),
+                SolicitacoesAndamentoEmpresa(ID_EMPRESA_LOGADA),
+                ExcedentesAndamentoEmpresa(ID_EMPRESA_LOGADA)
+            ]);
+
+            console.log('Excedentes cadastrados:', excedentesCadastrados);
+            console.log('Solicitações andamento:', solicitacoesAndamento);
+            console.log('Excedentes andamento:', excedentesAndamento);
+
+            preencherTabelaExcedentesCadastrados(excedentesCadastrados);
+            preencherTabelaSolicitacoesAndamento(solicitacoesAndamento);
+            preencherTabelaExcedentesAndamento(excedentesAndamento);
+
+            configurarPaginacao();
+
         } catch (erro) {
-            console.error('Erro ao carregar doações disponíveis:', erro);
+            console.error('Erro ao carregar tabelas:', erro);
+        }
+    }
+
+    // --- Funções de Fetch de Dados ---
+    async function ExcedentesCadastradosEmpresa(empresaId) {
+        try {
+            let res = await fetch(`/api/doacoes-ativas/excedentes-cadastrados/${empresaId}`);
+            if (!res.ok) throw new Error(`Erro: ${res.status}`);
+            return await res.json();
+        } catch (erro) {
+            console.error('Erro ao carregar excedentes cadastrados:', erro);
             return []; 
         }
     }
 
-    async function solicitacoesAndamentoEmpresa(id) {
+    async function SolicitacoesAndamentoEmpresa(empresaId) {
         try {
-            const res = await fetch(`/doacoesConcluidasEmpresa/doacoesSolicitadasEmpresa?id=${encodeURIComponent(id)}`);
-            if (!res.ok) throw new Error(`Erro na requisição: ${res.status} ${res.statusText}`);
-            const dados = await res.json();
-            return dados;
+            const res = await fetch(`/api/doacoes-ativas/solicitacoes-andamento/${empresaId}`);
+            if (!res.ok) throw new Error(`Erro: ${res.status}`);
+            return await res.json();
         } catch (erro) {
-            console.error('Erro ao buscar pedidos em andamento da empresa:', erro);
+            console.error('Erro ao buscar solicitações em andamento:', erro);
             return []; 
         }
     }
 
-
-    async function excedentesAndamentoEmpresa(id) {
+    async function ExcedentesAndamentoEmpresa(empresaId) {
         try {
-            const res = await fetch(`/doacoesConcluidasEmpresa/excedentesReservadosEmpresa1?id=${encodeURIComponent(id)}`);
-            if (!res.ok) throw new Error(`Erro na requisição: ${res.status} ${res.statusText}`);
-            const dados = await res.json();
-            return dados;
+            const res = await fetch(`/api/doacoes-ativas/excedentes-andamento/${empresaId}`);
+            if (!res.ok) throw new Error(`Erro: ${res.status}`);
+            return await res.json();
         } catch (erro) {
-            console.error('Erro ao buscar excedentes reservados:', erro);
+            console.error('Erro ao buscar excedentes em andamento:', erro);
             return []; 
         }
     }
+function preencherTabelaExcedentesCadastrados(excedentes) {
+    const tbody = document.querySelector('#doacoesCadastradasTableEmpresa tbody');
+    tbody.innerHTML = ''; 
+    
+    console.log('📦 Excedentes para tabela 1:', excedentes);
+    
+    if (!excedentes || !excedentes.length) {
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente cadastrado no momento.</td></tr>';
+        return;
+    }
+    
+    excedentes.forEach(item => {
+        console.log('📝 Item da tabela 1:', item);
+        const tr = document.createElement('tr');
+        const statusClass = item.status === 'disponível' ? 'disponivel' : 
+                          item.status === 'reservado' ? 'reservado' : 'concluido';
+        const statusText = item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'N/A';
+        const dataValidade = formatarData(item.data_validade);
+        
+        tr.innerHTML = `
+            <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
+            <td>${item.quantidade || 'N/A'}</td>
+            <td><span class="status ${statusClass}">${statusText}</span></td>
+            <td>${dataValidade}</td>
+            <td>
+                <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-disponivel')">
+                    Visualizar
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
 
-    // --- Funções de Preenchimento de Tabela (ATUALIZADAS com botões azuis) ---
+function preencherTabelaSolicitacoesAndamento(solicitacoes) {
+    const tbody = document.querySelector('#doacoesTableEmpresaPedidosAndamento tbody');
+    tbody.innerHTML = ''; 
+    
+    console.log('📋 Solicitações para tabela 2:', solicitacoes);
+    
+    if (!solicitacoes || !solicitacoes.length) {
+        tbody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação em andamento no momento.</td></tr>';
+        return;
+    }
+    
+    solicitacoes.forEach(item => {
+        console.log('📝 Item da tabela 2:', item);
+        const tr = document.createElement('tr');
+        const dataCadastro = formatarData(item.data_cadastro || item.data_criacao);
+        
+        tr.innerHTML = `
+            <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
+            <td>${item.quantidade || item.quantidade_desejada || 'N/A'}</td>
+            <td>${dataCadastro}</td>
+            <td>${item.nome_ong || item.nomeONG || 'N/A'}</td>
+            <td>
+                <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'pedido-reservado')">
+                    Visualizar Pedido
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+        console.log('Item ID:', item.id);
+    });
+}
 
-    function preencherTabelaComDoacoesEmpresa(doacoes, tableId) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ''; 
-        if (!doacoes.length) {
-            tbody.innerHTML = '<tr><td colspan="4">Nenhum excedente cadastrado no momento.</td></tr>';
-            return;
-        }
-        doacoes.forEach(item => {
-            const tr = document.createElement('tr');
-            const statusClass = item.status === 'disponível' ? 'disponivel' : 'reservado';
-            const statusText = item.status.charAt(0).toUpperCase() + item.status.slice(1);
-            
-            tr.innerHTML = `
-                <td>${item.nome_alimento}</td>
-                <td>${item.quantidade}</td>
-                <td><span class="status ${statusClass}">${statusText}</span></td>
-                <td></td>
-                <td>
-                    <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-disponivel')">
-                        Visualizar
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
+function preencherTabelaExcedentesAndamento(excedentes) {
+    const tbody = document.querySelector('#excedentesAndamentoTableEmpresa tbody');
+    tbody.innerHTML = ''; 
+    
+    console.log('🔄 Excedentes para tabela 3:', excedentes);
+    
+    if (!excedentes || !excedentes.length) {
+        tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente em andamento no momento.</td></tr>';
+        return;
+    }
+    
+    excedentes.forEach(item => {
+        console.log('📝 Item da tabela 3:', item);
+        const tr = document.createElement('tr');
+        const dataValidade = formatarData(item.data_validade);
+        
+        tr.innerHTML = `
+            <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
+            <td>${item.quantidade || 'N/A'}</td>
+            <td>${dataValidade}</td>
+            <td>${item.nome_ong || 'N/A'}</td>
+            <td>
+                <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-reservado')">
+                    Visualizar Pedido
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+    function formatarData(data) {
+        if (!data) return 'N/A';
+        return new Date(data).toLocaleDateString('pt-BR');
+    }
+
+    function configurarPaginacao() {
+        // Sua lógica de paginação existente
+        const tables = [
+            {
+                searchId: 'searchInputEmpresaExcedentesCadastrados',
+                tableId: 'doacoesCadastradasTableEmpresa',
+                totalItensId: 'totalItensEmpresaExcedentesCadastrados',
+                totalPaginasId: 'totalPaginasEmpresaExcedentesCadastrados',
+                paginationId: 'paginationControlsEmpresaExcedentesCadastrados'
+            },
+            {
+                searchId: 'searchInputEmpresaPedidosAndamento', 
+                tableId: 'doacoesTableEmpresaPedidosAndamento',
+                totalItensId: 'totalItensEmpresaPedidosAndamento',
+                totalPaginasId: 'totalPaginasEmpresaPedidosAndamento',
+                paginationId: 'paginationControlsEmpresaPedidosAndamento'
+            },
+            {
+                searchId: 'searchInputEmpresaExcedentesAndamento',
+                tableId: 'excedentesAndamentoTableEmpresa',
+                totalItensId: 'totalItensEmpresaExcedentesAndamento',
+                totalPaginasId: 'totalPaginasEmpresaExcedentesAndamento',
+                paginationId: 'paginationControlsEmpresaExcedentesAndamento'
+            }
+        ];
+
+        tables.forEach(config => {
+            setupTable(config.searchId, config.tableId, config.totalItensId, config.totalPaginasId, config.paginationId);
         });
     }
 
-    function preencherTabelaComSolicitacoesAndamentoEmpresa(doacoes, tableId) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ''; 
-        if (!doacoes.length) {
-            tbody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação em andamento no momento.</td></tr>';
-            return;
-        }
-        doacoes.forEach(item => {
-            const tr = document.createElement('tr');
-            let data = item.dataCadastroSolicitacao.split('-').reverse().join('/');
-            tr.innerHTML = `
-                <td>${item.nome_alimento}</td>
-                <td>${item.quantidade}</td>
-                <td>${data}</td>
-                <td>${item.nomeONG}</td>
-                <td>
-                    <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'pedido-reservado')">
-                        Visualizar Pedido
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
-
-    function preencherTabelaComExcedentesAndamentoEmpresa(doacoes, tableId) {
-        const tbody = document.querySelector(`#${tableId} tbody`);
-        tbody.innerHTML = ''; 
-        if (!doacoes.length) {
-            tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente em andamento no momento.</td></tr>';
-            return;
-        }
-        doacoes.forEach(item => {
-            const tr = document.createElement('tr');
-            let data = item.data_validade.split('-').reverse().join('/');
-            console.log(item)
-            tr.innerHTML = `
-                <td>${item.nome_alimento}</td>
-                <td>${item.quantidade}</td>
-                <td>${data}</td>
-                <td></td>
-                <td>
-                    <button class="btn-visualizar-pedido" onclick="abrirDetalhesModal(${item.id}, 'excedente-reservado')">
-                        Visualizar Pedido
-                    </button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
-    }
 
     // --- (Função de Paginação/Busca - Sem alteração) ---
     function setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId) {
@@ -264,197 +306,303 @@ document.addEventListener('DOMContentLoaded', function() {
 // --- Funções Auxiliares de Modal ---
 const orderModal = document.getElementById('orderModal');
 const confirmModal = document.getElementById('confirmModal');
-
+// --- Funções de Modal Melhoradas ---
 function openModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.showModal();
+    try {
+        const modal = document.getElementById(modalId);
+        if (modal && typeof modal.showModal === 'function') {
+            modal.showModal();
+            console.log(`✅ Modal ${modalId} aberto`);
+        } else {
+            console.error(`❌ Modal ${modalId} não encontrado ou showModal não é função`);
+        }
+    } catch (error) {
+        console.error(`❌ Erro ao abrir modal ${modalId}:`, error);
+    }
 }
 
 function closeModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.close();
-}
-
-// --- Função Principal de Abertura ---
-async function abrirDetalhesModal(id, tipo) {
-    console.log('abriu')
-    // Define o endpoint de busca de detalhes (depende das rotas que criamos acima)
-    let endpoint = '';
-    if (tipo === 'excedente-disponivel' || tipo === 'excedente-reservado') {
-        endpoint = `/doacoesConcluidasEmpresa/detalhes/excedente/${id}`;
-    } else if (tipo === 'pedido-reservado') {
-        endpoint = `/doacoesConcluidasEmpresa/detalhes/solicitacao/${id}`;
-    } else {
-        alert('Tipo de item desconhecido!');
-        return;
-    }
-
-    // Seleciona os elementos do modal
-    const modalTitle = document.getElementById('modalTitle');
-    const orderIdSpan = document.getElementById('orderId');
-    const modalDetails = document.getElementById('modalDetails');
-    const itemsList = document.getElementById('itemsList');
-    const btnConcluir = document.getElementById('btnConcluir');
-    const btnCancelar = document.getElementById('btnCancelar');
-
-
-    //PROCURANDO AMERDA DO ERRO
-    if (!orderModal || !modalTitle || !orderIdSpan || !modalDetails) {
-        console.error("Erro: Elementos essenciais do modal não encontrados. Verifique os IDs no HTML.");
-        return; // Impede a execução do resto do código que causaria o erro null.
-    }
-    
-    // Limpa o modal e mostra "carregando"
-   modalTitle.firstChild.textContent = 'Carregando Detalhes... '; 
-    orderIdSpan.textContent = `#${id}`; 
-    modalDetails.innerHTML = '<p>Carregando...</p>';
-    itemsList.innerHTML = '';
-    btnConcluir.style.display = 'none';
-    btnCancelar.style.display = 'none';
-
-    // Abre o modal
-    openModal('orderModal'); // A abertura do modal é feita no início para o usuário ver o carregamento
-
     try {
+        const modal = document.getElementById(modalId);
+        if (modal && typeof modal.close === 'function') {
+            modal.close();
+            console.log(`✅ Modal ${modalId} fechado`);
+        } else {
+            console.error(`❌ Modal ${modalId} não encontrado ou close não é função`);
+        }
+    } catch (error) {
+        console.error(`❌ Erro ao fechar modal ${modalId}:`, error);
+    }
+}
+// ===================================================
+// LÓGICA DO MODAL - VERSÃO ATUALIZADA
+// ===================================================
+async function abrirDetalhesModal(id, tipo) {
+    console.log(`🔍 Abrindo modal: ID ${id}, Tipo ${tipo}`);
+    
+    try {
+        let endpoint = '';
+        if (tipo === 'excedente-disponivel') {
+            endpoint = `/api/doacoes-ativas/detalhes/excedente/${id}`;
+        } else if (tipo === 'pedido-reservado') {
+            endpoint = `/api/doacoes-ativas/detalhes/solicitacao/${id}`;
+        } else if (tipo === 'excedente-reservado') {
+            endpoint = `/api/doacoes-ativas/detalhes/excedente/${id}`;
+        } else {
+            alert('Tipo de item desconhecido!');
+            return;
+        }
+
+        console.log('📡 Endpoint:', endpoint);
+
+        // Elementos do modal
+        const modalTitle = document.getElementById('modalTitle');
+        const orderIdSpan = document.getElementById('orderId');
+        const modalDetails = document.getElementById('modalDetails');
+        const itemsList = document.getElementById('itemsList');
+        const btnConcluir = document.getElementById('btnConcluir');
+        const btnCancelar = document.getElementById('btnCancelar');
+
+        console.log('🔍 Elementos encontrados:', {
+            modalTitle: !!modalTitle,
+            orderIdSpan: !!orderIdSpan,
+            modalDetails: !!modalDetails,
+            itemsList: !!itemsList,
+            btnConcluir: !!btnConcluir,
+            btnCancelar: !!btnCancelar
+        });
+
+        // Limpa o modal
+        modalTitle.innerHTML = 'Carregando Detalhes... ';
+        orderIdSpan.textContent = `#${id}`;
+        modalDetails.innerHTML = '<p>Carregando...</p>';
+        itemsList.innerHTML = '';
+        btnConcluir.style.display = 'none';
+        btnCancelar.style.display = 'none';
+
+        // Abre o modal primeiro
+        openModal('orderModal');
+
+        // Busca os dados
+        console.log('🔄 Fazendo requisição...');
         const res = await fetch(endpoint);
+        console.log('📊 Status da resposta:', res.status);
+        
         if (!res.ok) {
-            const err = await res.json();
-            throw new Error(err.message || 'Falha ao buscar detalhes.');
+            const errorText = await res.text();
+            console.error('❌ Erro na resposta:', errorText);
+            throw new Error(`Erro ${res.status}: ${errorText}`);
         }
         
         const data = await res.json();
-        console.log("Detalhes recebidos:", data); // Verifique no console do navegador se os dados estão completos
+        console.log('✅ Dados recebidos:', data);
 
-        // Popula o modal com os detalhes
-        // O objeto 'data' agora deve incluir um campo 'ong' com nome, email e telefone se for reservado
-        const ong = data.ong || { 
-            nome: data.NomeEmpresa || data.nomeONG || 'N/A', 
-            telefone: data.telefone_contato || 'N/A', 
-            email: data.email_contato || 'N/A' 
-        };
-        const statusText = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+        // AGORA PREENCHE O MODAL COM OS DADOS
+        modalTitle.innerHTML = 'Detalhes ';
+        orderIdSpan.textContent = `#${id}`;
         
-        modalTitle.firstChild.textContent = 'Detalhes '; // Altera SÓ o texto
-        orderIdSpan.textContent = `#${id}`; 
-        // Ponto de Correção: Preenchendo o HTML DENTRO de modalDetails
-        modalDetails.innerHTML = `
-            <p><strong>Instituição:</strong> <span>${ong.nome || 'N/A'}</span></p>
-            <p><strong>Status:</strong> <span class="status ${data.status}">${statusText}</span></p>
-            <p><strong>Data Cadastro:</strong> <span>${new Date(data.data_cadastro || data.dataCadastroSolicitacao || data.dataCadastroDoacao).toLocaleDateString('pt-BR')}</span></p>
-            <p><strong>Contato:</strong> <span>${ong.telefone || 'N/A'}</span></p>
-            <p><strong>Email:</strong> <span>${ong.email || 'N/A'}</span></p>
-        `;
-        
-        // Ponto de Correção: Preenchendo a lista de itens
-        itemsList.innerHTML = `
-            <tr>
-                <td>${data.nome_alimento}</td>
-                <td>${data.quantidade}</td>
-                <td>Kg</td>
-                <td>${data.observacoes || '-'}</td>
-            </tr>
-        `;
-
-        // Controla quais botões de ação aparecem e suas funções
+        // Conteúdo baseado no tipo
         if (tipo === 'excedente-disponivel') {
-            // Tabela 1: Excedente Disponível -> Nenhuma ação.
+            modalDetails.innerHTML = `
+                <p><strong>Alimento:</strong> <span>${data.nome_alimento || data.titulo || 'N/A'}</span></p>
+                <p><strong>Quantidade:</strong> <span>${data.quantidade || 'N/A'} Kg</span></p>
+                <p><strong>Data de Validade:</strong> <span>${formatarData(data.data_validade)}</span></p>
+                <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
+                <p><strong>Data de Cadastro:</strong> <span>${formatarData(data.data_cadastro || data.data_publicacao)}</span></p>
+                ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
+            `;
             
+            btnCancelar.style.display = 'inline-block';
+            btnCancelar.textContent = 'Cancelar Excedente';
+            btnCancelar.onclick = () => {
+                confirmarAcao('cancelar-excedente', id, 'excedente', 'cancelar este excedente');
+            };
+
         } else if (tipo === 'pedido-reservado') {
-            // Tabela 2: Pedido de ONG que EU reservei -> Ações: Concluir e Cancelar
+            modalDetails.innerHTML = `
+                <p><strong>ONG:</strong> <span>${data.nome_ong || 'N/A'}</span></p>
+                <p><strong>Alimento Solicitado:</strong> <span>${data.nome_alimento || data.titulo || 'N/A'}</span></p>
+                <p><strong>Quantidade:</strong> <span>${data.quantidade || data.quantidade_desejada || 'N/A'} Kg</span></p>
+                <p><strong>Data da Solicitação:</strong> <span>${formatarData(data.data_cadastro || data.data_criacao)}</span></p>
+                <p><strong>Contato da ONG:</strong> <span>${data.telefone_ong || data.telefone_contato || 'N/A'}</span></p>
+                <p><strong>Email da ONG:</strong> <span>${data.email_ong || data.email_contato || 'N/A'}</span></p>
+                <p><strong>Responsável:</strong> <span>${data.responsavel_ong || data.responsavel || 'N/A'}</span></p>
+                <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
+                ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
+            `;
+            
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Pedido';
+            btnCancelar.textContent = 'Cancelar Pedido';
             
-            // Note que aqui o TIPO é 'pedido' para o backend
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-pedido', id, 'pedido', 'concluir este pedido');
             };
             btnCancelar.onclick = () => {
-                confirmarAcao('cancelar-reserva', id, 'pedido', 'cancelar esta reserva');
+                confirmarAcao('cancelar-pedido', id, 'pedido', 'cancelar este pedido');
             };
 
         } else if (tipo === 'excedente-reservado') {
-            // Tabela 3: Meu Excedente que uma ONG reservou -> Ações: Concluir e Cancelar
+            modalDetails.innerHTML = `
+                <p><strong>ONG que Reservou:</strong> <span>${data.nome_ong || 'N/A'}</span></p>
+                <p><strong>Alimento:</strong> <span>${data.nome_alimento || data.titulo || 'N/A'}</span></p>
+                <p><strong>Quantidade:</strong> <span>${data.quantidade || 'N/A'} Kg</span></p>
+                <p><strong>Data de Validade:</strong> <span>${formatarData(data.data_validade)}</span></p>
+                <p><strong>Contato da ONG:</strong> <span>${data.telefone_ong || data.telefone_contato || 'N/A'}</span></p>
+                <p><strong>Email da ONG:</strong> <span>${data.email_ong || data.email_contato || 'N/A'}</span></p>
+                <p><strong>Responsável:</strong> <span>${data.responsavel_ong || data.responsavel || 'N/A'}</span></p>
+                <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
+                ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
+            `;
+            
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Doação';
-
-            // Note que aqui o TIPO é 'doacao' para o backend
+            btnCancelar.textContent = 'Cancelar Doação';
+            
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-doacao', id, 'doacao', 'concluir esta doação');
             };
             btnCancelar.onclick = () => {
-                confirmarAcao('cancelar-reserva', id, 'doacao', 'cancelar esta reserva');
+                confirmarAcao('cancelar-doacao', id, 'doacao', 'cancelar esta doação');
             };
         }
 
+        // Preenche a tabela de itens
+        itemsList.innerHTML = `
+            <tr>
+                <td>${data.nome_alimento || data.titulo || 'N/A'}</td>
+                <td>${data.quantidade || data.quantidade_desejada || 'N/A'}</td>
+                <td>Kg</td>
+                <td>${data.descricao || data.observacoes || '-'}</td>
+            </tr>
+        `;
+
+        console.log('✅ Modal preenchido com sucesso!');
+
     } catch (erro) {
-        console.error("Erro ao carregar detalhes:", erro);
-        modalDetails.innerHTML = `<p style="color: red;">Erro ao carregar detalhes: ${erro.message}. Verifique as rotas da API no backend.</p>`;
+        console.error("❌ Erro ao abrir modal:", erro);
+        
+        // Tenta mostrar o erro no modal
+        try {
+            const modalDetails = document.getElementById('modalDetails');
+            if (modalDetails) {
+                modalDetails.innerHTML = `<p style="color: red;">Erro: ${erro.message}</p>`;
+            }
+        } catch (e) {
+            console.error('Erro ao mostrar erro no modal:', e);
+        }
+        
+        alert(`Erro ao carregar detalhes: ${erro.message}`);
     }
 }
-
+// --- Função de Confirmação de Ação ---
 function confirmarAcao(acao, id, tipo, mensagem) {
-    // 1. Fecha o modal de detalhes
+    console.log(`⚠️ Confirmando ação: ${acao} para ID ${id}`);
+    
+    // Fecha o modal de detalhes
     closeModal('orderModal');
     
-    // 2. Prepara o modal de confirmação
+    // Prepara o modal de confirmação
     const btnConfirmar = document.getElementById('btnConfirmarAcao');
-    document.getElementById('confirmMessage').innerHTML = `Tem certeza que deseja **${mensagem}**?`;
+    document.getElementById('confirmMessage').innerHTML = `Tem certeza que deseja <strong>${mensagem}</strong>?`;
     
     // Atualiza o texto do botão de confirmação
-    btnConfirmar.textContent = acao.includes('cancelar') ? 'Sim, Cancelar' : 'Sim, Concluir';
+    const textoBotao = acao.includes('cancelar') ? 'Sim, Cancelar' : 'Sim, Concluir';
+    btnConfirmar.textContent = textoBotao;
+    btnConfirmar.className = acao.includes('cancelar') ? 'btn-cancel' : 'btn-success';
     
-    // 3. Define o que o botão "Sim" fará
+    // Define o que o botão "Sim" fará
     btnConfirmar.onclick = () => {
         executarAcao(acao, id, tipo);
     };
     
-    // 4. Abre o modal de confirmação
+    // Abre o modal de confirmação
     openModal('confirmModal');
 }
 
+// --- Função de Execução da Ação ---
 async function executarAcao(acao, id, tipo) {
-    // 1. Fecha o modal de confirmação
+    console.log(`🚀 Executando ação: ${acao} para ID ${id}`);
+    
+    // Fecha o modal de confirmação
     closeModal('confirmModal');
     
-    // 2. Define o endpoint e o body da requisição
-    // (Chama as rotas em reservaRoutes.js)
-    const endpoint = `/api/${acao}`; // Ex: /api/concluir-doacao ou /api/cancelar-reserva
-    
-    const bodyData = {
-        doacao_id: tipo === 'doacao' ? id : undefined,
-        pedido_id: tipo === 'pedido' ? id : undefined,
-        item_id: id, 
-        tipo_item: tipo // 'doacao' ou 'pedido'
-    };
+    // Define o endpoint baseado na ação
+    const endpoint = `/api/doacoes-ativas/${acao}/${id}`;
     
     try {
+        let method = 'PUT';
+        if (acao === 'cancelar-excedente') {
+            method = 'DELETE';
+        }
+        
         const res = await fetch(endpoint, {
-            method: 'PUT',
+            method: method,
             headers: {
                 'Content-Type': 'application/json'
-                // O cookie de token é enviado automaticamente
-            },
-            body: JSON.stringify(bodyData)
+            }
         });
 
         const data = await res.json();
 
         if (res.ok) {
-            alert(data.message || `Ação realizada com sucesso!`);
+            alert(`✅ ${data.message || 'Ação realizada com sucesso!'}`);
             window.location.reload(); // Recarrega a página para atualizar as tabelas
         } else {
-            alert(`Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`);
+            alert(`❌ Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`);
         }
 
     } catch (error) {
-        console.error(`Erro na requisição de ${acao}:`, error);
-        alert(`Erro de comunicação com o servidor. Tente novamente.`);
+        console.error(`❌ Erro na requisição de ${acao}:`, error);
+        alert(`❌ Erro de comunicação com o servidor. Tente novamente.`);
     }
 }
 
+// --- Função Auxiliar para Formatar Data ---
+function formatarData(data) {
+    if (!data) return 'N/A';
+    try {
+        return new Date(data).toLocaleDateString('pt-BR');
+    } catch (e) {
+        return 'Data inválida';
+    }
+}
+function setupModalButtons() {
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('btn-visualizar-pedido')) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const button = e.target;
+            const id = button.getAttribute('data-id');
+            const tipo = button.getAttribute('data-tipo');
+            
+            if (id && tipo) {
+                // Desabilita o botão temporariamente
+                button.disabled = true;
+                button.style.opacity = '0.6';
+                
+                setTimeout(() => {
+                    button.disabled = false;
+                    button.style.opacity = '1';
+                }, 2000);
+                
+                abrirDetalhesModal(parseInt(id), tipo);
+            }
+        }
+    });
+}
 // --- Expõe as funções para o HTML ---
 window.abrirDetalhesModal = abrirDetalhesModal;
 window.openModal = openModal;
 window.closeModal = closeModal;
+window.addEventListener('error', function(e) {
+    if (e.message.includes('modal') || e.message.includes('null')) {
+        console.error('❌ Erro global detectado, recarregando página...', e);
+        setTimeout(() => {
+            window.location.reload();
+        }, 3000);
+    }
+});
