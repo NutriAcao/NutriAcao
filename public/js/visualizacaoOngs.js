@@ -157,7 +157,7 @@ const fillElement = (id, content) => {
     }
 };
 
-function openModal(pedidoId) {
+async function openModal(pedidoId) {
     const modal = document.getElementById('orderModal');
     if (!modal) return;
 
@@ -222,15 +222,25 @@ function openModal(pedidoId) {
             try {
                 console.log(`🔄 Reservando pedido ${pedido.id}...`);
                 
+                // CORREÇÃO: Obter o empresa_id dos dados do usuário
+                const empresaId = dadosUsuario.empresa_id || dadosUsuario.id;
+                console.log(`🏢 Usando empresa_id: ${empresaId}`);
+                
                 const response = await fetch('/api/reservar-pedido', {
-                    method: 'POST',
+                    method: 'PUT',
                     headers: { 
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
                     body: JSON.stringify({
-                        pedido_id: pedido.id
+                        pedido_id: pedido.id,
+                        empresa_id: empresaId  // CORREÇÃO: Adicionar empresa_id
                     }),
+                });
+
+                console.log('📤 Dados enviados:', {
+                    pedido_id: pedido.id,
+                    empresa_id: empresaId
                 });
 
                 const result = await response.json();
@@ -289,7 +299,7 @@ async function handleAction(pedidoId, actionType) {
     if (actionType === 'reservar-pedido') {
         try {
             const response = await fetch('/api/reservar-doacao', {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
