@@ -22,8 +22,6 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  overflow-y: hidden;
-  overflow-x: hidden;
 }
 
 html,
@@ -33,6 +31,7 @@ body {
   color: var(--color-text);
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 /* 
@@ -60,7 +59,6 @@ body {
 #menu-button>img {
   filter: brightness(0) invert(1);
   width: 5vh;
-
 }
 
 #menu-button:hover #burger {
@@ -69,9 +67,19 @@ body {
 
 header {
   padding: 10px 20vh;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+header.rolagem {
+  padding: 3vh 5vh;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  z-index: 1;
 }
 
 h1 {
@@ -107,7 +115,7 @@ ul li a {
   color: var(--color-main);
 }
 
-.nav-link.active::after {
+.nav-link.active:hover::after {
   width: 100%;
 }
 
@@ -121,6 +129,8 @@ ul li a {
 .btn-login:hover {
   border-radius: 6px;
   transition-duration: .5s;
+  background-color: var(--color-main);
+  color: var(--color-secondary-text);
 }
 
 .btn-cadastro {
@@ -151,12 +161,17 @@ nav a {
 }
 
 .footer-logo {
+  left: 0px;
   display: flex;
   align-items: center;
   color: var(--color-main);
   text-decoration: none;
   font-size: 22px;
   gap: 5px;
+}
+
+a.footer-logo {
+  left: 0px;
 }
 
 /*
@@ -367,23 +382,14 @@ footer {
     justify-content: center;
   }
 
+
 }
 
-@media screen and (max-width: 1230px) {
-  .nav-link {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 1010px) {
-  .btn-cadastro {
-    display: none;
-  }
-}
-
-@media screen and (max-width: 892px) {
-  .btn-cadastro {
-    display: none;
+@media screen and (min-width: 650px) and (max-width: 850px) {
+  header {
+    display: flex;
+    flex-direction: row;
+    padding: 3vh 5vh;
   }
 
   #menu-button {
@@ -395,7 +401,7 @@ footer {
   }
 
   #menu {
-    display: none;
+    display: flex;
     flex-direction: column;
     position: fixed;
     top: 0;
@@ -405,14 +411,13 @@ footer {
     background-color: #003172;
     justify-content: center;
     align-items: center;
-    transition: transform 0.3s ease-in-out;
-    transform: translateX(100%);
+    transform: translateY(-100%);
     z-index: 999;
   }
 
   #menu.active {
     display: flex;
-    transform: translateX(0);
+    transform: translateY(0);
   }
 
   #menu.active #nav-list li,
@@ -422,18 +427,16 @@ footer {
     display: block !important;
   }
 
-  #menu.active #sobre,
-  #menu.active #contato {
+  #menu #nav-list li,
+  #menu .nav-link,
+  #menu .btn-login,
+  #menu .btn-cadastro {
     display: block !important;
   }
 
-  nav ul {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 30px;
-    width: 80%;
-    padding: 0;
+  #menu.active #sobre,
+  #menu.active #contato {
+    display: block !important;
   }
 
   .nav-link,
@@ -447,10 +450,6 @@ footer {
     width: 28vh;
     background-color: white;
     border-radius: 6px;
-  }
-
-  .nav-link::after {
-    display: none;
   }
 
   .btn-login {
@@ -467,83 +466,159 @@ footer {
     color: var(--color-main);
   }
 
-  .btn-cadastro:hover {
+  .btn-cadastro:hover,
+  .btn-login:hover,
+  .nav-link:hover {
     background-color: #ccc;
   }
 
-  header,
-  header.rolagem {
-    padding: 3vh 5vh;
-    justify-content: space-between;
-    background-color: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 80%;
+    padding: 0;
+  }
+
+  .nav-link::after {
+    display: none;
   }
 
   header.rolagem #menu-button>img {
     filter: brightness(100);
   }
+}
 
-  #top-page {
-    padding: 15vh 5vh 5vh;
+@media screen and (min-width: 1000px) and (max-width: 1230px) {
+  .nav-link {
+    display: none;
+  }
+}
+
+@media screen and (min-width: 850px) and (max-width: 1000px) {
+  .nav-link {
+    display: none;
   }
 
-  #top-page .left-side h2 {
-    font-size: 38px;
+  .btn-cadastro {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 650px) {
+  .left-container {
+    display: none;
   }
 
-  #beneficios {
-    padding: 5vh 5vh;
-    gap: 20px;
-  }
-
-  #beneficios div {
-    max-width: 90%;
-  }
-
-  #grid {
-    padding: 5vh 5vh;
-  }
-
-  .card {
-    width: 90%;
-  }
-
-  #nutriacao {
-    padding: 5vh 5vh;
-  }
-
-  #nutriacao>.left-side,
-  .right-side {
+  .right-container {
     width: 100%;
   }
 
-  .faq {
-    padding: 5vh 5vh;
+  header {
+    display: flex;
+    flex-direction: row;
+    padding: 3vh 5vh;
   }
 
-  .faq .container {
-    padding: 0 0.5rem;
+  .btn-cadastro {
+    display: none;
   }
 
-  .accordion-link {
-    font-size: 1rem;
-    padding: 1rem 0;
+  #menu-button {
+    display: flex;
+    justify-content: center;
+    height: 50px;
+    width: 90px;
+    border-radius: 4px;
   }
 
-  .answer p {
-    font-size: 0.9rem;
+  #menu {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100vw;
+    height: 80vh;
+    background-color: #003172;
+    justify-content: center;
+    align-items: center;
+    transform: translateY(-100%);
+    z-index: 999;
   }
 
-  .contact {
-    padding: 5vh 5vh;
+  #menu.active {
+    display: flex;
+    transform: translateY(0);
   }
 
-  .contact-container {
-    padding: 20px;
+  #menu.active #nav-list li,
+  #menu.active .nav-link,
+  #menu.active .btn-login,
+  #menu.active .btn-cadastro {
+    display: block !important;
   }
 
-  .center-container h1 {
-    font-size: 2rem;
-    margin-bottom: 2vh;
+  #menu #nav-list li,
+  #menu .nav-link,
+  #menu .btn-login,
+  #menu .btn-cadastro {
+    display: block !important;
+  }
+
+  #menu.active #sobre,
+  #menu.active #contato {
+    display: block !important;
+  }
+
+  .nav-link,
+  .btn-login,
+  .btn-cadastro {
+    display: flex;
+    text-align: center;
+    color: var(--color-main);
+    font-size: 1.5rem;
+    padding: 10px 0;
+    width: 28vh;
+    background-color: white;
+    border-radius: 6px;
+  }
+
+  .btn-login {
+    border-color: white;
+  }
+
+  .btn-login:hover {
+    background-color: white;
+    color: #003172;
+  }
+
+  .btn-cadastro {
+    background-color: white;
+    color: var(--color-main);
+  }
+
+  .btn-cadastro:hover,
+  .btn-login:hover,
+  .nav-link:hover {
+    background-color: #ccc;
+  }
+
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    width: 80%;
+    padding: 0;
+  }
+
+  .nav-link::after {
+    display: none;
+  }
+
+  header.rolagem #menu-button>img {
+    filter: brightness(100);
   }
 }
