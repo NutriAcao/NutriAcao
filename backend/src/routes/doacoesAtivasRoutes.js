@@ -103,23 +103,26 @@ router.get('/excedentes-andamento/:empresaId', async (req, res) => {
     }
 });
 
-// Detalhes de um excedente (doacoes_disponiveis)
+// Detalhes de um excedente (doacoes_reservadas)
 router.get('/detalhes/excedente/:id', async (req, res) => {
     try {
         const { id } = req.params;
         
-        const query = `
-            SELECT 
-                dd.*,
-                e.nome_fantasia as nome_empresa,
-                e.email_institucional,
-                r.telefone as telefone_contato,
-                r.email as email_contato
-            FROM doacoes_disponiveis dd
-            INNER JOIN empresas e ON dd.empresa_id = e.id
-            INNER JOIN responsaveis r ON e.responsavel_legal_id = r.id
-            WHERE dd.id = $1
-        `;
+       const query = `
+  SELECT 
+    dd.*, 
+    o.nome_ong, 
+    r.telefone AS telefone_contato, 
+    r.email AS email_contato,
+    r.nome_completo AS nome_responsavel
+  FROM doacoes_reservadas dd
+  INNER JOIN ongs o 
+    ON dd.ong_id = o.id
+  INNER JOIN responsaveis r 
+    ON o.responsavel_legal_id = r.id
+  WHERE dd.id = $1
+`;
+
         
         const result = await pool.query(query, [id]);
         

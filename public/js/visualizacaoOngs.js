@@ -4,14 +4,14 @@ console.log(">>> ARQUIVO visualizacaoOngs.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
-let pedidosReais = []; 
+let pedidosReais = [];
 const itemsPerPage = 10;
 let currentPage = 1;
 
 // === CARREGAMENTO INICIAL ===
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     carregarDadosUsuario();
-    loadPedidosDisponiveis(); 
+    loadPedidosDisponiveis();
     setupSearch();
 
     // Adiciona listener para fechar modal
@@ -22,15 +22,15 @@ document.addEventListener('DOMContentLoaded', function() {
         if (closeButton) {
             closeButton.onclick = () => closeModal();
         }
-        
+
         // Fecha clicando no botão "Cancelar" (se existir)
         const cancelButton = modal.querySelector('.cancel-button'); // Assumindo que você tenha um .cancel-button
         if (cancelButton) {
             cancelButton.onclick = () => closeModal();
         }
-        
+
         // Fecha clicando fora
-        modal.addEventListener('click', function(event) {
+        modal.addEventListener('click', function (event) {
             if (event.target === this) {
                 closeModal();
             }
@@ -42,36 +42,36 @@ document.addEventListener('DOMContentLoaded', function() {
 async function carregarDadosUsuario() {
     try {
         console.log('>>> Carregando dados do usuário...');
-        
+
         const response = await fetch('/api/usuario');
-        
+
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`);
         }
-        
+
         const resultado = await response.json();
         console.log('>>> Resposta completa:', resultado);
-        
+
         if (resultado.success && resultado.data) {
             const dados = resultado.data;
-            
+
             // Salva os dados globalmente
             dadosUsuario = dados;
-            
+
             // CORREÇÃO: Usando a estrutura correta da sua API
             let txtnomeUsuario = document.getElementById('textNomeUsuario');
             let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
-            
+
             if (txtnomeUsuario) {
                 txtnomeUsuario.innerText = dados.nome || 'Usuário';
             }
-            
+
             if (txtnomeInstituicao) {
                 // Para empresa, usa nome_fantasia; para ONG, usaria nome_ong
                 const nomeInstituicao = dados.nome_fantasia || dados.nome_ong || dados.razao_social || 'Instituição';
                 txtnomeInstituicao.innerText = nomeInstituicao;
             }
-            
+
             console.log('>>> Dados do usuário carregados:', {
                 nome: dados.nome,
                 instituicao: dados.nome_fantasia || dados.nome_ong || dados.razao_social,
@@ -87,7 +87,7 @@ async function carregarDadosUsuario() {
         // Fallback em caso de erro
         let txtnomeUsuario = document.getElementById('textNomeUsuario');
         let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
-        
+
         if (txtnomeUsuario) txtnomeUsuario.innerText = 'Usuário';
         if (txtnomeInstituicao) txtnomeInstituicao.innerText = 'Instituição';
     }
@@ -95,15 +95,15 @@ async function carregarDadosUsuario() {
 
 async function loadPedidosDisponiveis() {
     try {
-        const response = await fetch('/api/pedidos-disponiveis-empresa'); 
+        const response = await fetch('/api/pedidos-disponiveis-empresa');
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
         pedidosReais = await response.json();
         console.log(pedidosReais); // Para ver os dados no console
-        renderizarTabela(pedidosReais); 
-        setupPagination(pedidosReais.length); 
+        renderizarTabela(pedidosReais);
+        setupPagination(pedidosReais.length);
     } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
         alert('Falha ao carregar pedidos de doação. Tente novamente.');
@@ -112,13 +112,13 @@ async function loadPedidosDisponiveis() {
 
 function renderizarTabela(pedidos) {
     const tbody = document.querySelector('#doacoesTable tbody');
-    tbody.innerHTML = ''; 
+    tbody.innerHTML = '';
 
     if (pedidos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
         return;
     }
-    
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pedidosPaginados = pedidos.slice(startIndex, endIndex);
@@ -127,7 +127,7 @@ function renderizarTabela(pedidos) {
         // Certifica-se de que a data é válida antes de formatar
         const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
         const dataFormatada = dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A';
-        
+
         const row = `
             <tr>
                 <td>${pedido.id}</td>
@@ -164,20 +164,20 @@ async function openModal(pedidoId) {
     if (!pedidosReais || pedidosReais.length === 0) return;
 
     const pedido = pedidosReais.find(p => p.id == pedidoId);
-    
+
     if (!pedido) return;
     console.log("📋 Pedido encontrado:", pedido);
 
     // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
-    modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
-    
+
+
     const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
     const dataFormatada = dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A';
 
     fillElement('orderId', pedido.id);
     fillElement('orderDate', dataFormatada);
     fillElement('institution', pedido.nome_ong || pedido.nomeONG);
-    fillElement('contact', pedido.telefone_contato || pedido.telefoneContato); 
+    fillElement('contact', pedido.telefone_contato || pedido.telefoneContato);
     fillElement('address', 'Entrar em contato com a ONG');
 
     const statusElement = document.getElementById('orderStatus');
@@ -205,7 +205,7 @@ async function openModal(pedidoId) {
     if (successMessage) successMessage.style.display = 'none';
     actionButton.style.display = 'none';
     actionButton.disabled = false;
-    
+
     const status = String(pedido.status).toLowerCase();
 
     if (status === 'disponível' || status === 'disponivel') {
@@ -213,22 +213,22 @@ async function openModal(pedidoId) {
         actionButton.textContent = '📋 Reservar Pedido';
         actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';
-        
+
         // Configurar clique do botão
         actionButton.onclick = async () => {
             actionButton.disabled = true;
             actionButton.textContent = 'Reservando...';
-            
+
             try {
                 console.log(`🔄 Reservando pedido ${pedido.id}...`);
-                
+
                 // CORREÇÃO: Obter o empresa_id dos dados do usuário
                 const empresaId = dadosUsuario.empresa_id || dadosUsuario.id;
                 console.log(`🏢 Usando empresa_id: ${empresaId}`);
-                
+
                 const response = await fetch('/api/reservar-pedido', {
                     method: 'PUT',
-                    headers: { 
+                    headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     },
@@ -249,18 +249,18 @@ async function openModal(pedidoId) {
                     // SUCESSO: Mostrar mensagem e atualizar status
                     if (successMessage) successMessage.style.display = 'block';
                     actionButton.style.display = 'none';
-                    
+
                     // Atualizar status no modal
                     if (statusElement) {
                         statusElement.innerHTML = `<span class="status reservado">reservado</span>`;
                     }
-                    
+
                     // Recarregar a lista após 2 segundos
                     setTimeout(() => {
                         closeModal();
                         loadPedidosDisponiveis();
                     }, 2000);
-                    
+
                 } else {
                     alert(`❌ Erro: ${result.message}`);
                     actionButton.disabled = false;
@@ -278,7 +278,7 @@ async function openModal(pedidoId) {
         // Status não é disponível - esconder botão
         actionButton.style.display = 'none';
     }
-    
+
     // --- 3. Abrir o Modal ---
     modal.showModal();
 }
@@ -300,7 +300,7 @@ async function handleAction(pedidoId, actionType) {
         try {
             const response = await fetch('/api/reservar-doacao', {
                 method: 'PUT',
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 },
@@ -334,16 +334,16 @@ function updateItemCount(total) {
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         const searchText = this.value.toLowerCase();
-        
-        const pedidosFiltrados = pedidosReais.filter(pedido => 
+
+        const pedidosFiltrados = pedidosReais.filter(pedido =>
             (pedido.nome_alimento && pedido.nome_alimento.toLowerCase().includes(searchText)) ||
             (pedido.nome_ong && pedido.nome_ong.toLowerCase().includes(searchText)) ||
             (pedido.nomeONG && pedido.nomeONG.toLowerCase().includes(searchText))
         );
-        
-        currentPage = 1; 
+
+        currentPage = 1;
         renderizarTabela(pedidosFiltrados);
         setupPagination(pedidosFiltrados.length);
     });
