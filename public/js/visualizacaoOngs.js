@@ -132,7 +132,6 @@ function renderizarTabela(pedidos) {
 
         const row = `
             <tr>
-                <td>${pedido.id}</td>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td> 
                 <td>${pedido.nome_ong || pedido.nomeONG}</td>
@@ -284,6 +283,9 @@ async function openModal(pedidoId) {
     // --- 3. Abrir o Modal ---
     modal.showModal();
 }
+// Expor para o escopo global
+window.openModal = openModal;
+
 // Fecha a modal
 function closeModal() {
     const modal = document.getElementById('orderModal');
@@ -291,6 +293,7 @@ function closeModal() {
         modal.close();
     }
 }
+window.closeModal = closeModal;
 
 /**
  * Função ÚNICA para lidar com todas as ações (Reservar, Concluir)
