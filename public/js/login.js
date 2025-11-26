@@ -113,14 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Limpar dados ao mudar os campos (opcional)
-    usuarioInput.addEventListener('input', () => {
-        // Se o email mudar, não preencher automaticamente o tipo
-        if (usuarioInput.value !== JSON.parse(localStorage.getItem('usuario') || '{}').email) {
-            empresaRadio.checked = false;
-            ongRadio.checked = false;
-        }
-    });
+
 });
 
 // Função global para verificar autenticação (usada em outras páginas)
