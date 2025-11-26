@@ -1,4 +1,5 @@
 // public/js/cadastroDoacoesEmpresa.js
+import { showPopup } from './modal.js';
 let dadosUsuario = {};
 
 async function carregarUsuario() {
@@ -121,7 +122,7 @@ function configurarFormulario() {
 
       // Verifica se dadosUsuario está carregado
       if (!dadosUsuario.id) {
-        alert('❌ Erro: Dados do usuário não carregados. Recarregue a página.');
+        showPopup('Erro: Dados do usuário não carregados. Recarregue a página.', { title: 'Erro', type: 'error', okText: 'OK' });
         return;
       }
 
@@ -156,7 +157,7 @@ function configurarFormulario() {
       // VALIDAÇÃO: Verificar campos obrigatórios antes do envio
       const erros = validarDados(dadosEnvio);
       if (erros.length > 0) {
-        alert('❌ Erros no formulário:\n' + erros.join('\n'));
+        showPopup('Erros no formulário:\n' + erros.join('\n'), { title: 'Erro', type: 'error', okText: 'OK' });
         return;
       }
 
@@ -171,16 +172,16 @@ function configurarFormulario() {
         console.log('19. Resposta do servidor:', resultado);
 
         if (resultado.success) {
-          alert('✅ Doação cadastrada com sucesso!');
+          showPopup('✅ Doação cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
           form.reset();
           // Opcional: redirecionar para outra página
           // window.location.href = '/minhasDoacoes.html';
         } else {
-          alert('❌ Erro ao cadastrar a doação: ' + resultado.message);
+          showPopup('❌ Erro ao cadastrar a doação: ' + resultado.message, { title: 'Erro', type: 'error', okText: 'OK' });
         }
       } catch (error) {
         console.error('ERRO no envio:', error);
-        alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+        showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
       }
     });
   }

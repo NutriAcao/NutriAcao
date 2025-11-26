@@ -1,3 +1,5 @@
+import { showPopup } from './modal.js';
+
 export function initMenu() {
     const menuButton = document.getElementById('menu-button');
     const navMenu = document.getElementById('menu');
@@ -69,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmaSenha = document.getElementById('confirma_senha_ong').value;
 
             if (senha !== confirmaSenha) {
-                alert('As senhas não coincidem!');
+                showPopup('As senhas não coincidem!', { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
 
@@ -120,16 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const resultado = await response.json();
                 
                 if (response.ok) {
-                    alert('SUCESSO! ONG cadastrada com sucesso!'); 
+                    showPopup('SUCESSO! ONG cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
                     modalOng.style.display = 'none';
                     formOng.reset();
                 } else {
-                    alert(`FALHA: ${resultado.message || 'Erro no cadastro'}`);
+                    showPopup(`FALHA: ${resultado.message || 'Erro no cadastro'}`, { title: 'Erro', type: 'error', okText: 'OK' });
                 }
 
             } catch (error) {
                 console.error('Erro de rede ao comunicar com o servidor:', error);
-                alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+                showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
             }
         });
     }
@@ -144,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const confirmaSenha = document.getElementById('confirma_senha').value;
 
             if (senha !== confirmaSenha) {
-                alert('As senhas não coincidem!');
+                showPopup('As senhas não coincidem!', { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
             
@@ -202,16 +204,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // Tratamento da Resposta
                 if (response.ok) { 
-                    alert('SUCESSO! Empresa cadastrada com sucesso!'); 
+                    showPopup('SUCESSO! Empresa cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
                     modalEmpresa.style.display = 'none';
                     formEmpresa.reset();
                 } else {
-                    alert(`FALHA: ${resultado.message || 'Erro no cadastro'}`);
+                    showPopup(`FALHA: ${resultado.message || 'Erro no cadastro'}`, { title: 'Erro', type: 'error', okText: 'OK' });
                 }
 
             } catch (error) {
                 console.error('Erro de rede ou falha ao processar a resposta:', error);
-                alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+                showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
             }
         });
     }
@@ -318,3 +320,4 @@ function configurarAutoCompleteCEP() {
 }
 
 initMenu();
+

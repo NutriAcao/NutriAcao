@@ -5,11 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Preencha os dados para entrar</title>
     <link rel="stylesheet" href="../../styles/style-cadastro.css">
+    <link rel="stylesheet" href="../../styles/style-modal.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="shortcut icon" href="../../assets/Logo-white.png" type="image/x-icon">
 </head>
 <body>
+
+    <div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+        aria-labelledby="app-modal-title">
+        <div class="app-modal-backdrop" data-close></div>
+        <div class="app-modal-panel" role="document">
+          <header class="app-modal-header">
+            <h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+            <button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+          </header>
+          <div class="app-modal-body" id="app-modal-body">Mensagem</div>
+          <footer class="app-modal-footer">
+            <button id="app-modal-ok" class="app-modal-ok">OK</button>
+          </footer>
+        </div>
+    </div>
 
     <header id="header">
         <a class="footer-logo" href="./../homepage.html">
@@ -308,5 +324,6 @@
     </footer>
 
     <script type="module" src="../../js/cadastro.js"></script>
+    
 </body>
 </html>

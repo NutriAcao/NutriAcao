@@ -1,5 +1,7 @@
 // public/js/visualizacaoOngs.js
 // VERSÃO ATUALIZADA com fluxo padronizado: Empresa reserva Pedido de ONG
+import { showPopup } from './modal.js';
+
 console.log(">>> ARQUIVO visualizacaoOngs.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
@@ -106,7 +108,7 @@ async function loadPedidosDisponiveis() {
         setupPagination(pedidosReais.length);
     } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
-        alert('Falha ao carregar pedidos de doação. Tente novamente.');
+        showPopup('Falha ao carregar pedidos de doação. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 
@@ -262,13 +264,13 @@ async function openModal(pedidoId) {
                     }, 2000);
 
                 } else {
-                    alert(`❌ Erro: ${result.message}`);
+                    showPopup(`❌ Erro: ${result.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
                     actionButton.disabled = false;
                     actionButton.textContent = '📋 Reservar Pedido';
                 }
             } catch (error) {
                 console.error('Erro de rede:', error);
-                alert('Erro de rede. Tente novamente.');
+                showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
                 actionButton.disabled = false;
                 actionButton.textContent = '📋 Reservar Pedido';
             }
@@ -313,15 +315,15 @@ async function handleAction(pedidoId, actionType) {
             const result = await response.json();
 
             if (response.ok) {
-                alert("✅ Pedido reservado com sucesso!");
+                showPopup("✅ Pedido reservado com sucesso!", { title: 'Sucesso', type: 'success', okText: 'OK' });
                 closeModal();
                 loadPedidosDisponiveis();
             } else {
-                alert(`❌ Erro: ${result.message}`);
+                showPopup(`❌ Erro: ${result.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
             }
         } catch (error) {
             console.error('Erro de rede:', error);
-            alert('Erro de rede. Tente novamente.');
+            showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
         }
     }
 }

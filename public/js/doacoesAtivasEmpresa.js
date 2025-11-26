@@ -1,3 +1,5 @@
+import { showPopup } from './modal.js';
+
 document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 Inicializando Doações Ativas...');
 
@@ -351,7 +353,7 @@ async function abrirDetalhesModal(id, tipo) {
         } else if (tipo === 'excedente-reservado') {
             endpoint = `/api/doacoes-ativas/detalhes/excedente/${id}`;
         } else {
-            alert('Tipo de item desconhecido!');
+            showPopup('Tipo de item desconhecido!', { title: 'Erro', type: 'error', okText: 'OK' });
             return;
         }
 
@@ -494,7 +496,7 @@ async function abrirDetalhesModal(id, tipo) {
             console.error('Erro ao mostrar erro no modal:', e);
         }
 
-        alert(`Erro ao carregar detalhes: ${erro.message}`);
+        showPopup(`Erro ao carregar detalhes: ${erro.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 // --- Função de Confirmação de Ação ---
@@ -548,15 +550,15 @@ async function executarAcao(acao, id, tipo) {
         const data = await res.json();
 
         if (res.ok) {
-            alert(`✅ ${data.message || 'Ação realizada com sucesso!'}`);
+            showPopup(`✅ ${data.message || 'Ação realizada com sucesso!'}`, { title: 'Sucesso', type: 'success', okText: 'OK' });
             window.location.reload(); // Recarrega a página para atualizar as tabelas
         } else {
-            alert(`❌ Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`);
+            showPopup(`❌ Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`, { title: 'Erro', type: 'error', okText: 'OK' });
         }
 
     } catch (error) {
         console.error(`❌ Erro na requisição de ${acao}:`, error);
-        alert(`❌ Erro de comunicação com o servidor. Tente novamente.`);
+        showPopup(`❌ Erro de comunicação com o servidor. Tente novamente.`, { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 

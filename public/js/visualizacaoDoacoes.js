@@ -1,6 +1,8 @@
 // public/js/visualizacaoDoacoes.js
 console.log(">>> ARQUIVO visualizacaoDoacoes.js CARREGADO COM SUCESSO! <<<");
 
+import { showPopup } from './modal.js';
+
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
 let doacoesReais = []; 
@@ -108,7 +110,7 @@ async function loadDoacoesDisponiveis() {
         
     } catch (error) {
         console.error('❌ Erro ao carregar doações:', error);
-        alert('Falha ao carregar doações disponíveis. Tente novamente.');
+        showPopup('Falha ao carregar doações disponíveis. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 
@@ -258,15 +260,15 @@ async function handleReserva(doacaoId) {
         console.log('📨 Resposta da API:', result);
 
         if (response.ok && result.success) {
-            alert('✅ Doação reservada com sucesso!');
+            showPopup('✅ Doação reservada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
             closeModal();
             loadDoacoesDisponiveis(); // Recarrega a lista
         } else {
-            alert(`❌ Falha: ${result.message || 'Erro desconhecido'}`);
+            showPopup(`❌ Falha: ${result.message || 'Erro desconhecido'}`, { title: 'Erro', type: 'error', okText: 'OK' });
         }
     } catch (error) {
         console.error('❌ Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
+        showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 

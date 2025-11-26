@@ -1,4 +1,5 @@
 // public/js/cadastroDoacoesOng.js
+import { showPopup } from './modal.js';
 let dadosUsuario = {};
 let nomeUsuario = document.getElementById('textNomeUsuario')
 let nomeInstituicao = document.getElementById('textNomeInstituicao')
@@ -187,7 +188,7 @@ function configurarFormulario() {
 
             // Verifica se dadosUsuario.id existe
             if (!dadosUsuario.id) {
-                alert('Erro: Dados do usuário não carregados. Recarregue a página.');
+                showPopup('Erro: Dados do usuário não carregados. Recarregue a página.', { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
 
@@ -205,7 +206,7 @@ function configurarFormulario() {
             const erros = validarDados(dadosSolicitacao);
 
             if (erros.length > 0) {
-                alert("Erros encontrados:\n\n" + erros.join("\n"));
+                showPopup("Erros encontrados:\n\n" + erros.join("\n"), { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
 
@@ -221,15 +222,15 @@ function configurarFormulario() {
                 const resultado = await response.json();
 
                 if (resultado.success) {
-                    alert('✅ Solicitação cadastrada com sucesso!');
+                    showPopup('✅ Solicitação cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
                     formDoacaoOng.reset();
                 } else {
-                    alert('❌ Erro ao cadastrar a solicitação: ' + resultado.message);
+                    showPopup('❌ Erro ao cadastrar a solicitação: ' + resultado.message, { title: 'Erro', type: 'error', okText: 'OK' });
                 }
 
             } catch (error) {
                 console.error('Erro de rede:', error);
-                alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+                showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
             }
         });
     }
