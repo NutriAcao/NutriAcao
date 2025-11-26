@@ -143,49 +143,38 @@
     </div>
   </section>
   
-  <section class="depoimentos">
+ <section class="depoimentos">
   <h2>O que dizem sobre o Nutriação</h2>
 
-  <div class="depoimento">
-    <p class="mensagem">"Com o Nutriação, conseguimos doar alimentos excedentes com rapidez e segurança. Uma plataforma que realmente faz a diferença!"</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>Renata Costa – Doadora</span>
+  <!-- Botão para abrir o modal -->
+  <button class="btn-abrir-modal" onclick="abrirModalDepoimentos()">
+  depoimentos
+  </button>
+
+  <!-- Modal -->
+  <div id="modalDepoimentos" class="modal-depoimentos">
+    <div class="modal-conteudo">
+      <!-- Cabeçalho do modal -->
+      <div class="modal-header">
+        <h3>Depoimentos da Comunidade</h3>
+        <button class="btn-fechar" onclick="fecharModalDepoimentos()">&times;</button>
+      </div>
+
+      <!-- Área de depoimentos com scroll -->
+      <div class="modal-body" id="modalBody">
+        <!-- Depoimentos serão carregados aqui -->
+      </div>
+
+      <!-- Rodapé do modal -->
+      <div class="modal-footer">
+        <a href="https://forms.gle/zWqnSWPiZdtoA1d96" target="_blank" class="btn-depoimento">
+          📝 Deixar meu depoimento
+        </a>
+        <p class="aviso">*Os depoimentos passam por moderação</p>
+      </div>
     </div>
   </div>
 
-  <div class="depoimento">
-    <p class="mensagem">"Graças à plataforma, conseguimos receber alimentos frescos semanalmente. Minha família agradece por essa iniciativa incrível."</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="far fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>José Almeida – Beneficiário</span>
-    </div>
-  </div>
-
-  <div class="depoimento">
-    <p class="mensagem">"A tecnologia do Nutriação facilitou a logística de entrega dos alimentos e reduziu o desperdício na nossa ONG."</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>ONG Sementes do Bem</span>
-    </div>
   </div>
 </section>
 <section class="faq">
@@ -337,7 +326,7 @@
 <script type="module" src="/js/ongs.js"></script>
 <script type="module" src="/js/map.js"></script>
 <script type="module" src="/js/suporte.js"></script>
-
+<script src="/js/depoimentos.js"></script>
 
 </body>
 </html>
