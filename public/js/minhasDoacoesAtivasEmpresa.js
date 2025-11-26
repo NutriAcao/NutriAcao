@@ -1,4 +1,5 @@
 // public/js/minhasDoacoesAtivasEmpresa.js
+import { showPopup } from './modal.js';
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
@@ -41,7 +42,7 @@ async function loadDadosAtivos() {
         
     } catch (error) {
         console.error('Erro ao carregar dados ativos:', error);
-        alert('Falha ao carregar suas doações ativas. Tente novamente.');
+        showPopup('Falha ao carregar suas doações ativas. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 
@@ -149,7 +150,7 @@ function openModal(itemId, tipo) {
         // Excedente Disponível: Ação de Cancelar (Retirar da lista, se necessário)
         actionButton.textContent = 'Editar/Remover Doação';
         secondaryButton.style.display = 'none';
-        actionButton.onclick = () => alert('Funcionalidade de Edição/Remoção deve ser implementada.');
+        actionButton.onclick = () => showPopup('Funcionalidade de Edição/Remoção deve ser implementada.', { title: 'Erro', type: 'error', okText: 'OK' });
 
     } else if (tipo === 'doacaoReservada') {
         // Doação que EU (Empresa) criei e foi reservada por uma ONG
@@ -199,7 +200,7 @@ async function handleAction(itemId, actionType) {
             tipo_item: itemId_tipo(itemId) // Função auxiliar para determinar se é 'doacao' ou 'pedido'
         }; 
     } else {
-        alert('Ação desconhecida.');
+        showPopup('Ação desconhecida.', { title: 'Erro', type: 'error', okText: 'OK' });
         return;
     }
     
@@ -218,15 +219,15 @@ async function handleAction(itemId, actionType) {
         const result = await response.json();
 
         if (response.ok) {
-            alert(result.message);
+            showPopup(result.message, { title: 'Sucesso', type: 'success', okText: 'OK' });
             // Recarrega as duas listas para atualizar o status
             loadDadosAtivos(); 
         } else {
-            alert(`Falha: ${result.message}`);
+            showPopup(`Falha: ${result.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
         }
     } catch (error) {
         console.error('Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
+        showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 

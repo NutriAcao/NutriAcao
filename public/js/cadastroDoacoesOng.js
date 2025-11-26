@@ -1,4 +1,5 @@
 // public/js/cadastroDoacoesOng.js
+import { showPopup } from './modal.js';
 let dadosUsuario = {};
 let nomeUsuario = document.getElementById('textNomeUsuario')
 let nomeInstituicao = document.getElementById('textNomeInstituicao')
@@ -45,55 +46,55 @@ async function carregarCategorias() {
 let formDoacaoOng = document.getElementById("form-cadastro-ong");
 
 // Atualize a função de submit no frontend
-if (formDoacaoOng) {
-  formDoacaoOng.addEventListener('submit', async (event) => {
-    event.preventDefault();
+// if (formDoacaoOng) {
+//   formDoacaoOng.addEventListener('submit', async (event) => {
+//     event.preventDefault();
 
-    const formData = new FormData(formDoacaoOng);
-    const dadosCompletos = Object.fromEntries(formData.entries());
+//     const formData = new FormData(formDoacaoOng);
+//     const dadosCompletos = Object.fromEntries(formData.entries());
 
-    const dadosSolicitacao = {
-      titulo: dadosCompletos.nome_alimento,
-      descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
-      categoria_id: parseInt(dadosCompletos.categoria) || 1,
-      quantidade_desejada: parseFloat(dadosCompletos.quantidade),
-      telefone_contato: dadosCompletos.telefone,
-      email_contato: dadosCompletos.email
-      // ong_id REMOVIDO - será buscado automaticamente pelo controller
-    };
+//     const dadosSolicitacao = {
+//       titulo: dadosCompletos.nome_alimento,
+//       descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
+//       categoria_id: parseInt(dadosCompletos.categoria) || 1,
+//       quantidade_desejada: parseFloat(dadosCompletos.quantidade),
+//       telefone_contato: dadosCompletos.telefone,
+//       email_contato: dadosCompletos.email
+//       // ong_id REMOVIDO - será buscado automaticamente pelo controller
+//     };
 
-    // Validação
-    const erros = validarDados(dadosSolicitacao);
+//     // Validação
+//     const erros = validarDados(dadosSolicitacao);
 
-    if (erros.length > 0) {
-      alert("Erros encontrados:\n\n" + erros.join("\n"));
-      return;
-    }
+//     if (erros.length > 0) {
+//       alert("Erros encontrados:\n\n" + erros.join("\n"));
+//       return;
+//     }
 
-    try {
-      const response = await fetch('/api/solicitacoes-ong', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dadosSolicitacao)
-      });
+//     try {
+//       const response = await fetch('/api/solicitacoes-ong', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(dadosSolicitacao)
+//       });
 
-      const resultado = await response.json();
+//       const resultado = await response.json();
 
-      if (resultado.success) {
-        alert('✅ Solicitação cadastrada com sucesso!');
-        formDoacaoOng.reset();
-      } else {
-        alert('❌ Erro ao cadastrar a solicitação: ' + resultado.message);
-      }
+//       if (resultado.success) {
+//         alert('✅ Solicitação cadastrada com sucesso!');
+//         formDoacaoOng.reset();
+//       } else {
+//         alert('❌ Erro ao cadastrar a solicitação: ' + resultado.message);
+//       }
 
-    } catch (error) {
-      console.error('Erro de rede:', error);
-      alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
-    }
-  });
-}
+//     } catch (error) {
+//       console.error('Erro de rede:', error);
+//       alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+//     }
+//   });
+// }
 
 // Função principal para carregar dados do usuário
 async function carregarDadosUsuario() {
@@ -187,7 +188,7 @@ function configurarFormulario() {
 
             // Verifica se dadosUsuario.id existe
             if (!dadosUsuario.id) {
-                alert('Erro: Dados do usuário não carregados. Recarregue a página.');
+                showPopup('Erro: Dados do usuário não carregados. Recarregue a página.', { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
 
@@ -205,7 +206,7 @@ function configurarFormulario() {
             const erros = validarDados(dadosSolicitacao);
 
             if (erros.length > 0) {
-                alert("Erros encontrados:\n\n" + erros.join("\n"));
+                showPopup("Erros encontrados:\n\n" + erros.join("\n"), { title: 'Erro', type: 'error', okText: 'OK' });
                 return;
             }
 
@@ -221,15 +222,15 @@ function configurarFormulario() {
                 const resultado = await response.json();
 
                 if (resultado.success) {
-                    alert('✅ Solicitação cadastrada com sucesso!');
+                    showPopup('✅ Solicitação cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
                     formDoacaoOng.reset();
                 } else {
-                    alert('❌ Erro ao cadastrar a solicitação: ' + resultado.message);
+                    showPopup('❌ Erro ao cadastrar a solicitação: ' + resultado.message, { title: 'Erro', type: 'error', okText: 'OK' });
                 }
 
             } catch (error) {
                 console.error('Erro de rede:', error);
-                alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+                showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
             }
         });
     }

@@ -1,12 +1,15 @@
-document.addEventListener('DOMContentLoaded', function() {
+import { showPopup } from './modal.js';
+
+document.addEventListener('DOMContentLoaded', function () {
     console.log('🚀 Inicializando Doações Ativas...');
-    
+
     // Inicializa os listeners de modal
     setupModalButtons();
 
     let nomeUsuario = document.getElementById('textNomeUsuario');
     let nomeInstituicao = document.getElementById('textNomeInstituicao');
     let ID_EMPRESA_LOGADA = null;
+    let ID_USUARIO = null;
 
     async function carregarUsuario() {
         try {
@@ -15,12 +18,13 @@ document.addEventListener('DOMContentLoaded', function() {
 
             nomeUsuario.innerHTML = dados.nome;
             nomeInstituicao.innerHTML = dados.nomeInstituicao;
-            
+
             // Assumindo que o objeto do usuário contém empresa_id
-            ID_EMPRESA_LOGADA = dados.empresa_id || dados.id;
+            ID_EMPRESA_LOGADA = dados.empresa_id;
+            ID_USUARIO = dados.id;
 
             await carregarTodasTabelas();
-            
+
         } catch (erro) {
             console.error('Erro ao buscar usuário:', erro);
         }
@@ -29,12 +33,12 @@ document.addEventListener('DOMContentLoaded', function() {
     async function carregarTodasTabelas() {
         try {
             const [
-                excedentesCadastrados, 
-                solicitacoesAndamento, 
+                excedentesCadastrados,
+                solicitacoesAndamento,
                 excedentesAndamento
             ] = await Promise.all([
                 ExcedentesCadastradosEmpresa(ID_EMPRESA_LOGADA),
-                SolicitacoesAndamentoEmpresa(ID_EMPRESA_LOGADA),
+                SolicitacoesAndamentoEmpresa(ID_USUARIO),
                 ExcedentesAndamentoEmpresa(ID_EMPRESA_LOGADA)
             ]);
 
@@ -61,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return await res.json();
         } catch (erro) {
             console.error('Erro ao carregar excedentes cadastrados:', erro);
-            return []; 
+            return [];
         }
     }
 
@@ -72,7 +76,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return await res.json();
         } catch (erro) {
             console.error('Erro ao buscar solicitações em andamento:', erro);
-            return []; 
+            return [];
         }
     }
 
@@ -83,29 +87,29 @@ document.addEventListener('DOMContentLoaded', function() {
             return await res.json();
         } catch (erro) {
             console.error('Erro ao buscar excedentes em andamento:', erro);
-            return []; 
+            return [];
         }
     }
-function preencherTabelaExcedentesCadastrados(excedentes) {
-    const tbody = document.querySelector('#doacoesCadastradasTableEmpresa tbody');
-    tbody.innerHTML = ''; 
-    
-    console.log('📦 Excedentes para tabela 1:', excedentes);
-    
-    if (!excedentes || !excedentes.length) {
-        tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente cadastrado no momento.</td></tr>';
-        return;
-    }
-    
-    excedentes.forEach(item => {
-        console.log('📝 Item da tabela 1:', item);
-        const tr = document.createElement('tr');
-        const statusClass = item.status === 'disponível' ? 'disponivel' : 
-                          item.status === 'reservado' ? 'reservado' : 'concluido';
-        const statusText = item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'N/A';
-        const dataValidade = formatarData(item.data_validade);
-        
-        tr.innerHTML = `
+    function preencherTabelaExcedentesCadastrados(excedentes) {
+        const tbody = document.querySelector('#doacoesCadastradasTableEmpresa tbody');
+        tbody.innerHTML = '';
+
+        console.log('📦 Excedentes para tabela 1:', excedentes);
+
+        if (!excedentes || !excedentes.length) {
+            tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente cadastrado no momento.</td></tr>';
+            return;
+        }
+
+        excedentes.forEach(item => {
+            console.log('📝 Item da tabela 1:', item);
+            const tr = document.createElement('tr');
+            const statusClass = item.status === 'disponível' ? 'disponivel' :
+                item.status === 'reservado' ? 'reservado' : 'concluido';
+            const statusText = item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'N/A';
+            const dataValidade = formatarData(item.data_validade);
+
+            tr.innerHTML = `
             <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
             <td>${item.quantidade || 'N/A'}</td>
             <td><span class="status ${statusClass}">${statusText}</span></td>
@@ -116,27 +120,27 @@ function preencherTabelaExcedentesCadastrados(excedentes) {
                 </button>
             </td>
         `;
-        tbody.appendChild(tr);
-    });
-}
-
-function preencherTabelaSolicitacoesAndamento(solicitacoes) {
-    const tbody = document.querySelector('#doacoesTableEmpresaPedidosAndamento tbody');
-    tbody.innerHTML = ''; 
-    
-    console.log('📋 Solicitações para tabela 2:', solicitacoes);
-    
-    if (!solicitacoes || !solicitacoes.length) {
-        tbody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação em andamento no momento.</td></tr>';
-        return;
+            tbody.appendChild(tr);
+        });
     }
-    
-    solicitacoes.forEach(item => {
-        console.log('📝 Item da tabela 2:', item);
-        const tr = document.createElement('tr');
-        const dataCadastro = formatarData(item.data_cadastro || item.data_criacao);
-        
-        tr.innerHTML = `
+
+    function preencherTabelaSolicitacoesAndamento(solicitacoes) {
+        const tbody = document.querySelector('#doacoesTableEmpresaPedidosAndamento tbody');
+        tbody.innerHTML = '';
+
+        console.log('📋 Solicitações para tabela 2:', solicitacoes);
+
+        if (!solicitacoes || !solicitacoes.length) {
+            tbody.innerHTML = '<tr><td colspan="5">Nenhuma solicitação em andamento no momento.</td></tr>';
+            return;
+        }
+
+        solicitacoes.forEach(item => {
+            console.log('📝 Item da tabela 2:', item);
+            const tr = document.createElement('tr');
+            const dataCadastro = formatarData(item.data_cadastro || item.data_criacao);
+
+            tr.innerHTML = `
             <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
             <td>${item.quantidade || item.quantidade_desejada || 'N/A'}</td>
             <td>${dataCadastro}</td>
@@ -147,28 +151,28 @@ function preencherTabelaSolicitacoesAndamento(solicitacoes) {
                 </button>
             </td>
         `;
-        tbody.appendChild(tr);
-        console.log('Item ID:', item.id);
-    });
-}
-
-function preencherTabelaExcedentesAndamento(excedentes) {
-    const tbody = document.querySelector('#excedentesAndamentoTableEmpresa tbody');
-    tbody.innerHTML = ''; 
-    
-    console.log('🔄 Excedentes para tabela 3:', excedentes);
-    
-    if (!excedentes || !excedentes.length) {
-        tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente em andamento no momento.</td></tr>';
-        return;
+            tbody.appendChild(tr);
+            console.log('Item ID:', item.id);
+        });
     }
-    
-    excedentes.forEach(item => {
-        console.log('📝 Item da tabela 3:', item);
-        const tr = document.createElement('tr');
-        const dataValidade = formatarData(item.data_validade);
-        
-        tr.innerHTML = `
+
+    function preencherTabelaExcedentesAndamento(excedentes) {
+        const tbody = document.querySelector('#excedentesAndamentoTableEmpresa tbody');
+        tbody.innerHTML = '';
+
+        console.log('🔄 Excedentes para tabela 3:', excedentes);
+
+        if (!excedentes || !excedentes.length) {
+            tbody.innerHTML = '<tr><td colspan="5">Nenhum excedente em andamento no momento.</td></tr>';
+            return;
+        }
+
+        excedentes.forEach(item => {
+            console.log('📝 Item da tabela 3:', item);
+            const tr = document.createElement('tr');
+            const dataValidade = formatarData(item.data_validade);
+
+            tr.innerHTML = `
             <td>${item.nome_alimento || item.titulo || 'N/A'}</td>
             <td>${item.quantidade || 'N/A'}</td>
             <td>${dataValidade}</td>
@@ -179,9 +183,9 @@ function preencherTabelaExcedentesAndamento(excedentes) {
                 </button>
             </td>
         `;
-        tbody.appendChild(tr);
-    });
-}
+            tbody.appendChild(tr);
+        });
+    }
     function formatarData(data) {
         if (!data) return 'N/A';
         return new Date(data).toLocaleDateString('pt-BR');
@@ -198,7 +202,7 @@ function preencherTabelaExcedentesAndamento(excedentes) {
                 paginationId: 'paginationControlsEmpresaExcedentesCadastrados'
             },
             {
-                searchId: 'searchInputEmpresaPedidosAndamento', 
+                searchId: 'searchInputEmpresaPedidosAndamento',
                 tableId: 'doacoesTableEmpresaPedidosAndamento',
                 totalItensId: 'totalItensEmpresaPedidosAndamento',
                 totalPaginasId: 'totalPaginasEmpresaPedidosAndamento',
@@ -230,11 +234,11 @@ function preencherTabelaExcedentesAndamento(excedentes) {
 
         let currentPage = 1;
         const itemsPerPage = 10;
-        
+
         const searchInputElements = document.querySelectorAll(`#${searchInputId}`);
         const currentSearchInput = searchInputElements.length > 1 ? Array.from(searchInputElements).find(input => input.closest('.card').querySelector(`#${tableId}`)) : searchInputElements[0];
-        
-        if (!table || !currentSearchInput) return; 
+
+        if (!table || !currentSearchInput) return;
 
         function getRows() {
             return Array.from(table.querySelectorAll('tbody tr'));
@@ -246,9 +250,9 @@ function preencherTabelaExcedentesAndamento(excedentes) {
             const filteredRows = rows.filter(row =>
                 row.textContent.toLowerCase().includes(searchTerm)
             );
-            
+
             if (totalItens) totalItens.textContent = filteredRows.length;
-            
+
             const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
             if (totalPaginas) totalPaginas.textContent = totalPages;
 
@@ -284,7 +288,7 @@ function preencherTabelaExcedentesAndamento(excedentes) {
             if (mutationsList.length > 0) {
                 currentPage = 1;
                 renderTable();
-                observer.disconnect(); 
+                observer.disconnect();
             }
         });
 
@@ -295,7 +299,7 @@ function preencherTabelaExcedentesAndamento(excedentes) {
             renderTable();
         }
     }
-    
+
     carregarUsuario();
 });
 
@@ -339,17 +343,17 @@ function closeModal(modalId) {
 // ===================================================
 async function abrirDetalhesModal(id, tipo) {
     console.log(`🔍 Abrindo modal: ID ${id}, Tipo ${tipo}`);
-    
+
     try {
         let endpoint = '';
         if (tipo === 'excedente-disponivel') {
-            endpoint = `/api/doacoes-ativas/detalhes/excedente/${id}`;
+            endpoint = `/api/doacoes-ativas/excedentes-cadastrados/${id}`;
         } else if (tipo === 'pedido-reservado') {
             endpoint = `/api/doacoes-ativas/detalhes/solicitacao/${id}`;
         } else if (tipo === 'excedente-reservado') {
             endpoint = `/api/doacoes-ativas/detalhes/excedente/${id}`;
         } else {
-            alert('Tipo de item desconhecido!');
+            showPopup('Tipo de item desconhecido!', { title: 'Erro', type: 'error', okText: 'OK' });
             return;
         }
 
@@ -373,8 +377,7 @@ async function abrirDetalhesModal(id, tipo) {
         });
 
         // Limpa o modal
-        modalTitle.innerHTML = 'Carregando Detalhes... ';
-        orderIdSpan.textContent = `#${id}`;
+        modalTitle.innerHTML = `Carregando Detalhes... <span id="orderId">#${id}</span>`;
         modalDetails.innerHTML = '<p>Carregando...</p>';
         itemsList.innerHTML = '';
         btnConcluir.style.display = 'none';
@@ -387,31 +390,30 @@ async function abrirDetalhesModal(id, tipo) {
         console.log('🔄 Fazendo requisição...');
         const res = await fetch(endpoint);
         console.log('📊 Status da resposta:', res.status);
-        
+
         if (!res.ok) {
             const errorText = await res.text();
             console.error('❌ Erro na resposta:', errorText);
             throw new Error(`Erro ${res.status}: ${errorText}`);
         }
-        
+
         const data = await res.json();
         console.log('✅ Dados recebidos:', data);
 
         // AGORA PREENCHE O MODAL COM OS DADOS
-        modalTitle.innerHTML = 'Detalhes ';
-        orderIdSpan.textContent = `#${id}`;
-        
+        modalTitle.innerHTML = `Detalhes <span id="orderId">#${id}</span>`;
+
         // Conteúdo baseado no tipo
         if (tipo === 'excedente-disponivel') {
             modalDetails.innerHTML = `
-                <p><strong>Alimento:</strong> <span>${data.nome_alimento || data.titulo || 'N/A'}</span></p>
+                <p><strong>Alimento:</strong> <span>${data.nome_alimento || 'N/A'}</span></p>
                 <p><strong>Quantidade:</strong> <span>${data.quantidade || 'N/A'} Kg</span></p>
                 <p><strong>Data de Validade:</strong> <span>${formatarData(data.data_validade)}</span></p>
                 <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
                 <p><strong>Data de Cadastro:</strong> <span>${formatarData(data.data_cadastro || data.data_publicacao)}</span></p>
                 ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
             `;
-            
+
             btnCancelar.style.display = 'inline-block';
             btnCancelar.textContent = 'Cancelar Excedente';
             btnCancelar.onclick = () => {
@@ -426,16 +428,16 @@ async function abrirDetalhesModal(id, tipo) {
                 <p><strong>Data da Solicitação:</strong> <span>${formatarData(data.data_cadastro || data.data_criacao)}</span></p>
                 <p><strong>Contato da ONG:</strong> <span>${data.telefone_ong || data.telefone_contato || 'N/A'}</span></p>
                 <p><strong>Email da ONG:</strong> <span>${data.email_ong || data.email_contato || 'N/A'}</span></p>
-                <p><strong>Responsável:</strong> <span>${data.responsavel_ong || data.responsavel || 'N/A'}</span></p>
+                <p><strong>Responsável:</strong> <span>${data.nome_responsavel || 'N/A'}</span></p>
                 <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
                 ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
             `;
-            
+
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Pedido';
             btnCancelar.textContent = 'Cancelar Pedido';
-            
+
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-pedido', id, 'pedido', 'concluir este pedido');
             };
@@ -451,16 +453,16 @@ async function abrirDetalhesModal(id, tipo) {
                 <p><strong>Data de Validade:</strong> <span>${formatarData(data.data_validade)}</span></p>
                 <p><strong>Contato da ONG:</strong> <span>${data.telefone_ong || data.telefone_contato || 'N/A'}</span></p>
                 <p><strong>Email da ONG:</strong> <span>${data.email_ong || data.email_contato || 'N/A'}</span></p>
-                <p><strong>Responsável:</strong> <span>${data.responsavel_ong || data.responsavel || 'N/A'}</span></p>
+                <p><strong>Responsável:</strong> <span>${data.nome_responsavel || 'N/A'}</span></p>
                 <p><strong>Status:</strong> <span class="status ${data.status}">${data.status ? data.status.charAt(0).toUpperCase() + data.status.slice(1) : 'N/A'}</span></p>
                 ${data.descricao ? `<p><strong>Descrição:</strong> <span>${data.descricao}</span></p>` : ''}
             `;
-            
+
             btnConcluir.style.display = 'inline-block';
             btnCancelar.style.display = 'inline-block';
             btnConcluir.textContent = 'Concluir Doação';
             btnCancelar.textContent = 'Cancelar Doação';
-            
+
             btnConcluir.onclick = () => {
                 confirmarAcao('concluir-doacao', id, 'doacao', 'concluir esta doação');
             };
@@ -483,7 +485,7 @@ async function abrirDetalhesModal(id, tipo) {
 
     } catch (erro) {
         console.error("❌ Erro ao abrir modal:", erro);
-        
+
         // Tenta mostrar o erro no modal
         try {
             const modalDetails = document.getElementById('modalDetails');
@@ -493,31 +495,31 @@ async function abrirDetalhesModal(id, tipo) {
         } catch (e) {
             console.error('Erro ao mostrar erro no modal:', e);
         }
-        
-        alert(`Erro ao carregar detalhes: ${erro.message}`);
+
+        showPopup(`Erro ao carregar detalhes: ${erro.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 // --- Função de Confirmação de Ação ---
 function confirmarAcao(acao, id, tipo, mensagem) {
     console.log(`⚠️ Confirmando ação: ${acao} para ID ${id}`);
-    
+
     // Fecha o modal de detalhes
     closeModal('orderModal');
-    
+
     // Prepara o modal de confirmação
     const btnConfirmar = document.getElementById('btnConfirmarAcao');
     document.getElementById('confirmMessage').innerHTML = `Tem certeza que deseja <strong>${mensagem}</strong>?`;
-    
+
     // Atualiza o texto do botão de confirmação
     const textoBotao = acao.includes('cancelar') ? 'Sim, Cancelar' : 'Sim, Concluir';
     btnConfirmar.textContent = textoBotao;
     btnConfirmar.className = acao.includes('cancelar') ? 'btn-cancel' : 'btn-success';
-    
+
     // Define o que o botão "Sim" fará
     btnConfirmar.onclick = () => {
         executarAcao(acao, id, tipo);
     };
-    
+
     // Abre o modal de confirmação
     openModal('confirmModal');
 }
@@ -525,19 +527,19 @@ function confirmarAcao(acao, id, tipo, mensagem) {
 // --- Função de Execução da Ação ---
 async function executarAcao(acao, id, tipo) {
     console.log(`🚀 Executando ação: ${acao} para ID ${id}`);
-    
+
     // Fecha o modal de confirmação
     closeModal('confirmModal');
-    
+
     // Define o endpoint baseado na ação
     const endpoint = `/api/doacoes-ativas/${acao}/${id}`;
-    
+
     try {
         let method = 'PUT';
         if (acao === 'cancelar-excedente') {
             method = 'DELETE';
         }
-        
+
         const res = await fetch(endpoint, {
             method: method,
             headers: {
@@ -548,15 +550,15 @@ async function executarAcao(acao, id, tipo) {
         const data = await res.json();
 
         if (res.ok) {
-            alert(`✅ ${data.message || 'Ação realizada com sucesso!'}`);
+            showPopup(`✅ ${data.message || 'Ação realizada com sucesso!'}`, { title: 'Sucesso', type: 'success', okText: 'OK' });
             window.location.reload(); // Recarrega a página para atualizar as tabelas
         } else {
-            alert(`❌ Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`);
+            showPopup(`❌ Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`, { title: 'Erro', type: 'error', okText: 'OK' });
         }
 
     } catch (error) {
         console.error(`❌ Erro na requisição de ${acao}:`, error);
-        alert(`❌ Erro de comunicação com o servidor. Tente novamente.`);
+        showPopup(`❌ Erro de comunicação com o servidor. Tente novamente.`, { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 
@@ -570,25 +572,25 @@ function formatarData(data) {
     }
 }
 function setupModalButtons() {
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('btn-visualizar-pedido')) {
             e.preventDefault();
             e.stopPropagation();
-            
+
             const button = e.target;
             const id = button.getAttribute('data-id');
             const tipo = button.getAttribute('data-tipo');
-            
+
             if (id && tipo) {
                 // Desabilita o botão temporariamente
                 button.disabled = true;
                 button.style.opacity = '0.6';
-                
+
                 setTimeout(() => {
                     button.disabled = false;
                     button.style.opacity = '1';
                 }, 2000);
-                
+
                 abrirDetalhesModal(parseInt(id), tipo);
             }
         }
@@ -598,7 +600,7 @@ function setupModalButtons() {
 window.abrirDetalhesModal = abrirDetalhesModal;
 window.openModal = openModal;
 window.closeModal = closeModal;
-window.addEventListener('error', function(e) {
+window.addEventListener('error', function (e) {
     if (e.message.includes('modal') || e.message.includes('null')) {
         console.error('❌ Erro global detectado, recarregando página...', e);
         setTimeout(() => {

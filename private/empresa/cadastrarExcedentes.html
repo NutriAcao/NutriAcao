@@ -1,17 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link rel="stylesheet" href="/styles/cadastrarExcedentes.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Painel de Empresas - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
+    <link rel="stylesheet" href="/styles/cadastrarExcedentes.css">
+    <link rel="stylesheet" href="/styles/style-modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
+
+    <div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+aria-labelledby="app-modal-title">
+<div class="app-modal-backdrop" data-close></div>
+<div class="app-modal-panel" role="document">
+<header class="app-modal-header">
+<h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+<button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+</header>
+<div class="app-modal-body" id="app-modal-body">Mensagem</div>
+<footer class="app-modal-footer">
+<button id="app-modal-ok" class="app-modal-ok">OK</button>
+</footer>
+</div>
+</div>
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
         <!-- Sidebar -->
@@ -26,7 +44,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="/cadastrarExcedentes.html"  class="active">
+                    <a href="/cadastrarExcedentes.html" class="active">
                         <i class="fas fa-plus-circle"></i> Cadastrar Excedentes
                     </a>
                 </li>
@@ -57,13 +75,14 @@
                 </li>
             </ul>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <div class="header">
-                <h2>Cadastrar Excedentes</h2> 
+                <h2>Cadastrar Excedentes</h2>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff"
+                        alt="ONG Exemplo">
                     <div>
                         <h4 id="textNomeUsuario">Usuário Ativo</h4>
                         <p id="textNomeInstituicao">Empresa Fome Zero</p>
@@ -71,118 +90,127 @@
                 </div>
             </div>
             <div class="card" id="historicoEmpresa">
-    <main>
-        <form id="form-cadastro-empresa">
-            <fieldset>
-                <legend>Dados da Doação</legend>
-                
-                <!-- INFORMAÇÕES BÁSICAS DO PRODUTO -->
-                <div class="form-section">
-                    <h4>Informações do Produto</h4>
-                    
-                    <label for="nome_alimento">Nome do produto doado:</label>
-                    <input type="text" id="nome_alimento" name="nome_alimento" placeholder="Ex: Arroz, Feijão, Leite..." required>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="categoria">Categoria:</label>
-                            <select id="categoria" name="categoria" required>
-                                <option value="">Selecione a categoria</option>
-                                <!-- JavaScript vai preencher aqui -->
-                            </select>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="quantidade">Quantidade:</label>
-                            <input type="number" id="quantidade" name="quantidade" min="1" max="500" step="0.01" placeholder="0.00" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="unidade_medida">Unidade:</label>
-                            <select id="unidade_medida" name="unidade_medida" required>
-                                <option value="">Selecione a unidade</option>
-                                <!-- JavaScript vai preencher aqui -->
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <label for="data_validade">Data de validade:</label>
-                    <input type="date" id="data_validade" name="data_validade" min="<?php echo date('Y-m-d'); ?>" required>
-                    
-                    <label for="descricao">Descrição do produto (opcional):</label>
-                    <textarea id="descricao" name="descricao" placeholder="Ex: Produto embalado a vácuo, marca X, lote Y..." rows="3"></textarea>
-                </div>
+                <main>
+                    <form id="form-cadastro-empresa">
+                        <fieldset>
+                            <legend>Dados da Doação</legend>
 
-                <!-- INFORMAÇÕES DE RETIRADA -->
-                <div class="form-section">
-                    <h4>Informações para Retirada</h4>
-                    
-                    <label for="cep_retirada">CEP para retirada:</label>
-                    <input type="text" id="cep_retirada" name="cep_retirada" placeholder="00000-000" required>
-                    
-                    <div class="address-info" id="address-info" style="display: none;">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="logradouro">Logradouro:</label>
-                                <input type="text" id="logradouro" name="logradouro" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="numero">Número:</label>
-                                <input type="text" id="numero" name="numero" placeholder="123">
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="bairro">Bairro:</label>
-                                <input type="text" id="bairro" name="bairro" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="cidade">Cidade:</label>
-                                <input type="text" id="cidade" name="cidade" readonly>
-                            </div>
-                            <div class="form-group">
-                                <label for="estado">Estado:</label>
-                                <input type="text" id="estado" name="estado" readonly style="width: 60px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <!-- INFORMAÇÕES BÁSICAS DO PRODUTO -->
+                            <div class="form-section">
+                                <h4>Informações do Produto</h4>
 
-                <!-- INFORMAÇÕES DE CONTATO -->
-                <div class="form-section">
-                    <h4>Informações de Contato</h4>
-                    
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="telefone">Telefone para contato:</label>
-                            <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">E-mail para contato:</label>
-                            <input type="email" id="email" name="email" placeholder="seu.email@empresa.com" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-note">
-                        <small>📞 As ONGs entrarão em contato por estes meios para combinar a retirada</small>
-                    </div>
-                </div>
+                                <label for="nome_alimento">Nome do produto doado:</label>
+                                <input type="text" id="nome_alimento" name="nome_alimento"
+                                    placeholder="Ex: Arroz, Feijão, Leite..." required>
 
-            </fieldset>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="categoria">Categoria:</label>
+                                        <select id="categoria" name="categoria" required>
+                                            <option value="">Selecione a categoria</option>
+                                            <!-- JavaScript vai preencher aqui -->
+                                        </select>
+                                    </div>
 
-            <div class="form-actions">
-                <button type="submit" id="enviar" class="btn-primary">
-                    <i class="fas fa-plus-circle"></i> Cadastrar Doação
-                </button>
-                <button type="reset" class="btn-secondary">
-                    <i class="fas fa-undo"></i> Limpar Campos
-                </button>
+                                    <div class="form-group">
+                                        <label for="quantidade">Quantidade:</label>
+                                        <input type="number" id="quantidade" name="quantidade" min="1" max="500"
+                                            step="0.01" placeholder="0.00" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="unidade_medida">Unidade:</label>
+                                        <select id="unidade_medida" name="unidade_medida" required>
+                                            <option value="">Selecione a unidade</option>
+                                            <!-- JavaScript vai preencher aqui -->
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <label for="data_validade">Data de validade:</label>
+                                <input type="date" id="data_validade" name="data_validade"
+                                    min="<?php echo date('Y-m-d'); ?>" required>
+
+                                <label for="descricao">Descrição do produto (opcional):</label>
+                                <textarea id="descricao" name="descricao"
+                                    placeholder="Ex: Produto embalado a vácuo, marca X, lote Y..." rows="3"></textarea>
+                            </div>
+
+                            <!-- INFORMAÇÕES DE RETIRADA -->
+                            <div class="form-section">
+                                <h4>Informações para Retirada</h4>
+
+                                <label for="cep_retirada">CEP para retirada:</label>
+                                <input type="text" id="cep_retirada" name="cep_retirada" placeholder="00000-000"
+                                    required>
+
+                                <div class="address-info" id="address-info" style="display: none;">
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="logradouro">Logradouro:</label>
+                                            <input type="text" id="logradouro" name="logradouro" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="numero">Número:</label>
+                                            <input type="text" id="numero" name="numero" placeholder="123">
+                                        </div>
+                                    </div>
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label for="bairro">Bairro:</label>
+                                            <input type="text" id="bairro" name="bairro" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="cidade">Cidade:</label>
+                                            <input type="text" id="cidade" name="cidade" readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="estado">Estado:</label>
+                                            <input type="text" id="estado" name="estado" readonly style="width: 60px;">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- INFORMAÇÕES DE CONTATO -->
+                            <div class="form-section">
+                                <h4>Informações de Contato</h4>
+
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="telefone">Telefone para contato:</label>
+                                        <input type="tel" id="telefone" name="telefone" placeholder="(11) 99999-9999"
+                                            required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="email">E-mail para contato:</label>
+                                        <input type="email" id="email" name="email" placeholder="seu.email@empresa.com"
+                                            required>
+                                    </div>
+                                </div>
+
+                                <div class="form-note">
+                                    <small>📞 As ONGs entrarão em contato por estes meios para combinar a
+                                        retirada</small>
+                                </div>
+                            </div>
+
+                        </fieldset>
+
+                        <div class="form-actions">
+                            <button type="submit" id="enviar" class="btn-primary">
+                                <i class="fas fa-plus-circle"></i> Cadastrar Doação
+                            </button>
+                            <button type="reset" class="btn-secondary">
+                                <i class="fas fa-undo"></i> Limpar Campos
+                            </button>
+                        </div>
+                    </form>
+                </main>
             </div>
-        </form>
-    </main>
-</div>
 
-    <script src="/js/cadastroDoacoesEmpresa.js"></script>
+            <script type="module" src="/js/cadastroDoacoesEmpresa.js"></script>
 </body>
+
 </html>

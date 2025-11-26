@@ -1,22 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Doações - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <title>Painel de Doações - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
+    <link rel="stylesheet" href="/styles/style-modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
+
 <body>
+
+<div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+aria-labelledby="app-modal-title">
+<div class="app-modal-backdrop" data-close></div>
+<div class="app-modal-panel" role="document">
+<header class="app-modal-header">
+<h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+<button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+</header>
+<div class="app-modal-body" id="app-modal-body">Mensagem</div>
+<footer class="app-modal-footer">
+<button id="app-modal-ok" class="app-modal-ok">OK</button>
+</footer>
+</div>
+</div>
+
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
-            
+
             <ul class="menu">
                 <li>
                     <a href="/visualizacaoOngs.html" class="active">
@@ -55,19 +74,20 @@
                 </li>
             </ul>
         </aside>
-        
+
         <main class="main-content">
             <div class="header">
                 <h2>Painel de Doações</h2>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff"
+                        alt="ONG Exemplo">
                     <div>
                         <h4 id="textNomeUsuario">Usuário Ativo</h4>
                         <p id="textNomeInstituicao">Empresa Fome Zero</p>
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-header">
                     <div class="search-container">
@@ -75,7 +95,7 @@
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesTable">
@@ -93,7 +113,7 @@
                             <tbody id="tableBody"></tbody>
                         </table>
                     </div>
-                    
+
                     <div class="pagination">
                         <div class="pagination-info">
                             Total de Páginas: <span id="totalPaginas">2</span>
@@ -109,47 +129,50 @@
                 </div>
             </div>
         </main>
-    </div><dialog id="orderModal" class="modal">
-    <div class="modal-header">
-        <h3>Detalhes do Pedido #<span id="orderId"></span></h3> 
-        <button class="btn-close" onclick="closeModal()">&times;</button>
     </div>
-    <div class="modal-body">
-        <h3 class="section-title">Informações</h3>
-        <div class="order-info">
-            <p><strong>Instituição:</strong> <span id="institution">...</span></p>
-            <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
-            <p><strong>Data:</strong> <span id="orderDate">...</span></p> 
-            <p><strong>Contato:</strong> <span id="contact">...</span></p>
-            <p><strong>Endereço/CEP:</strong> <span id="address">...</span></p>
+    <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3>Detalhes do Pedido #<span id="orderId"></span></h3>
+            <button class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações</h3>
+            <div class="order-info">
+                <p><strong>Instituição:</strong> <span id="institution">...</span></p>
+                <p><strong>Status:</strong> <span id="orderStatus">...</span></p>
+                <p><strong>Data:</strong> <span id="orderDate">...</span></p>
+                <p><strong>Contato:</strong> <span id="contact">...</span></p>
+                <p><strong>Endereço/CEP:</strong> <span id="address">...</span></p>
+            </div>
+
+            <h3 class="section-title">Itens</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                </tbody>
+            </table>
+
+            <!-- MENSAGEM DE SUCESSO (aparece após reserva) -->
+            <div id="reservationSuccessMessage"
+                style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+                <strong>✅ Pedido Reservado com Sucesso!</strong> Entre em contato com a ONG para combinar a entrega.
+            </div>
         </div>
 
-        <h3 class="section-title">Itens</h3>
-        <table class="items-table">
-            <thead>
-                <tr>
-                    <th>Item</th>
-                    <th>Quantidade</th>
-                    <th>Unidade</th>
-                    <th>Observações</th>
-                </tr>
-            </thead>
-            <tbody id="itemsList">
-            </tbody>
-        </table>
-
-        <!-- MENSAGEM DE SUCESSO (aparece após reserva) -->
-        <div id="reservationSuccessMessage" style="display: none; margin-top: 20px; padding: 15px; background: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
-            <strong>✅ Pedido Reservado com Sucesso!</strong> Entre em contato com a ONG para combinar a entrega.
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+            <!-- BOTÃO DE RESERVA -->
+            <button id="actionButton" class="btn-primary" style="display: none;">Reservar Pedido</button>
         </div>
-    </div>
-    
-    <div class="modal-actions">
-        <button class="btn-secondary" onclick="closeModal()">Fechar</button>
-        <!-- BOTÃO DE RESERVA -->
-        <button id="actionButton" class="btn-primary" style="display: none;">Reservar Pedido</button>
-    </div>
-</dialog>
-    <script src="/js/visualizacaoOngs.js"></script>
+    </dialog>
+    <script type="module" src="/js/visualizacaoOngs.js"></script>
 </body>
+
 </html>

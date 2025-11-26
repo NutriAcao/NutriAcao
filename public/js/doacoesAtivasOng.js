@@ -1,4 +1,5 @@
 // Arquivo: doacoesAtivasOng.js (Atualizado para Minhas Solicitações Ativas com Status e Ações)
+import { showPopup } from './modal.js';
 
 document.addEventListener('DOMContentLoaded', function() {
 
@@ -256,7 +257,7 @@ function preencherTabelaSolicitacoesDisponiveis(solicitacoes, tableId) {
 
     // Função de ação para a ONG (deve estar acessível globalmente)
     window.visualizarDetalhesSolicitacao = function(id) {
-        alert('Ação: Abrir detalhes da Solicitação/Reserva ID: ' + id);
+        showPopup('Ação: Abrir detalhes da Solicitação/Reserva ID: ' + id, { title: 'Sucesso', type: 'success', okText: 'OK' });
         // Implementação real: window.location.href = `/detalhesSolicitacao.html?id=${id}`;
     };
 

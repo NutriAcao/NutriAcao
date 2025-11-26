@@ -1,5 +1,7 @@
 //refatorado
 
+import { showPopup, hidePopup, trapFocus } from './modal.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formulario-login');
     const usuarioInput = document.getElementById('user');
@@ -18,25 +20,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Validação básica
         if (!email || !senha || (!empresaRadio.checked && !ongRadio.checked)) {
-            alert('Por favor, selecione uma das opções e preencha todos os campos!');
+            showPopup('Por favor, selecione uma das opções e preencha todos os campos!', {
+                title: 'Campos incompletos',
+                type: 'error'
+            });
             return;
         }
 
         try {
-            console.log('🔐 Tentativa de login:', { 
-                email: email, 
-                tipo: empresaRadio.checked ? 'empresa' : 'ong' 
+            console.log('🔐 Tentativa de login:', {
+                email: email,
+                tipo: empresaRadio.checked ? 'empresa' : 'ong'
             });
 
             // Fazer requisição de login
             const response = await fetch('/api/auth/login', {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json' 
+                headers: {
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ 
-                    email: email, 
-                    senha: senha 
+                body: JSON.stringify({
+                    email: email,
+                    senha: senha
                 }),
                 credentials: 'include' // Importante para cookies
             });
@@ -46,22 +51,28 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('📨 Resposta do servidor:', resultado);
 
             if (!response.ok || !resultado.success) {
-                alert(`Erro: ${resultado.message || 'Credenciais inválidas'}`);
+                showPopup('Por favor, verifique seu email e senha e tente novamente!', {
+                    title: 'Credenciais inválidas',
+                    type: 'error'
+                });
                 return;
             }
 
             // ✅ Login bem-sucedido
             console.log('✅ Login bem-sucedido!', resultado.usuario);
-            
+
             // Salvar dados do usuário no localStorage para uso na UI
             localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
-            
+
             // Verificar se o tipo do usuário bate com o tipo selecionado
             const tipoUsuario = resultado.usuario.tipo;
             const tipoSelecionado = empresaRadio.checked ? 'empresa' : 'ong';
 
             if (tipoUsuario !== tipoSelecionado) {
-                alert(`Erro: Este email está cadastrado como ${tipoUsuario}, mas você selecionou ${tipoSelecionado}.`);
+                showPopup('Este email está cadastrado como ' + tipoUsuario + ', mas você selecionou ' + tipoSelecionado + '.', {
+                    title: 'Usuário inválido',
+                    type: 'error'
+                });
                 // Limpar dados
                 localStorage.removeItem('usuario');
                 return;
@@ -72,8 +83,11 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = resultado.redirectUrl;
 
         } catch (error) {
+            showPopup('Falha na comunicação com o servidor. Tente novamente.', {
+                title: 'Erro de rede',
+                type: 'error'
+            });
             console.error('💥 Erro de rede:', error);
-            alert('Falha na comunicação com o servidor. Tente novamente.');
         }
     });
 
@@ -84,14 +98,14 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const usuario = JSON.parse(usuarioSalvo);
                 usuarioInput.value = usuario.email || '';
-                
+
                 // Marcar o radio button baseado no tipo salvo
                 if (usuario.tipo === 'empresa') {
                     empresaRadio.checked = true;
                 } else if (usuario.tipo === 'ong') {
                     ongRadio.checked = true;
                 }
-                
+
                 console.log('📝 Dados preenchidos automaticamente:', usuario.email);
             } catch (error) {
                 console.error('Erro ao recuperar dados salvos:', error);
@@ -112,35 +126,35 @@ document.addEventListener('DOMContentLoaded', () => {
 // Função global para verificar autenticação (usada em outras páginas)
 function verificarAutenticacao() {
     const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
-    
+
     if (!usuario) {
         // Tentar fazer requisição para verificar se o cookie ainda é válido
         return fetch('/api/auth/perfil', {
             method: 'GET',
             credentials: 'include'
         })
-        .then(response => {
-            if (!response.ok) {
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = '/loginpage.html';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    return data.usuario;
+                } else {
+                    window.location.href = '/loginpage.html';
+                    return null;
+                }
+            })
+            .catch(() => {
                 window.location.href = '/loginpage.html';
                 return null;
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                localStorage.setItem('usuario', JSON.stringify(data.usuario));
-                return data.usuario;
-            } else {
-                window.location.href = '/loginpage.html';
-                return null;
-            }
-        })
-        .catch(() => {
-            window.location.href = '/loginpage.html';
-            return null;
-        });
+            });
     }
-    
+
     return Promise.resolve(usuario);
 }
 

@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Painel de Empresas - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
+    <link rel="stylesheet" href="/styles/style-modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body>
+<div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+aria-labelledby="app-modal-title">
+<div class="app-modal-backdrop" data-close></div>
+<div class="app-modal-panel" role="document">
+<header class="app-modal-header">
+<h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+<button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+</header>
+<div class="app-modal-body" id="app-modal-body">Mensagem</div>
+<footer class="app-modal-footer">
+<button id="app-modal-ok" class="app-modal-ok">OK</button>
+</footer>
+</div>
+</div>
+
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
         <!-- Sidebar -->
@@ -56,7 +74,7 @@
                 </li>
             </ul>
         </aside>
-        
+
         <!-- Main Content -->
         <main class="main-content">
             <div class="header">
@@ -64,44 +82,46 @@
 
 
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff"
+                        alt="ONG Exemplo">
                     <div>
                         <h4 id="textNomeUsuario">Usuário Ativo</h4>
                         <p id="textNomeInstituicao">Empresa Fome Zero</p>
                     </div>
                 </div>
-    
+
 
             </div>
-            
+
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInputEmpresaExcedentesCadastrados" placeholder="Pesquisar alimentos...">
+                        <input type="text" id="searchInputEmpresaExcedentesCadastrados"
+                            placeholder="Pesquisar alimentos...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesCadastradasTableEmpresa">
                             <thead>
                                 <tr>
-                                    
+
                                     <th>Excedentes Cadastrados</th>
                                     <th>Quantidade (Kilos)</th>
                                     <th>Status</th>
-                                    <th></th>
+                                    <th>Data de validade</th>
                                     <th>Ações</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
-                               
+
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="pagination">
                         <div class="pagination-info">
                             Total de Páginas: <span id="totalPaginasEmpresaExcedentesCadastrados">2</span>
@@ -116,8 +136,8 @@
                     </div>
                 </div>
             </div>
-                   
-              
+
+
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
                     <div class="search-container">
@@ -125,27 +145,27 @@
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesTableEmpresaPedidosAndamento">
                             <thead>
                                 <tr>
-                                    
+
                                     <th>Solicitações em Andamento</th>
                                     <th>Quantidade (Kilos)</th>
                                     <th>Data de Cadadstro</th>
                                     <th>Nome da ONG</th>
                                     <th>Ações</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
-                               
+
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="pagination">
                         <div class="pagination-info">
                             Total de Páginas: <span id="totalPaginasEmpresaPedidosAndamento">2</span>
@@ -164,31 +184,32 @@
             <div class="card" id="historicoEmpresa">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInputEmpresaExcedentesAndamento" placeholder="Pesquisar alimentos...">
+                        <input type="text" id="searchInputEmpresaExcedentesAndamento"
+                            placeholder="Pesquisar alimentos...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="excedentesAndamentoTableEmpresa">
                             <thead>
                                 <tr>
-                                    
+
                                     <th>Excedentes em Andamento</th>
                                     <th>Quantidade (Kilos)</th>
                                     <th>Data de Validade</th>
                                     <th>Nome da ONG</th>
                                     <th>Ações</th>
-                                    
+
                                 </tr>
                             </thead>
                             <tbody>
-                               
+
                             </tbody>
                         </table>
                     </div>
-                    
+
                     <div class="pagination">
                         <div class="pagination-info">
                             Total de Páginas: <span id="totalPaginasEmpresaPedidosAndamento">2</span>
@@ -204,9 +225,10 @@
                 </div>
             </div>
     </div>
-</div> <dialog id="orderModal" class="modal">
+    </div>
+    <dialog id="orderModal" class="modal">
         <div class="modal-header">
-            <h3 id="modalTitle">Detalhes #<span id="orderId"></span></h3> 
+            <h3 id="modalTitle">Detalhes #<span id="orderId"></span></h3>
             <button class="btn-close" onclick="closeModal('orderModal')">&times;</button>
         </div>
         <div class="modal-body">
@@ -226,12 +248,12 @@
                     </tr>
                 </thead>
                 <tbody id="itemsList">
-                    </tbody>
+                </tbody>
             </table>
         </div>
         <div class="modal-actions">
             <button class="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
-            
+
             <button id="btnCancelar" class="btn-cancel" style="display: none;">Cancelar Reserva</button>
             <button id="btnConcluir" class="btn-success" style="display: none;">Concluir Transação</button>
         </div>
@@ -250,7 +272,8 @@
             <button id="btnConfirmarAcao" class="btn-confirm-yes">Sim, Confirmar</button>
         </div>
     </dialog>
-    
-    <script src="/js/doacoesAtivasEmpresa.js"></script>
+
+    <script type="module" src="/js/doacoesAtivasEmpresa.js"></script>
 </body>
+
 </html>

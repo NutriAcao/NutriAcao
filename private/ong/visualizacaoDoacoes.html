@@ -1,14 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <title>Visualizar Doações - NutriAção</title>
     <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
+    <link rel="stylesheet" href="/styles/style-modal.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
 </head>
+
 <body>
+<div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+aria-labelledby="app-modal-title">
+<div class="app-modal-backdrop" data-close></div>
+<div class="app-modal-panel" role="document">
+<header class="app-modal-header">
+<h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+<button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+</header>
+<div class="app-modal-body" id="app-modal-body">Mensagem</div>
+<footer class="app-modal-footer">
+<button id="app-modal-ok" class="app-modal-ok">OK</button>
+</footer>
+</div>
+</div>
+
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
         <aside class="sidebar">
@@ -53,7 +71,7 @@
                 </li>
             </ul>
         </aside>
-        
+
         <main class="main-content">
             <div class="header">
                 <h2>Doações Disponíveis</h2>
@@ -65,15 +83,16 @@
                     </div>
                 </div>
             </div>
-            
+
             <div class="card">
                 <div class="card-header">
                     <div class="search-container">
-                        <input type="text" id="searchInput" placeholder="Pesquisar alimentos, empresas ou categorias...">
+                        <input type="text" id="searchInput"
+                            placeholder="Pesquisar alimentos, empresas ou categorias...">
                         <i class="fas fa-search"></i>
                     </div>
                 </div>
-                
+
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesTable">
@@ -92,7 +111,7 @@
                             <tbody id="tableBody"></tbody>
                         </table>
                     </div>
-                    
+
                     <div class="pagination">
                         <div class="pagination-info">
                             Total de Páginas: <span id="totalPaginas">1</span>
@@ -142,6 +161,7 @@
         </div>
     </dialog>
 
-    <script src="/js/visualizacaoDoacoes.js"></script>
+    <script type="module" src="/js/visualizacaoDoacoes.js"></script>
 </body>
+
 </html>

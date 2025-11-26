@@ -233,5 +233,121 @@ router.put('/cancelar-reserva', verificarToken, async (req, res) => {
         });
     }
 });
+// Rota para reservar pedido (empresa reserva pedido da ONG)
+// No seu rotasAcoes.js - Rota com tratamento de erro completo
+router.put('/reservar-pedido', verificarToken, async (req, res) => {
+    console.log('🎯 ROTA reservar-pedido ACESSADA!');
+    
+    try {
+        console.log('📦 Body recebido:', req.body);
+        console.log('👤 Usuário autenticado:', req.user);
 
+        const { pedido_id, empresa_id } = req.body;
+
+        if (!pedido_id || !empresa_id) {
+            console.log('❌ Dados incompletos:', { pedido_id, empresa_id });
+            return res.status(400).json({ 
+                success: false, 
+                message: 'ID do pedido e ID da empresa são obrigatórios' 
+            });
+        }
+
+        console.log(`🔄 Iniciando reserva - Pedido: ${pedido_id}, Empresa: ${empresa_id}`);
+
+        // 1. Buscar o pedido disponível
+        console.log('🔍 Buscando pedido disponível...');
+        const { data: pedidoDisponivel, error: errorBusca } = await supabase
+            .from('solicitacoes_ong')
+            .select('*')
+            .eq('id', pedido_id)
+            .eq('status', 'disponivel')
+            .single();
+
+        console.log('📋 Resultado da busca:', { pedidoDisponivel, errorBusca });
+
+        if (errorBusca || !pedidoDisponivel) {
+            console.error('❌ Erro ao buscar pedido:', errorBusca);
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Pedido não encontrado ou já reservado' 
+            });
+        }
+
+        // 2. Buscar dados da empresa
+        console.log('🏢 Buscando dados da empresa...');
+        const { data: empresa, error: errorEmpresa } = await supabase
+            .from('empresas')
+            .select('*')
+            .eq('id', empresa_id)
+            .single();
+
+        console.log('📊 Dados da empresa:', { empresa, errorEmpresa });
+
+        if (errorEmpresa || !empresa) {
+            console.error('❌ Empresa não encontrada:', errorEmpresa);
+            return res.status(404).json({ 
+                success: false, 
+                message: 'Empresa não encontrada' 
+            });
+        }
+
+        // 3. Inserir na tabela de reservados
+        console.log('💾 Inserindo pedido reservado...');
+        const { data: pedidoReservado, error: errorReserva } = await supabase
+            .from('solicitacoes_ong_reservada')
+            .insert({
+                empresa_id: empresa_id,
+                ong_id: pedidoDisponivel.ong_id,
+                titulo: pedidoDisponivel.titulo || pedidoDisponivel.nome_alimento,
+                descricao: pedidoDisponivel.descricao,
+                categoria_id: pedidoDisponivel.categoria_id,
+                quantidade_desejada: pedidoDisponivel.quantidade_desejada || pedidoDisponivel.quantidade,
+                status: 'reservado',
+                data_criacao: new Date()
+            })
+            .select()
+            .single();
+
+        console.log('✅ Pedido reservado inserido:', { pedidoReservado, errorReserva });
+
+        if (errorReserva) {
+            console.error('❌ Erro ao reservar pedido:', errorReserva);
+            return res.status(500).json({ 
+                success: false, 
+                message: 'Erro ao reservar pedido: ' + errorReserva.message 
+            });
+        }
+
+        // 4. Remover da tabela de disponíveis
+        console.log('🗑️ Removendo pedido disponível...');
+        const { error: errorRemover } = await supabase
+            .from('solicitacoes_ong')
+            .delete()
+            .eq('id', pedido_id);
+
+        console.log('✅ Pedido removido:', { errorRemover });
+
+        if (errorRemover) {
+            console.error('⚠️ Erro ao remover pedido disponível:', errorRemover);
+            // Não retornamos erro aqui porque o pedido já foi reservado
+        }
+
+        console.log('🎉 Reserva concluída com sucesso!');
+        
+        res.json({
+            success: true,
+            message: 'Pedido reservado com sucesso!',
+            data: pedidoReservado
+        });
+
+    } catch (err) {
+        console.error('💥 ERRO GRAVE na rota /reservar-pedido:', err);
+        console.error('Stack trace:', err.stack);
+        
+        res.status(500).json({ 
+            success: false, 
+            message: 'Erro interno do servidor: ' + err.message 
+        });
+    }
+});
 export default router;
