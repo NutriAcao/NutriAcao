@@ -1,76 +1,86 @@
 :root {
-    --color-background:#333333 ;   /* Cor de fundo geral do site */
-    --color-text: #1b1b1b ;         /* Cor do texto comum */
-    --color-secondary-text: #fff ;         /* Cor do texto comum */
-    --color-title: #161616;        /* Cor dos títulos (h1, h2...) */
+    --color-background: #333333;
+    /* Cor de fundo geral do site */
+    --color-text: #1b1b1b;
+    /* Cor do texto comum */
+    --color-secondary-text: #fff;
+    /* Cor do texto comum */
+    --color-title: #161616;
+    /* Cor dos títulos (h1, h2...) */
     --color-main: #004AAD;
-    --color-section: rgb(230, 230, 230);      /* Cor de fundo das seções (main, etc) */
-  }
+    --color-section: rgb(230, 230, 230);
+    /* Cor de fundo das seções (main, etc) */
+}
 
-  * {
+* {
     padding: 0px;
     margin: 0px;
     font-family: Poppins;
-  }
-  
+}
 
-  header {
+
+header {
     display: flex;
     flex-direction: row;
-justify-content: space-between;
+    justify-content: space-between;
     align-items: center;
     height: 20vw;
     max-height: 7rem;
     width: 100vw;
     background-color: var(--color-main);
-  }
+}
 
-  img#voltar {
+img#voltar {
     padding-left: 1rem;
     width: 4rem;
     height: 4rem;
     transition: 0.3s;
-    
-  }
 
-  img#logo {
+}
+
+img#logo {
     margin-left: auto;
-height: 20vw;
-min-height: 5rem;
+    height: 20vw;
+    min-height: 5rem;
 
     max-height: 7rem;
     transition: 0.3s;
-  }
+}
 
-  img#voltar:hover {
-filter: invert();
-  }
+img#voltar:hover {
+    filter: invert();
+}
 
-  img#logo:hover {
-filter: invert();
-  }
+img#logo:hover {
+    filter: invert();
+}
 
-   main {
+main {
     margin: auto;
     width: 80%;
     padding: 2rem;
-   }
+}
 
-   button#enviar {
+button#enviar {
     max-width: 10rem;
     margin: auto;
-   }
+}
 
-  #modal-empresa {
-    display: none; /* Esconde o modal por padrão */
-    position: fixed; /* Fixa o modal na tela */
-    z-index: 1000; /* Garante que o modal fique na frente de outros elementos */
+#modal-empresa {
+    display: none;
+    /* Esconde o modal por padrão */
+    position: fixed;
+    /* Fixa o modal na tela */
+    z-index: 1000;
+    /* Garante que o modal fique na frente de outros elementos */
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto; /* Adiciona scroll se o conteúdo for maior que a tela */
-    background-color: rgba(0, 0, 0, 0.5); /* Fundo preto semi-transparente */
+    overflow: auto;
+    /* Adiciona scroll se o conteúdo for maior que a tela */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Fundo preto semi-transparente */
     justify-content: center;
     align-items: center;
 }
@@ -78,13 +88,13 @@ filter: invert();
 /* O conteúdo do formulário dentro do modal */
 #modal-empresa .modal-content {
     background-color: #ffffff;
-    margin:5% auto;
+    margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
     width: 90%;
     max-width: 600px;
     border-radius: 10px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     position: relative;
 }
 
@@ -97,6 +107,255 @@ filter: invert();
     cursor: pointer;
 }
 
+/* ESTILOS PARA INPUTS E SELECTS */
+.form-section input,
+.form-section select,
+.form-section textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    background-color: #ffffff;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    outline: none;
+    border-left: 3px solid #004AAD;
+}
+
+/* Estilo para inputs */
+.form-section input {
+    height: 48px;
+    border-left: 3px solid #004AAD;
+
+}
+
+/* Estilo para selects */
+.form-section select {
+    height: 48px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23666' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    padding-right: 40px;
+    cursor: pointer;
+
+}
+
+/* Estilo para textarea */
+.form-section textarea {
+    resize: vertical;
+    min-height: 80px;
+    line-height: 1.5;
+    padding: 12px 16px;
+    border-left: 3px solid #004AAD;
+}
+
+/* Estados de foco */
+.form-section input:focus,
+.form-section select:focus,
+.form-section textarea:focus {
+    border-color: #004AAD;
+    background-color: #f8fbff;
+    box-shadow: 0 0 0 3px rgba(0, 74, 173, 0.1);
+}
+
+/* Estados de hover */
+.form-section input:hover,
+.form-section select:hover,
+.form-section textarea:hover {
+    border-color: #c8d0d8;
+
+}
+
+/* Estilo para inputs desabilitados/readonly */
+.form-section input[readonly] {
+    background-color: #f5f7fa;
+    border-color: #d1d9e2;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.form-section input[readonly]:focus {
+    border-color: #d1d9e2;
+    background-color: #f5f7fa;
+    box-shadow: none;
+}
+
+/* Estilo para placeholders */
+.form-section input::placeholder,
+.form-section textarea::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+/* Estilo para labels */
+.form-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #374151;
+    font-size: 14px;
+}
+
+/* Estilo para grupos de formulário */
+.form-group {
+    flex: 1;
+    min-width: 0;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+}
+
+/* Layout das linhas do formulário */
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.form-row .form-group {
+    flex: 1;
+}
+
+/* Ajustes específicos para campos menores */
+.form-group:has(input[style*="width: 60px"]) {
+    flex: 0 0 auto;
+}
+
+/* Estilo para campos obrigatórios */
+.form-section input:required,
+.form-section select:required,
+.form-section textarea:required {
+    border-left: 3px solid #004AAD;
+}
+
+/* Estados de validação */
+
+
+.form-section input:valid:not(:focus):not(:placeholder-shown),
+.form-section select:valid:not(:focus),
+#form-cadastro-empresa input:valid:not(:focus):not(:placeholder-shown) {
+    border-color: #10b981;
+    background-color: #f0fdf4;
+    border-left-color: #10b981;
+}
+
+/* Estilo para o campo de número mais específico */
+#numero {
+    max-width: 120px;
+}
+
+/* Estilo para o campo de estado (menor) */
+#estado {
+    text-align: center;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Estilo para o campo CEP */
+#cep_retirada {
+    max-width: 200px;
+}
+
+/* Estilo para campos de data */
+input[type="date"] {
+    position: relative;
+    max-width: 200px;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+    background: transparent;
+    bottom: 0;
+    color: transparent;
+    cursor: pointer;
+    height: auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: auto;
+}
+
+/* Estilo para campos de telefone e email */
+#telefone,
+#email {
+    max-width: 300px;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 768px) {
+    .form-row {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .form-section input,
+    .form-section select,
+    .form-section textarea {
+        padding: 10px 12px;
+        font-size: 16px;
+        /* Melhor para mobile */
+    }
+
+    .form-group:has(input[style*="width: 60px"]) {
+        flex: 1;
+    }
+
+    #numero,
+    #cep_retirada,
+    #telefone,
+    #email,
+    input[type="date"] {
+        max-width: 100%;
+    }
+}
+
+/* Animações suaves */
+.form-section input,
+.form-section select,
+.form-section textarea {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Estilo para o container de informações de endereço */
+.address-info {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Estilo para a nota informativa */
+.form-note {
+    background-color: #f0f9ff;
+    border: 1px solid #bae6fd;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-top: 16px;
+}
+
+.form-note small {
+    color: #0369a1;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+/* FIM DOS ESTILOS PARA INPUTS E SELECTS */
+
+/* ESTILOS PARA MODAL DE EMPRESA */
 #modal-empresa .close-button:hover,
 #modal-empresa .close-button:focus {
     color: black;
@@ -124,10 +383,12 @@ filter: invert();
     margin-top: 10px;
     font-weight: 500;
 }
+
 #form-cadastro-empresa {
     display: flex;
     flex-direction: column;
-    gap: 15px; /* mesmo espaçamento do form de ONG */
+    gap: 15px;
+    /* mesmo espaçamento do form de ONG */
 }
 
 #form-cadastro-empresa fieldset {
@@ -137,8 +398,8 @@ filter: invert();
 }
 
 #form-cadastro-empresa input {
-  min-height: 40px;
-  padding: 0 10px;
+    min-height: 40px;
+    padding: 0 10px;
 }
 
 #form-cadastro-empresa input[type="text"],
@@ -152,6 +413,7 @@ filter: invert();
     border: 1px solid #ccc;
     border-radius: 5px;
 }
+
 /* Estilos adicionais para os formulários de cadastro (ONG e Empresa) */
 form#form-cadastro-ong,
 form#form-cadastro-empresa {
@@ -195,6 +457,7 @@ form#form-cadastro-empresa {
     box-sizing: border-box;
     border: 1px solid #ccc;
     border-radius: 5px;
+    border-left: 3px solid #004AAD;
 }
 
 #form-cadastro-ong button[type="submit"],
