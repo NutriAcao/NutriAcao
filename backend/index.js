@@ -26,6 +26,7 @@ import doacoesAtivasRoutes from './src/routes/doacoesAtivasRoutes.js';
 import { cadastrarExcedente, listarCategorias, listarUnidadesMedida } from './src/controllers/excedentesController.js';
 import { cadastrarDoacaoOng } from './src/controllers/doacaoOngController.js';
 import { cadastrarDoacaoEmpresa } from './src/controllers/doacaoEmpresaController.js';
+import depoimentosRoutes from './src/routes/depoimentosRoutes.js';
 
 // configuração de variáveis
 dotenv.config();
@@ -81,6 +82,7 @@ app.use('/api', solicitacoesRoutes);
 app.use('/api', rotasAcoes);
 app.use('/api', reservaRoutes);
 app.use('/api/doacoes-ativas', doacoesAtivasRoutes);
+app.use('/api/depoimentos', depoimentosRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
