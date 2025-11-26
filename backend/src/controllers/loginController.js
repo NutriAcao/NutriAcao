@@ -1,7 +1,8 @@
-//refatorado
+// refatorado
 import * as LoginModel from '../model/loginModel.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { supabase } from '../config/supabaseClient.js'; // ← ADICIONE ESTA IMPORT
 
 const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
 
@@ -71,21 +72,42 @@ export async function loginUsuario(req, res) {
             });
         }
 
-        // 5. Atualizar último login
+        // 5. 🔥 NOVO: Buscar a ONG correspondente ao usuário
+        let ong_id = null;
+        if (usuario.tipo === 'ong') {
+            console.log('🔍 Buscando ONG para o usuário...');
+            const { data: ong, error: ongError } = await supabase
+                .from('ong')
+                .select('id')
+                .or(`email.eq.${email},email_responsavel_ong.eq.${email}`)
+                .single();
+
+            if (!ongError && ong) {
+                ong_id = ong.id;
+                console.log('✅ ONG encontrada:', ong_id);
+            } else {
+                console.log('⚠️ Nenhuma ONG encontrada para o email:', email);
+            }
+        }
+
+        // 6. Atualizar último login
         await LoginModel.atualizarUltimoLogin(usuario.id);
 
-        // 6. Gerar JWT Token
+        // 7. 🔥 ATUALIZADO: Gerar JWT Token com ong_id
+        const tokenPayload = {
+            id: usuario.id, 
+            email: usuario.email, 
+            tipo: usuario.tipo,
+            ong_id: ong_id // ← NOVO CAMPO ADICIONADO
+        };
+
         const token = jwt.sign(
-            { 
-                id: usuario.id, 
-                email: usuario.email, 
-                tipo: usuario.tipo 
-            },
+            tokenPayload,
             JWT_SECRET,
             { expiresIn: '24h' }
         );
 
-        // 7. SETAR COOKIE COM O TOKEN
+        // 8. SETAR COOKIE COM O TOKEN
         res.cookie('token', token, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -93,10 +115,10 @@ export async function loginUsuario(req, res) {
             maxAge: 24 * 60 * 60 * 1000
         });
 
-        // 8. Preparar resposta (remover dados sensíveis)
+        // 9. Preparar resposta (remover dados sensíveis)
         const { senha_hash, ...usuarioSemSenha } = usuario;
 
-        // 9. DEFINIR URL DE REDIRECIONAMENTO CORRETA
+        // 10. DEFINIR URL DE REDIRECIONAMENTO CORRETA
         let redirectUrl = '';
         if (usuario.tipo === 'empresa') {
             redirectUrl = '/visualizacaoOngs.html';
@@ -108,6 +130,7 @@ export async function loginUsuario(req, res) {
             id: usuario.id, 
             email: usuario.email, 
             tipo: usuario.tipo,
+            ong_id: ong_id, // ← NOVO LOG
             redirectUrl: redirectUrl
         });
 
@@ -115,6 +138,7 @@ export async function loginUsuario(req, res) {
             success: true,
             message: 'Login realizado com sucesso',
             usuario: usuarioSemSenha,
+            ong_id: ong_id, // ← NOVO CAMPO NA RESPOSTA
             redirectUrl: redirectUrl
         });
 
