@@ -1,4 +1,4 @@
-// public/js/relatorioImpacto.js
+// public/js/relatorioImpacto.js - VERSÃO TOLERANTE COMPLETA
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
@@ -11,17 +11,127 @@ let chartTipoAlimento, chartTemporal, chartOngs;
 // === CARREGAMENTO INICIAL ===
 document.addEventListener('DOMContentLoaded', function() {
     window.closeModal = closeModal;
-    
     carregarDadosUsuario();
     inicializarComponentes();
 });
 
 // === FUNÇÕES PRINCIPAIS ===
+
+async function carregarDadosReais() {
+    try {
+        console.log('🔄 Carregando dados reais do banco...');
+        mostrarLoading(true);
+        
+        // Determinar qual endpoint usar baseado no tipo de usuário
+        let endpoint;
+        if (dadosUsuario.tipo === 'ong') {
+            endpoint = '/api/relatorios/relatorios-consumo';
+        } else {
+            endpoint = '/api/relatorios/relatorios-impacto';
+        }
+        
+        console.log('🔗 Fazendo requisição para:', endpoint, 'Tipo usuário:', dadosUsuario.tipo);
+        
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            credentials: 'include'
+        });
+
+        console.log('📡 Status da resposta:', response.status);
+        
+        // VERIFICAÇÃO TOLERANTE - não redireciona, só mostra mensagem
+        if (response.status === 401 || response.status === 403) {
+            console.log('⚠️ Acesso não autorizado para este relatório');
+            mostrarMensagem('Você não tem dados disponíveis para este tipo de relatório', 'info');
+            
+            // Limpa dados e mostra estado vazio
+            dadosOriginais = [];
+            filteredData = [];
+            atualizarResumo();
+            renderizarTabela();
+            atualizarGraficos();
+            return;
+        }
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const resultado = await response.json();
+        console.log('✅ Resposta da API:', resultado);
+        
+        if (!resultado.success) {
+            throw new Error(resultado.error || 'Erro na resposta da API');
+        }
+
+        console.log('📊 Dados recebidos:', resultado.data);
+        
+        dadosOriginais = resultado.data || [];
+        filteredData = [...dadosOriginais];
+        
+        // Preencher filtro de ONGs (apenas para empresas)
+        if (dadosUsuario.tipo === 'empresa') {
+            preencherFiltroOngs();
+        } else if (dadosUsuario.tipo === 'ong') {
+            preencherFiltroEmpresas();
+        }
+        
+        // Atualizar interface
+        atualizarResumo();
+        renderizarTabela();
+        atualizarGraficos();
+        
+        if (dadosOriginais.length > 0) {
+            mostrarMensagem(`Carregadas ${dadosOriginais.length} doações com sucesso`, 'success');
+        } else {
+            mostrarMensagem('Nenhum dado encontrado para o seu perfil', 'info');
+        }
+        
+    } catch (error) {
+        console.error('❌ Erro ao carregar dados reais:', error);
+        
+        // MENSAGEM TOLERANTE - não redireciona
+        if (error.message.includes('401') || error.message.includes('403')) {
+            mostrarMensagem('Você não tem acesso a este tipo de relatório', 'info');
+        } else {
+            mostrarMensagem('Erro ao carregar dados do servidor', 'error');
+        }
+        
+        // Mostra estado vazio
+        dadosOriginais = [];
+        filteredData = [];
+        atualizarResumo();
+        renderizarTabela();
+        atualizarGraficos();
+    } finally {
+        mostrarLoading(false);
+    }
+}
+
 async function carregarDadosUsuario() {
     try {
         console.log('>>> Carregando dados do usuário...');
         
-        const response = await fetch('/api/usuarioToken');
+        const response = await fetch('/api/usuarioToken', {
+            credentials: 'include'
+        });
+        
+        console.log('📡 Status da resposta do usuário:', response.status);
+        
+        // VERIFICAÇÃO TOLERANTE - se não conseguir carregar usuário, continua mesmo assim
+        if (response.status === 401) {
+            console.log('⚠️ Não foi possível carregar dados do usuário, continuando...');
+            dadosUsuario = { tipo: 'desconhecido' };
+            atualizarElementoUI('textNomeUsuario', 'Visitante');
+            atualizarElementoUI('textNomeInstituicao', 'Instituição');
+            
+            // Tenta carregar relatórios mesmo sem usuário
+            await carregarDadosReais();
+            return;
+        }
         
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`);
@@ -31,9 +141,15 @@ async function carregarDadosUsuario() {
         console.log('>>> Dados do usuário:', resultado);
         
         dadosUsuario = resultado;
+        
+        // Usar os campos corretos do objeto usuário
         atualizarElementoUI('textNomeUsuario', dadosUsuario.nome || 'Usuário');
         
-        const nomeInstituicao = dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome_ong || 'Instituição';
+        const nomeInstituicao = dadosUsuario.nomeInstituicao || 
+                               dadosUsuario.nome_fantasia || 
+                               dadosUsuario.razao_social || 
+                               dadosUsuario.nome_ong || 
+                               'Instituição';
         atualizarElementoUI('textNomeInstituicao', nomeInstituicao);
         
         // Carregar dados dos relatórios
@@ -41,9 +157,15 @@ async function carregarDadosUsuario() {
         
     } catch (error) {
         console.error('❌ Erro ao carregar usuário:', error);
+        
+        // CONTINUA MESMO COM ERRO - não bloqueia
+        dadosUsuario = { tipo: 'desconhecido' };
         atualizarElementoUI('textNomeUsuario', 'Usuário');
         atualizarElementoUI('textNomeInstituicao', 'Instituição');
-        mostrarMensagem('Erro ao carregar dados do usuário', 'error');
+        mostrarMensagem('Não foi possível carregar dados do usuário', 'info');
+        
+        // Tenta carregar relatórios mesmo com erro
+        await carregarDadosReais();
     }
 }
 
@@ -74,73 +196,6 @@ function inicializarComponentes() {
     
     // Inicializar gráficos
     inicializarGraficos();
-}
-
-async function carregarDadosReais() {
-    try {
-        console.log('🔄 Carregando dados reais do banco...');
-        mostrarLoading(true);
-        
-        // Determinar qual endpoint usar baseado no tipo de usuário
-        const endpoint = dadosUsuario.tipo === 'ong' ? '/api/relatorios-consumo' : '/api/relatorios-impacto';
-        
-        const response = await fetch(endpoint, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${getToken()}`
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
-        }
-
-        const resultado = await response.json();
-        
-        if (!resultado.success) {
-            throw new Error(resultado.error || 'Erro ao carregar dados');
-        }
-
-        console.log('✅ Dados recebidos da API:', resultado);
-        
-        dadosOriginais = resultado.data || [];
-        filteredData = [...dadosOriginais];
-        
-        // Preencher filtro de ONGs
-        preencherFiltroOngs();
-        
-        // Atualizar interface
-        atualizarResumo();
-        renderizarTabela();
-        atualizarGraficos();
-        
-        mostrarMensagem(`Carregadas ${dadosOriginais.length} doações com sucesso`, 'success');
-        
-    } catch (error) {
-        console.error('❌ Erro ao carregar dados reais:', error);
-        mostrarMensagem('Erro ao carregar dados: ' + error.message, 'error');
-        carregarDadosExemplo();
-    } finally {
-        mostrarLoading(false);
-    }
-}
-
-function preencherFiltroOngs() {
-    const ongSelect = document.getElementById('ong');
-    if (!ongSelect) return;
-    
-    // Coletar ONGs únicas dos dados
-    const ongsUnicas = [...new Set(dadosOriginais.map(doacao => doacao.ong))].filter(ong => ong && ong !== 'ONG não especificada');
-    
-    ongSelect.innerHTML = '<option value="todas">Todas</option>';
-    
-    ongsUnicas.forEach(ong => {
-        const option = document.createElement('option');
-        option.value = ong;
-        option.textContent = ong;
-        ongSelect.appendChild(option);
-    });
 }
 
 // === FUNÇÕES DE UTILIDADE ===
@@ -180,7 +235,7 @@ function mostrarMensagem(mensagem, tipo) {
     
     setTimeout(() => {
         mensagemEl.remove();
-    }, 3000);
+    }, 5000);
 }
 
 // === FUNÇÕES DE FILTRO ===
@@ -215,17 +270,25 @@ function aplicarFiltrosCliente(periodo, tipoAlimento, ong) {
     // Filtro de tipo de alimento
     if (tipoAlimento !== 'todos') {
         dadosFiltrados = dadosFiltrados.filter(doacao => 
-            doacao.alimentos.some(alimento => 
+            doacao.alimentos && doacao.alimentos.some(alimento => 
                 alimento.categoria?.toLowerCase() === tipoAlimento.toLowerCase() ||
                 alimento.nome.toLowerCase().includes(tipoAlimento.toLowerCase())
             )
         );
     }
     
-    // Filtro de ONG
-    if (ong !== 'todas') {
+    // Filtro de ONG (apenas para empresas)
+    if (ong !== 'todas' && dadosUsuario.tipo === 'empresa') {
         dadosFiltrados = dadosFiltrados.filter(doacao => 
-            doacao.ong.toLowerCase().includes(ong.toLowerCase())
+            doacao.ong && doacao.ong.toLowerCase().includes(ong.toLowerCase())
+        );
+    }
+    
+    // Filtro de Empresa (apenas para ONGs)
+    if (ong !== 'todas' && dadosUsuario.tipo === 'ong') {
+        // Note: usando 'ong' como parâmetro para empresa também
+        dadosFiltrados = dadosFiltrados.filter(doacao => 
+            doacao.empresa && doacao.empresa.toLowerCase().includes(ong.toLowerCase())
         );
     }
     
@@ -257,7 +320,7 @@ function aplicarFiltrosCliente(periodo, tipoAlimento, ong) {
     }
 
     filteredData = dadosFiltrados;
-    currentPage = 1; // Reset para primeira página
+    currentPage = 1;
     
     // Atualizar interface
     atualizarResumo();
@@ -272,11 +335,45 @@ function parseDate(dateString) {
     return new Date(year, month - 1, day);
 }
 
+function preencherFiltroOngs() {
+    const ongSelect = document.getElementById('ong');
+    if (!ongSelect) return;
+    
+    // Coletar ONGs únicas dos dados
+    const ongsUnicas = [...new Set(dadosOriginais.map(doacao => doacao.ong))].filter(ong => ong && ong !== 'ONG não especificada');
+    
+    ongSelect.innerHTML = '<option value="todas">Todas</option>';
+    
+    ongsUnicas.forEach(ong => {
+        const option = document.createElement('option');
+        option.value = ong;
+        option.textContent = ong;
+        ongSelect.appendChild(option);
+    });
+}
+
+function preencherFiltroEmpresas() {
+    const empresaSelect = document.getElementById('ong'); // Usando o mesmo select
+    if (!empresaSelect) return;
+    
+    // Coletar empresas únicas dos dados
+    const empresasUnicas = [...new Set(dadosOriginais.map(doacao => doacao.empresa))].filter(empresa => empresa && empresa !== 'Empresa não especificada');
+    
+    empresaSelect.innerHTML = '<option value="todas">Todas</option>';
+    
+    empresasUnicas.forEach(empresa => {
+        const option = document.createElement('option');
+        option.value = empresa;
+        option.textContent = empresa;
+        empresaSelect.appendChild(option);
+    });
+}
+
 // === FUNÇÕES DE RENDERIZAÇÃO ===
 function atualizarResumo() {
-    const totalAlimentos = filteredData.reduce((sum, doacao) => sum + doacao.totalAlimentos, 0);
-    const totalRefeicoes = filteredData.reduce((sum, doacao) => sum + doacao.totalRefeicoes, 0);
-    const totalCO2 = filteredData.reduce((sum, doacao) => sum + doacao.totalCO2, 0);
+    const totalAlimentos = filteredData.reduce((sum, doacao) => sum + (doacao.totalAlimentos || 0), 0);
+    const totalRefeicoes = filteredData.reduce((sum, doacao) => sum + (doacao.totalRefeicoes || 0), 0);
+    const totalCO2 = filteredData.reduce((sum, doacao) => sum + (doacao.totalCO2 || 0), 0);
     
     const pessoasBeneficiadas = Math.round(totalRefeicoes / 3);
 
@@ -312,13 +409,17 @@ function renderizarTabela() {
     
     paginatedData.forEach(doacao => {
         const row = document.createElement('tr');
+        
+        // Ajusta a coluna baseado no tipo de usuário
+        const colunaInstituicao = dadosUsuario.tipo === 'ong' ? doacao.empresa : doacao.ong;
+        
         row.innerHTML = `
             <td>${formatarData(doacao.data)}</td>
-            <td>${doacao.alimentos.map(a => a.nome).join(', ')}</td>
-            <td>${doacao.totalAlimentos.toFixed(1)} kg</td>
-            <td>${doacao.ong}</td>
-            <td>${doacao.totalRefeicoes.toLocaleString()}</td>
-            <td>${doacao.totalCO2.toFixed(1)} kg</td>
+            <td>${doacao.alimentos ? doacao.alimentos.map(a => a.nome).join(', ') : 'N/A'}</td>
+            <td>${(doacao.totalAlimentos || 0).toFixed(1)} kg</td>
+            <td>${colunaInstituicao || 'Não especificada'}</td>
+            <td>${(doacao.totalRefeicoes || 0).toLocaleString()}</td>
+            <td>${(doacao.totalCO2 || 0).toFixed(1)} kg</td>
             <td><span class="status ${doacao.status}">${formatarStatus(doacao.status)}</span></td>
         `;
         
@@ -345,7 +446,9 @@ function formatarStatus(status) {
         'cancelado': 'Cancelado',
         'coletado': 'Coletado',
         'concluido': 'Concluído',
-        'finalizado': 'Finalizado'
+        'finalizado': 'Finalizado',
+        'concluída': 'Concluída',
+        'concluído': 'Concluído'
     };
     return statusMap[status] || status;
 }
@@ -388,11 +491,12 @@ function filtrarTabela() {
     }
     
     const filtered = filteredData.filter(doacao => 
-        doacao.alimentos.some(alimento => 
+        (doacao.alimentos && doacao.alimentos.some(alimento => 
             alimento.nome.toLowerCase().includes(searchTerm)
-        ) ||
-        doacao.ong.toLowerCase().includes(searchTerm) ||
-        doacao.status.toLowerCase().includes(searchTerm)
+        )) ||
+        (doacao.ong && doacao.ong.toLowerCase().includes(searchTerm)) ||
+        (doacao.empresa && doacao.empresa.toLowerCase().includes(searchTerm)) ||
+        (doacao.status && doacao.status.toLowerCase().includes(searchTerm))
     );
     
     const tempData = filteredData;
@@ -459,7 +563,7 @@ function inicializarGraficos() {
         data: {
             labels: [],
             datasets: [{
-                label: 'Doações Recebidas',
+                label: dadosUsuario.tipo === 'ong' ? 'Empresas Doadoras' : 'ONGs Beneficiadas',
                 data: [],
                 backgroundColor: '#004AAD'
             }]
@@ -489,10 +593,10 @@ function atualizarGraficos() {
     chartTemporal.data.datasets[0].data = Object.values(dadosTemporais);
     chartTemporal.update();
     
-    // Gráfico por ONG
-    const doacoesPorOng = agruparPorOng();
-    chartOngs.data.labels = Object.keys(doacoesPorOng);
-    chartOngs.data.datasets[0].data = Object.values(doacoesPorOng);
+    // Gráfico por ONG/Empresa
+    const doacoesPorInstituicao = agruparPorInstituicao();
+    chartOngs.data.labels = Object.keys(doacoesPorInstituicao);
+    chartOngs.data.datasets[0].data = Object.values(doacoesPorInstituicao);
     chartOngs.update();
 }
 
@@ -500,10 +604,12 @@ function agruparPorCategoria() {
     const categorias = {};
     
     filteredData.forEach(doacao => {
-        doacao.alimentos.forEach(alimento => {
-            const categoria = determinarCategoria(alimento.nome);
-            categorias[categoria] = (categorias[categoria] || 0) + alimento.quantidade;
-        });
+        if (doacao.alimentos) {
+            doacao.alimentos.forEach(alimento => {
+                const categoria = determinarCategoria(alimento.nome);
+                categorias[categoria] = (categorias[categoria] || 0) + alimento.quantidade;
+            });
+        }
     });
     
     return categorias;
@@ -519,7 +625,7 @@ function determinarCategoria(nomeAlimento) {
         'outros': ['pão', 'óleo', 'açúcar', 'sal', 'macarrão', 'farinha']
     };
     
-    nomeAlimento = nomeAlimento.toLowerCase();
+    nomeAlimento = (nomeAlimento || '').toLowerCase();
     
     for (const [categoria, alimentos] of Object.entries(categorias)) {
         if (alimentos.some(alimento => nomeAlimento.includes(alimento))) {
@@ -548,21 +654,24 @@ function agruparPorData() {
         const dataStr = dataDoacao.toLocaleDateString('pt-BR');
         
         if (dados[dataStr] !== undefined) {
-            dados[dataStr] += doacao.totalAlimentos;
+            dados[dataStr] += (doacao.totalAlimentos || 0);
         }
     });
     
     return dados;
 }
 
-function agruparPorOng() {
-    const ongs = {};
+function agruparPorInstituicao() {
+    const instituicoes = {};
     
     filteredData.forEach(doacao => {
-        ongs[doacao.ong] = (ongs[doacao.ong] || 0) + doacao.totalAlimentos;
+        const instituicao = dadosUsuario.tipo === 'ong' ? doacao.empresa : doacao.ong;
+        if (instituicao) {
+            instituicoes[instituicao] = (instituicoes[instituicao] || 0) + (doacao.totalAlimentos || 0);
+        }
     });
     
-    return ongs;
+    return instituicoes;
 }
 
 // === FUNÇÕES DE MODAL ===
@@ -572,7 +681,7 @@ function abrirModalDoacao(doacao) {
     // Preencher dados básicos
     document.getElementById('doacaoId').textContent = doacao.id;
     document.getElementById('doacaoData').textContent = formatarData(doacao.data);
-    document.getElementById('doacaoOng').textContent = doacao.ong;
+    document.getElementById('doacaoOng').textContent = dadosUsuario.tipo === 'ong' ? doacao.empresa : doacao.ong;
     document.getElementById('doacaoStatus').textContent = formatarStatus(doacao.status);
     document.getElementById('doacaoResponsavel').textContent = doacao.responsavel;
     document.getElementById('doacaoEndereco').textContent = doacao.endereco;
@@ -582,22 +691,24 @@ function abrirModalDoacao(doacao) {
     const itemsList = document.getElementById('doacaoItemsList');
     itemsList.innerHTML = '';
     
-    doacao.alimentos.forEach(alimento => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${alimento.nome}</td>
-            <td>${alimento.quantidade}</td>
-            <td>${alimento.unidade}</td>
-            <td>${alimento.refeicoes}</td>
-            <td>${alimento.co2.toFixed(1)}</td>
-        `;
-        itemsList.appendChild(row);
-    });
+    if (doacao.alimentos) {
+        doacao.alimentos.forEach(alimento => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${alimento.nome}</td>
+                <td>${alimento.quantidade}</td>
+                <td>${alimento.unidade}</td>
+                <td>${alimento.refeicoes}</td>
+                <td>${(alimento.co2 || 0).toFixed(1)}</td>
+            `;
+            itemsList.appendChild(row);
+        });
+    }
     
     // Preencher impacto total
-    document.getElementById('impactoRefeicoes').textContent = doacao.totalRefeicoes.toLocaleString();
-    document.getElementById('impactoCO2').textContent = `${doacao.totalCO2.toFixed(1)} kg`;
-    document.getElementById('impactoPessoas').textContent = Math.round(doacao.totalRefeicoes / 3);
+    document.getElementById('impactoRefeicoes').textContent = (doacao.totalRefeicoes || 0).toLocaleString();
+    document.getElementById('impactoCO2').textContent = `${(doacao.totalCO2 || 0).toFixed(1)} kg`;
+    document.getElementById('impactoPessoas').textContent = Math.round((doacao.totalRefeicoes || 0) / 3);
     
     // Mostrar modal
     modal.showModal();
@@ -625,7 +736,7 @@ function exportarRelatorio() {
     
     const link = document.createElement('a');
     link.href = URL.createObjectURL(dataBlob);
-    link.download = `relatorio-impacto-${new Date().toISOString().split('T')[0]}.json`;
+    link.download = `relatorio-${dadosUsuario.tipo === 'ong' ? 'consumo' : 'impacto'}-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
     
     mostrarMensagem('Relatório exportado com sucesso', 'success');
@@ -646,49 +757,4 @@ function exportarDetalhes() {
         
         mostrarMensagem('Detalhes da doação exportados', 'success');
     }
-}
-
-// === DADOS DE EXEMPLO (FALLBACK) ===
-function carregarDadosExemplo() {
-    const doacoesExemplo = [
-        {
-            id: 1,
-            data: "2023-11-15",
-            alimentos: [
-                { nome: "Arroz", quantidade: 50, unidade: "kg", refeicoes: 250, co2: 12.5, categoria: "graos" },
-                { nome: "Feijão", quantidade: 20, unidade: "kg", refeicoes: 200, co2: 8.0, categoria: "graos" }
-            ],
-            ong: "ONG Esperança",
-            status: "entregue",
-            responsavel: "Empresa Fome Zero",
-            endereco: "Rua das Flores, 123 - Centro, São Paulo/SP",
-            telefone: "(11) 99999-9999",
-            totalRefeicoes: 450,
-            totalCO2: 20.5,
-            totalAlimentos: 70
-        },
-        {
-            id: 2,
-            data: "2023-11-10",
-            alimentos: [
-                { nome: "Maçã", quantidade: 30, unidade: "kg", refeicoes: 150, co2: 6.0, categoria: "frutas" },
-                { nome: "Banana", quantidade: 25, unidade: "kg", refeicoes: 125, co2: 5.0, categoria: "frutas" }
-            ],
-            ong: "Instituto Solidariedade",
-            status: "entregue",
-            responsavel: "Empresa Fome Zero",
-            endereco: "Av. Principal, 456 - Jardim, Rio de Janeiro/RJ",
-            telefone: "(21) 88888-8888",
-            totalRefeicoes: 275,
-            totalCO2: 11.0,
-            totalAlimentos: 55
-        }
-    ];
-    
-    dadosOriginais = doacoesExemplo;
-    filteredData = [...dadosOriginais];
-    atualizarResumo();
-    renderizarTabela();
-    atualizarGraficos();
-    mostrarMensagem('Usando dados de exemplo', 'info');
 }

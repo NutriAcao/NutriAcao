@@ -22,6 +22,7 @@ import ongRoutes from './src/routes/ongRoutes.js';
 import minhaContaOngRoutes from "./src/routes/minhaContaOngRoutes.js";
 import solicitacoesRoutes from './src/routes/solicitacoesRoutes.js';
 import doacoesAtivasRoutes from './src/routes/doacoesAtivasRoutes.js';
+import relatorioRoutes from './src/routes/relatorioRoutes.js';
 // CORREÇÃO: Importar os controllers corretamente
 import { cadastrarExcedente, listarCategorias, listarUnidadesMedida } from './src/controllers/excedentesController.js';
 import { cadastrarDoacaoOng } from './src/controllers/doacaoOngController.js';
@@ -81,6 +82,7 @@ app.use('/api', solicitacoesRoutes);
 app.use('/api', rotasAcoes);
 app.use('/api', reservaRoutes);
 app.use('/api/doacoes-ativas', doacoesAtivasRoutes);
+app.use('/api/relatorios', relatorioRoutes);
 
 // rota padrão para servir a homepage
 app.get("/", (req, res) => {
