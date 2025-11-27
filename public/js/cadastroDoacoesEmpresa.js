@@ -214,6 +214,42 @@ function validarDados(dados) {
   return erros;
 }
 
+document.getElementById("enviar").addEventListener("click", function(event) {
+    // Impede envio automático
+    event.preventDefault();
+
+    // Pega os valores dos campos
+    const cep = document.getElementById("cep_retirada").value.trim();
+    const telefone = document.getElementById("telefone").value.trim();
+
+    // Expressões regulares para validação
+    const cepRegex = /^[0-9]{5}-[0-9]{3}$/;              // CEP: 00000-000
+    const telefoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;  // Telefone: (11) 99999-9999 ou (11) 9999-9999
+
+    let valido = true;
+    let mensagens = [];
+
+    // Valida CEP
+    if (!cepRegex.test(cep)) {
+        valido = false;
+        mensagens.push("CEP inválido. Use o formato 00000-000.");
+    }
+
+    // Valida Telefone
+    if (!telefoneRegex.test(telefone)) {
+        valido = false;
+        mensagens.push("Telefone inválido. Use o formato (11) 99999-9999.");
+    }
+
+    // Exibe mensagens ou envia formulário
+    if (!valido) {
+        showPopup(mensagens.join("\n"), { title: 'Erro nos dados do formulário', type: 'error', okText: 'OK' });
+    } else {
+        // Se tudo estiver válido, envia o formulário
+        document.querySelector("form").submit();
+    }
+});
+
 // Configurar data mínima para hoje
 function configurarDataMinima() {
   const dataInput = document.getElementById('data_validade');
