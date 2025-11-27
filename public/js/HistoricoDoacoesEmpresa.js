@@ -42,12 +42,12 @@ async function carregarUsuario() {
         nomeInstituicao.innerHTML = dados.nome_fantasia || dados.razao_social || 'Instituição';
     }
 
-    let id_usuario = dados.empresa_id;
-    console.log('>>> ID do usuário:', id_usuario);
+    // CORREÇÃO CRÍTICA: Usar o ID do TOKEN, não de outro lugar
+    let id_empresa = tokenData.id; // ← USA O ID DO TOKEN
+    console.log('>>> ID da empresa (CORRETO):', id_empresa);
 
-    const excedentesEmpresa = await carregarExcedentesEmpresa(id_usuario);
-    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_usuario);
-
+    const excedentesEmpresa = await carregarExcedentesEmpresa(id_empresa);
+    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_empresa);
     // define os IDs com base no tipo
     const tableId ='doacoesTableEmpresa';
     const searchInputId = 'searchInputEmpresa';
@@ -102,6 +102,7 @@ async function carregarSolicitacoesEmpresa(id) {
   try {
     console.log('>>> Carregando solicitações para empresa ID:', id);
     
+    // USA APENAS A ROTA QUE ESTÁ FUNCIONANDO
     const res = await fetch(`/doacoesConcluidasEmpresa/doacoesSolicitadasConcluidasEmpresa?id=${encodeURIComponent(id)}`);
 
     if (!res.ok) {
@@ -109,7 +110,7 @@ async function carregarSolicitacoesEmpresa(id) {
     }
 
     const doacoes = await res.json();
-    console.log('Solicitações concluídas:', doacoes);
+    console.log('✅ Solicitações concluídas recebidas:', doacoes);
     return doacoes;
   } catch (erro) {
     console.error('Erro ao carregar solicitações da empresa:', erro);
@@ -129,22 +130,25 @@ function preencherTabelaComExcedentes(doacoes, tableId) {
   if (!doacoes || !doacoes.length) {
     // Conta as colunas dinamicamente para o colspan
     const table = document.getElementById(tableId);
-    const colCount = table ? table.querySelector('thead tr').cells.length : 7;
-    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhum excedente concluído encontrado.</td></tr>`;
+    const colCount = table ? table.querySelector('thead tr').cells.length : 3;
+    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhum excedente doado encontrado.</td></tr>`;
     return;
   }
 
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    
+    // Verifica a estrutura dos dados
+    console.log('Item excedente:', item);
+    
     tr.innerHTML = `
       <td>${item.titulo || 'N/A'}</td>
       <td>${item.quantidade || 'N/A'}</td>
-      <td>${item.ong.nome_ong}</td>
+      <td>${item.ong?.nome_ong || item.nome_ong || 'N/A'}</td>
     `;
     tbody.appendChild(tr);
   });
 }
-
 function preencherTabelaComSolicitacoes(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
   if (!tbody) {
@@ -154,26 +158,48 @@ function preencherTabelaComSolicitacoes(doacoes, tableId) {
   
   tbody.innerHTML = ''; // Limpa a tabela
 
+  console.log('🎯 Dados recebidos para solicitações:', doacoes);
+
   if (!doacoes || !doacoes.length) {
     // Conta as colunas dinamicamente para o colspan
     const table = document.getElementById(tableId);
-    const colCount = table ? table.querySelector('thead tr').cells.length : 7;
+    const colCount = table ? table.querySelector('thead tr').cells.length : 3;
     tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhuma solicitação concluída encontrada.</td></tr>`;
     return;
   }
 
   doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    
+    // DEBUG: Verifica a estrutura completa do item
+    console.log('🔍 Item solicitação completo:', item);
+    
+    // Tenta diferentes formas de acessar os dados
+    const titulo = item.titulo || 'N/A';
+    const quantidade = item.quantidade_desejada || item.quantidade || 'N/A';
+    
+    // Diferentes formas de acessar o nome da ONG
+    let nomeOng = 'N/A';
+    if (item.ong && item.ong.nome_ong) {
+      nomeOng = item.ong.nome_ong;
+    } else if (item.nome_ong) {
+      nomeOng = item.nome_ong;
+    } else if (item.ong_nome) {
+      nomeOng = item.ong_nome;
+    }
+    
+    console.log(`📊 Dados extraídos: "${titulo}", "${quantidade}", "${nomeOng}"`);
+    
     tr.innerHTML = `
-      <td>${item.titulo || 'N/A'}</td>
-      <td>${item.quantidade_desejada || 'N/A'}</td>
-      <td>${item.ong.nome_ong}</td>
-     
+      <td>${titulo}</td>
+      <td>${quantidade}</td>
+      <td>${nomeOng}</td>
     `;
     tbody.appendChild(tr);
   });
+  
+  console.log(`✅ Tabela ${tableId} preenchida com ${doacoes.length} itens`);
 }
-
 function setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId) {
     const searchInput = document.getElementById(searchInputId);
     const table = document.getElementById(tableId);
