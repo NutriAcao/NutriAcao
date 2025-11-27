@@ -2,8 +2,8 @@
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
-let pedidosDisponiveisOng = []; 
-let meusPedidosReservados = [];    
+let pedidosDisponiveisOng = [];
+let meusPedidosReservados = [];
 let doacoesReservadas = [];
 const itemsPerPage = 10;
 
@@ -19,34 +19,34 @@ function closeModal(modalId) {
 }
 
 // === CARREGAMENTO INICIAL ===
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     window.abrirDetalhesModal = abrirDetalhesModal;
     window.openModal = openModal;
     window.closeModal = closeModal;
-    
+
     carregarDadosUsuario();
-    loadMinhasSolicitacoes(); 
+    loadMinhasSolicitacoes();
 });
 
 async function carregarDadosUsuario() {
     try {
         console.log('>>> Carregando dados do usuário...');
-        
+
         const response = await fetch('/api/usuario');
-        
+
         if (!response.ok) {
             throw new Error(`Erro HTTP: ${response.status}`);
         }
-        
+
         const resultado = await response.json();
         console.log('>>> Resposta completa:', resultado);
-        
+
         if (resultado.success && resultado.data) {
             const dados = resultado.data;
             atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
             const nomeInstituicao = dados.nome_ong || dados.nome_fantasia || dados.razao_social || 'Instituição';
             atualizarElementoUI('textNomeInstituicao', nomeInstituicao);
-            
+
             console.log('>>> Dados carregados:', {
                 nome: dados.nome,
                 instituicao: nomeInstituicao
@@ -54,7 +54,7 @@ async function carregarDadosUsuario() {
         } else {
             throw new Error(resultado.message || 'Erro na resposta da API');
         }
-        
+
     } catch (error) {
         console.error('Erro ao carregar usuário:', error);
         atualizarElementoUI('textNomeUsuario', 'Usuário');
@@ -74,19 +74,19 @@ function atualizarElementoUI(elementId, texto) {
 async function loadMinhasSolicitacoes() {
     try {
         console.log("🔄 Carregando minhas solicitações...");
-        
+
         const responseDisponiveis = await fetch('/api/meus-pedidos-disponiveis');
         if (!responseDisponiveis.ok) {
             throw new Error('Falha ao carregar meus pedidos disponíveis.');
         }
         const solicitacoesDisponiveis = await responseDisponiveis.json();
-        
+
         const responseReservados = await fetch('/api/meus-pedidos-reservados');
         if (!responseReservados.ok) {
             throw new Error('Falha ao carregar meus pedidos reservados.');
         }
         const solicitacoesReservadas = await responseReservados.json();
-        
+
         const responseDoacoes = await fetch('/api/doacoes-reservadas-ong');
         if (!responseDoacoes.ok) {
             throw new Error('Falha ao carregar doações reservadas.');
@@ -95,7 +95,7 @@ async function loadMinhasSolicitacoes() {
 
         console.log("✅ Dados carregados:", {
             disponiveis: solicitacoesDisponiveis,
-            reservadas: solicitacoesReservadas, 
+            reservadas: solicitacoesReservadas,
             doacoes: doacoesReservadas
         });
 
@@ -117,7 +117,7 @@ async function loadMinhasSolicitacoes() {
 // CORREÇÃO: Função de renderização com campos corretos
 function renderizarTabelaMeusPedidos(data, tableId, tipo) {
     console.log(`🔄 Renderizando tabela ${tableId} com tipo ${tipo}`, data);
-    
+
     let tableBody;
     if (tableId === 'doacoesTableOng') {
         tableBody = document.getElementById('tableBodyDisponiveis');
@@ -126,13 +126,13 @@ function renderizarTabelaMeusPedidos(data, tableId, tipo) {
     } else if (tableId === 'doacoesTableExcedenteOng') {
         tableBody = document.getElementById('tableBodyDoacoes');
     }
-    
+
     if (!tableBody) {
         console.error(`❌ Elemento tbody não encontrado para tabela '${tableId}'`);
         return;
     }
-    
-    tableBody.innerHTML = ''; 
+
+    tableBody.innerHTML = '';
 
     if (!data || data.length === 0) {
         tableBody.innerHTML = `<tr><td colspan="5" class="no-data">Nenhum item encontrado.</td></tr>`;
@@ -144,10 +144,10 @@ function renderizarTabelaMeusPedidos(data, tableId, tipo) {
 
     data.forEach(item => {
         const row = tableBody.insertRow();
-        
+
         // CORREÇÃO: Usa os campos corretos da API
         let nomeAlimento = item.titulo || item.nome_alimento || 'N/A';
-        
+
         // CORREÇÃO: Usa quantidade_desejada para pedidos, quantidade para doações
         let quantidade = '';
         if (tipo === 'pedido-disponivel' || tipo === 'pedido-reservado') {
@@ -155,7 +155,7 @@ function renderizarTabelaMeusPedidos(data, tableId, tipo) {
         } else {
             quantidade = item.quantidade ? `${item.quantidade} Kg/L` : 'N/A';
         }
-        
+
         // CORREÇÃO: Nome da empresa corrigido
         let nomeParceiro = 'N/A';
         if (tipo === 'pedido-disponivel') {
@@ -167,12 +167,12 @@ function renderizarTabelaMeusPedidos(data, tableId, tipo) {
             // Para doações reservadas, mostra a empresa que criou a doação
             nomeParceiro = item.empresa?.nome_fantasia || item.empresa?.razao_social || item.NomeEmpresa || item.nome_empresa || 'Empresa Doadora';
         }
-        
+
         let status = item.status || 'desconhecido';
         let statusText = status.charAt(0).toUpperCase() + status.slice(1);
-        
-        let acoesHtml = `<button class="btn-details btn-secondary" onclick="abrirDetalhesModal('${item.id}', '${tipo}')">Visualizar</button>`;
-        
+
+        let acoesHtml = `<button class="btn-visualizar-pedido" onclick="abrirDetalhesModal('${item.id}', '${tipo}')">Visualizar Pedido</button>`;
+
         row.innerHTML = `
             <td>${nomeAlimento}</td>
             <td>${quantidade}</td>
@@ -181,17 +181,17 @@ function renderizarTabelaMeusPedidos(data, tableId, tipo) {
             <td class="actions">${acoesHtml}</td>
         `;
     });
-    
+
     console.log(`✅ Tabela ${tableId} renderizada com sucesso`);
 }
 
 // CORREÇÃO: Função do modal com campos corretos
 async function abrirDetalhesModal(id, tipo) {
     console.log(`🔍 Abrindo modal para ${tipo} ID: ${id}`);
-    
+
     // Busca o item nos dados já carregados globalmente
     let itemData = null;
-    
+
     if (tipo === 'pedido-disponivel') {
         itemData = window.pedidosDisponiveisOng.find(item => item.id == id);
     } else if (tipo === 'pedido-reservado') {
@@ -218,14 +218,14 @@ async function abrirDetalhesModal(id, tipo) {
 
     if (!modal || !modalTitle || !orderIdSpan || !modalDetails) {
         console.error("Erro: Elementos essenciais do modal não encontrados.");
-        return; 
+        return;
     }
-    
+
     // Limpa o modal
     modalTitle.innerHTML = 'Carregando Detalhes... <span id="orderId"></span>';
-    orderIdSpan.textContent = `#${id}`; 
+    orderIdSpan.textContent = `#${id}`;
     modalDetails.innerHTML = '<p>Carregando...</p>';
-    
+
     if (itemsList) itemsList.innerHTML = '';
     if (btnConcluir) btnConcluir.style.display = 'none';
     if (btnCancelar) btnCancelar.style.display = 'none';
@@ -235,20 +235,20 @@ async function abrirDetalhesModal(id, tipo) {
     try {
         // CORREÇÃO: Popula o modal com os campos corretos da API
         const statusText = itemData.status ? itemData.status.charAt(0).toUpperCase() + itemData.status.slice(1) : 'Desconhecido';
-        
+
         // CORREÇÃO: Usa os campos corretos baseados na estrutura real da API
         const nomeAlimento = itemData.titulo || itemData.nome_alimento || 'N/A';
         const descricao = itemData.descricao || itemData.observacoes || '-';
         const quantidade = itemData.quantidade_desejada || itemData.quantidade || 'N/A';
-        
+
         // CORREÇÃO: Data de publicação correta
         const dataPublicacao = itemData.data_publicacao || itemData.data_criacao || itemData.data_cadastro || itemData.dataCadastroSolicitacao || itemData.dataCadastroDoacao;
-        
+
         // CORREÇÃO: Informações da empresa
         const empresaNome = itemData.empresa?.nome_fantasia || itemData.empresa?.razao_social || 'N/A';
         const empresaEmail = itemData.empresa?.email_institucional || itemData.empresa?.email || 'N/A';
         const empresaTelefone = itemData.empresa?.telefone || itemData.telefone_contato || 'N/A';
-        
+
         modalTitle.innerHTML = `Detalhes <span id="orderId">#${id}</span>`;
         orderIdSpan.textContent = `#${id}`;
 
@@ -265,7 +265,7 @@ async function abrirDetalhesModal(id, tipo) {
             ${itemData.categoria ? `<p><strong>Categoria:</strong> <span>${itemData.categoria.nome || itemData.categoria}</span></p>` : ''}
             ${itemData.data_validade ? `<p><strong>Data de Validade:</strong> <span>${formatarData(itemData.data_validade)}</span></p>` : ''}
         `;
-        
+
         if (itemsList) {
             itemsList.innerHTML = `
                 <tr>
@@ -316,34 +316,34 @@ function formatarData(dataString) {
 
 function confirmarAcao(acao, id, tipo, mensagem) {
     closeModal('orderModal');
-    
+
     const btnConfirmar = document.getElementById('btnConfirmarAcao');
     const confirmMessage = document.getElementById('confirmMessage');
-    
+
     if (!btnConfirmar || !confirmMessage) {
         console.error('Elementos do modal de confirmação não encontrados');
         return;
     }
-    
+
     confirmMessage.innerHTML = `Tem certeza que deseja <strong>${mensagem}</strong>?`;
-    
+
     btnConfirmar.textContent = acao.includes('cancelar') ? 'Sim, Cancelar' : 'Sim, Concluir';
-    
+
     btnConfirmar.onclick = () => {
         executarAcao(acao, id, tipo);
     };
-    
+
     openModal('confirmModal');
 }
-    // Rota para concluir doação (ONG marca doação como recebida)
+// Rota para concluir doação (ONG marca doação como recebida)
 router.put('/concluir-doacao', verificarToken, async (req, res) => {
     try {
         const { item_id, tipo_item } = req.body;
 
         if (!item_id) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'ID do item é obrigatório' 
+            return res.status(400).json({
+                success: false,
+                message: 'ID do item é obrigatório'
             });
         }
 
@@ -358,16 +358,16 @@ router.put('/concluir-doacao', verificarToken, async (req, res) => {
 
         if (errorBusca) {
             console.error('Erro ao buscar doação reservada:', errorBusca);
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Doação não encontrada' 
+            return res.status(404).json({
+                success: false,
+                message: 'Doação não encontrada'
             });
         }
 
         if (!doacaoReservada) {
-            return res.status(404).json({ 
-                success: false, 
-                message: 'Doação não encontrada' 
+            return res.status(404).json({
+                success: false,
+                message: 'Doação não encontrada'
             });
         }
 
@@ -390,9 +390,9 @@ router.put('/concluir-doacao', verificarToken, async (req, res) => {
 
         if (errorConcluir) {
             console.error('Erro ao concluir doação:', errorConcluir);
-            return res.status(500).json({ 
-                success: false, 
-                message: 'Erro ao concluir doação' 
+            return res.status(500).json({
+                success: false,
+                message: 'Erro ao concluir doação'
             });
         }
 
@@ -417,16 +417,16 @@ router.put('/concluir-doacao', verificarToken, async (req, res) => {
 
     } catch (err) {
         console.error('Erro na rota /concluir-doacao:', err);
-        res.status(500).json({ 
-            success: false, 
-            message: 'Erro interno do servidor' 
+        res.status(500).json({
+            success: false,
+            message: 'Erro interno do servidor'
         });
     }
 });
 
 async function executarAcao(acao, id, tipo) {
     closeModal('confirmModal');
-    
+
     let endpoint = '';
     if (acao === 'concluir-pedido') {
         endpoint = '/api/concluir-pedido';
@@ -435,12 +435,12 @@ async function executarAcao(acao, id, tipo) {
     } else if (acao === 'cancelar-reserva') {
         endpoint = '/api/cancelar-reserva';
     }
-    
+
     const bodyData = {
-        item_id: id, 
+        item_id: id,
         tipo_item: tipo
     };
-    
+
     try {
         console.log(`🚀 Executando ação: ${acao} para ${tipo} ID: ${id}`);
         const res = await fetch(endpoint, {
@@ -455,7 +455,7 @@ async function executarAcao(acao, id, tipo) {
 
         if (res.ok && data.success) {
             alert(data.message || `Ação realizada com sucesso!`);
-            window.location.reload(); 
+            window.location.reload();
         } else {
             alert(`Falha ao realizar ação: ${data.message || 'Erro desconhecido.'}`);
         }
