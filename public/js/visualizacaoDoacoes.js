@@ -311,3 +311,7 @@ function setupPagination(totalItems) {
     if (totalPaginasEl) totalPaginasEl.textContent = totalPages;
     if (totalItensEl) totalItensEl.textContent = totalItems;
 }
+
+// Expose functions to global scope for inline HTML event handlers
+window.openModal = openModal;
+window.closeModal = closeModal;
