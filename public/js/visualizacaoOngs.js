@@ -1,73 +1,143 @@
 // public/js/visualizacaoOngs.js
-// VERSÃO COM MODAL DE MÚLTIPLOS STATUS (FINALMENTE CORRIGIDA)
+// VERSÃO ATUALIZADA com fluxo padronizado: Empresa reserva Pedido de ONG
+import { showPopup } from './modal.js';
+
 console.log(">>> ARQUIVO visualizacaoOngs.js CARREGADO COM SUCESSO! <<<");
 
 // === VARIÁVEIS GLOBAIS ===
 let dadosUsuario = {};
-let pedidosReais = []; 
+let pedidosReais = [];
 const itemsPerPage = 10;
 let currentPage = 1;
 
 // === CARREGAMENTO INICIAL ===
-document.addEventListener('DOMContentLoaded', function() {
-    carregarUsuario();
-    loadPedidosDisponiveis(); 
+document.addEventListener('DOMContentLoaded', function () {
+    carregarDadosUsuario();
+    loadPedidosDisponiveis();
     setupSearch();
+
+    // Adiciona listener para fechar modal
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        // Fecha clicando no botão "Fechar" (X)
+        const closeButton = modal.querySelector('.close-button'); // Assumindo que você tenha um .close-button
+        if (closeButton) {
+            closeButton.onclick = () => closeModal();
+        }
+
+        // Fecha clicando no botão "Cancelar" (se existir)
+        const cancelButton = modal.querySelector('.cancel-button'); // Assumindo que você tenha um .cancel-button
+        if (cancelButton) {
+            cancelButton.onclick = () => closeModal();
+        }
+
+        // Fecha clicando fora
+        modal.addEventListener('click', function (event) {
+            if (event.target === this) {
+                closeModal();
+            }
+        });
+    }
 });
 
-async function carregarUsuario() {
+// FUNÇÃO CARREGAR DADOS DO USUÁRIO - CORRIGIDA
+async function carregarDadosUsuario() {
     try {
-        const res = await fetch('/api/usuarioToken');
-        if (!res.ok) throw new Error('Falha ao buscar usuário');
-        dadosUsuario = await res.json();
-        document.getElementById('textNomeUsuario').innerHTML = dadosUsuario.nome || 'Usuário';
-        document.getElementById('textNomeInstituicao').innerHTML = dadosUsuario.nomeInstituicao || 'Empresa';
+        console.log('>>> Carregando dados do usuário...');
+
+        const response = await fetch('/api/usuario');
+
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+
+            // Salva os dados globalmente
+            dadosUsuario = dados;
+
+            // CORREÇÃO: Usando a estrutura correta da sua API
+            let txtnomeUsuario = document.getElementById('textNomeUsuario');
+            let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
+
+            if (txtnomeUsuario) {
+                txtnomeUsuario.innerText = dados.nome || 'Usuário';
+            }
+
+            if (txtnomeInstituicao) {
+                // Para empresa, usa nome_fantasia; para ONG, usaria nome_ong
+                const nomeInstituicao = dados.nome_fantasia || dados.nome_ong || dados.razao_social || 'Instituição';
+                txtnomeInstituicao.innerText = nomeInstituicao;
+            }
+
+            console.log('>>> Dados do usuário carregados:', {
+                nome: dados.nome,
+                instituicao: dados.nome_fantasia || dados.nome_ong || dados.razao_social,
+                id: dados.id // Importante para a lógica de redirecionamento
+            });
+
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+
     } catch (erro) {
         console.error('Erro ao buscar usuário:', erro);
+        // Fallback em caso de erro
+        let txtnomeUsuario = document.getElementById('textNomeUsuario');
+        let txtnomeInstituicao = document.getElementById('textNomeInstituicao');
+
+        if (txtnomeUsuario) txtnomeUsuario.innerText = 'Usuário';
+        if (txtnomeInstituicao) txtnomeInstituicao.innerText = 'Instituição';
     }
 }
 
 async function loadPedidosDisponiveis() {
     try {
-        const response = await fetch('/api/pedidos-disponiveis-empresa'); 
+        const response = await fetch('/api/pedidos-disponiveis-empresa');
         if (!response.ok) {
             const err = await response.json();
             throw new Error(err.message || `Erro no servidor: ${response.status}`);
         }
         pedidosReais = await response.json();
-        renderizarTabela(pedidosReais); 
-        setupPagination(pedidosReais.length); 
+        console.log(pedidosReais); // Para ver os dados no console
+        renderizarTabela(pedidosReais);
+        setupPagination(pedidosReais.length);
     } catch (error) {
         console.error('Erro ao carregar pedidos:', error);
-        alert('Falha ao carregar pedidos de doação. Tente novamente.');
+        showPopup('Falha ao carregar pedidos de doação. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
     }
 }
 
 function renderizarTabela(pedidos) {
     const tbody = document.querySelector('#doacoesTable tbody');
-    tbody.innerHTML = ''; 
+    tbody.innerHTML = '';
 
     if (pedidos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
         return;
     }
-    
+
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     const pedidosPaginados = pedidos.slice(startIndex, endIndex);
 
     pedidosPaginados.forEach(pedido => {
-        const dataFormatada = new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR');
-        
+        // Certifica-se de que a data é válida antes de formatar
+        const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
+        const dataFormatada = dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A';
+
         const row = `
             <tr>
-                <td>${pedido.id}</td>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td> 
-                <td>${pedido.nome_ong}</td>
+                <td>${pedido.nome_ong || pedido.nomeONG}</td>
                 <td>${dataFormatada}</td>
                 <td><span class="status ${String(pedido.status).toLowerCase()}">${pedido.status}</span></td>
-                <td><button onclick="openModal(${pedido.id})">Visualizar Pedido</button></td>
+                <td><button onclick="openModal(${pedido.id})" class="btn-visualizar-pedido">Visualizar Pedido</button></td>
             </tr>
         `;
         tbody.innerHTML += row;
@@ -76,7 +146,7 @@ function renderizarTabela(pedidos) {
     updateItemCount(pedidos.length);
 }
 
-// === MODAL E AÇÕES (LÓGICA CORRIGIDA E COMPLETADA) ===
+// === MODAL E AÇÕES (LÓGICA REATORADA) ===
 
 // Função auxiliar para preencher o conteúdo do modal com segurança
 const fillElement = (id, content) => {
@@ -84,32 +154,31 @@ const fillElement = (id, content) => {
     if (el) {
         el.textContent = content;
     } else {
-        // Agora que o modal está abrindo, este erro serve apenas como aviso!
         console.error(`AVISO: Elemento com ID '${id}' não encontrado no modal!`);
     }
 };
 
-function openModal(pedidoId) {
+async function openModal(pedidoId) {
     const modal = document.getElementById('orderModal');
     if (!modal) return;
 
     if (!pedidosReais || pedidosReais.length === 0) return;
 
-    // CORREÇÃO: Usando == para igualar String e Number
     const pedido = pedidosReais.find(p => p.id == pedidoId);
-    
-    if (!pedido) return;
-    console.log("DEBUG 4: Pedido encontrado!", pedido);
 
-    console.log("STATUS DO PEDIDO:", pedido.status, String(pedido.status).toLowerCase());
+    if (!pedido) return;
+    console.log("📋 Pedido encontrado:", pedido);
 
     // --- 1. PREENCHER INFORMAÇÕES BÁSICAS ---
-    modal.querySelector('.modal-header h3').textContent = `Detalhes do Pedido #${pedido.id}`;
+
+
+    const dataValida = pedido.data_solicitacao || pedido.dataCadastroSolicitacao;
+    const dataFormatada = dataValida ? new Date(dataValida).toLocaleDateString('pt-BR') : 'N/A';
 
     fillElement('orderId', pedido.id);
-    fillElement('orderDate', new Date(pedido.data_solicitacao).toLocaleDateString('pt-BR'));
-    fillElement('institution', pedido.nome_ong);
-    fillElement('contact', pedido.telefone_contato); 
+    fillElement('orderDate', dataFormatada);
+    fillElement('institution', pedido.nome_ong || pedido.nomeONG);
+    fillElement('contact', pedido.telefone_contato || pedido.telefoneContato);
     fillElement('address', 'Entrar em contato com a ONG');
 
     const statusElement = document.getElementById('orderStatus');
@@ -123,151 +192,163 @@ function openModal(pedidoId) {
             <tr>
                 <td>${pedido.nome_alimento}</td>
                 <td>${pedido.quantidade}</td>
-                <td>N/A</td> <td>-</td>
+                <td>kg</td>
+                <td>-</td>
             </tr>
         `;
     }
-    // ----------------------------------------
-    
-    // --- 2. CONTROLAR AÇÕES COM BASE NO STATUS ---
-    const status = String(pedido.status).toLowerCase();
+
+    // --- 2. CONTROLAR AÇÕES ---
     const actionButton = document.getElementById('actionButton');
-    const statusUpdateSection = document.getElementById('statusUpdateSection');
-    const statusSelect = document.getElementById('statusSelect');
-    const updateStatusButton = document.getElementById('updateStatusButton');
-    const tipoDoacao = 'solicitacao'; 
+    const successMessage = document.getElementById('reservationSuccessMessage');
 
-    actionButton.style.removeProperty('display');
-    // Resetar visibilidade
-    statusUpdateSection.style.display = 'none';
-    statusSelect.innerHTML = '';
+    // Esconder mensagem de sucesso e resetar botão
+    if (successMessage) successMessage.style.display = 'none';
+    actionButton.style.display = 'none';
+    actionButton.disabled = false;
 
+    const status = String(pedido.status).toLowerCase();
 
-    // LÓGICA DE STATUS
-    if (status === 'disponível') {
-        // ESTA É A LÓGICA FALTANDO NO SEU MODAL ATUAL
-        actionButton.textContent = 'Reservar Pedido';
+    if (status === 'disponível' || status === 'disponivel') {
+        // MOSTRAR BOTÃO DE RESERVA
+        actionButton.textContent = '📋 Reservar Pedido';
         actionButton.style.backgroundColor = '#3498db';
         actionButton.style.display = 'inline-block';
-        actionButton.onclick = () => handleAction(pedido.id, tipoDoacao, 'reservar'); 
-        statusUpdateSection.style.display = 'none'; // Garantir que a seção de status está escondida
 
-    } else if (status === 'reservado') {
-        actionButton.textContent = 'Cancelar Reserva';
-        actionButton.style.backgroundColor = '#e74c3c';
-        actionButton.style.display = 'inline-block';
-        actionButton.onclick = () => handleAction(pedido.id, tipoDoacao, 'cancelar'); 
-        
-        statusUpdateSection.style.display = 'block';
-        statusSelect.innerHTML = '<option value="em andamento">Mover para "Em Andamento"</option>';
-        updateStatusButton.onclick = () => updateStatus(pedido.id, tipoDoacao);
+        // Configurar clique do botão
+        actionButton.onclick = async () => {
+            actionButton.disabled = true;
+            actionButton.textContent = 'Reservando...';
 
-    } else if (status === 'em andamento') {
+            try {
+                console.log(`🔄 Reservando pedido ${pedido.id}...`);
+
+                // CORREÇÃO: Obter o empresa_id dos dados do usuário
+                const empresaId = dadosUsuario.empresa_id || dadosUsuario.id;
+                console.log(`🏢 Usando empresa_id: ${empresaId}`);
+
+                const response = await fetch('/api/reservar-pedido', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        pedido_id: pedido.id,
+                        empresa_id: empresaId  // CORREÇÃO: Adicionar empresa_id
+                    }),
+                });
+
+                console.log('📤 Dados enviados:', {
+                    pedido_id: pedido.id,
+                    empresa_id: empresaId
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // SUCESSO: Mostrar mensagem e atualizar status
+                    if (successMessage) successMessage.style.display = 'block';
+                    actionButton.style.display = 'none';
+
+                    // Atualizar status no modal
+                    if (statusElement) {
+                        statusElement.innerHTML = `<span class="status reservado">reservado</span>`;
+                    }
+
+                    // Recarregar a lista após 2 segundos
+                    setTimeout(() => {
+                        closeModal();
+                        loadPedidosDisponiveis();
+                    }, 2000);
+
+                } else {
+                    showPopup(`❌ Erro: ${result.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
+                    actionButton.disabled = false;
+                    actionButton.textContent = '📋 Reservar Pedido';
+                }
+            } catch (error) {
+                console.error('Erro de rede:', error);
+                showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
+                actionButton.disabled = false;
+                actionButton.textContent = '📋 Reservar Pedido';
+            }
+        };
+
+    } else {
+        // Status não é disponível - esconder botão
         actionButton.style.display = 'none';
-
-        statusUpdateSection.style.display = 'block';
-        statusSelect.innerHTML = '<option value="concluido">Mover para "Concluído"</option>';
-        updateStatusButton.onclick = () => updateStatus(pedido.id, tipoDoacao);
-
-    } else if (status === 'concluído') {
-        actionButton.style.display = 'none';
-        statusUpdateSection.style.display = 'none';
     }
-    
+
     // --- 3. Abrir o Modal ---
     modal.showModal();
-    console.log("DEBUG 7: Modal aberto com SUCESSO. ---");
 }
+// Expor para o escopo global
+window.openModal = openModal;
 
 // Fecha a modal
 function closeModal() {
-    document.getElementById('orderModal').close();
+    const modal = document.getElementById('orderModal');
+    if (modal) {
+        modal.close();
+    }
 }
+window.closeModal = closeModal;
 
-// Função de Ação (Reserva/Cancela) 
-async function handleAction(pedidoId, tipoDoacao, actionType) {
-    const endpoint = actionType === 'reservar' 
-        ? '/api/reservar-doacao' 
-        : '/api/cancelar-reserva-e-devolver-estoque';
-    
-    closeModal(); 
+/**
+ * Função ÚNICA para lidar com todas as ações (Reservar, Concluir)
+ * @param {number} pedidoId - O ID do pedido (da tabela doacoesSolicitadas)
+ * @param {string} actionType - A ação a ser executada ('reservar-pedido', 'concluir-pedido')
+ */
+async function handleAction(pedidoId, actionType) {
+    if (actionType === 'reservar-pedido') {
+        try {
+            const response = await fetch('/api/reservar-doacao', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: JSON.stringify({
+                    doacaoId: pedidoId,
+                    tipoDoacao: 'solicitacao'  // ← MUDEI AQUI
+                }),
+            });
 
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ doacaoId: pedidoId, tipoDoacao: tipoDoacao }),
-        });
+            const result = await response.json();
 
-        const result = await response.json();
-
-        if (response.ok) {
-            alert(result.message);
-            loadPedidosDisponiveis(); 
-        } else {
-            alert(`Falha: ${result.message}`);
+            if (response.ok) {
+                showPopup("✅ Pedido reservado com sucesso!", { title: 'Sucesso', type: 'success', okText: 'OK' });
+                closeModal();
+                loadPedidosDisponiveis();
+            } else {
+                showPopup(`❌ Erro: ${result.message}`, { title: 'Erro', type: 'error', okText: 'OK' });
+            }
+        } catch (error) {
+            console.error('Erro de rede:', error);
+            showPopup('Erro de rede. Tente novamente.', { title: 'Erro', type: 'error', okText: 'OK' });
         }
-    } catch (error) {
-        console.error('Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
     }
 }
-
-// Atualiza o status para "em andamento" ou "concluído"
-async function updateStatus(id, tipoDoacao) {
-    const statusSelect = document.getElementById('statusSelect');
-    const novoStatus = statusSelect.value;
-
-    if (!novoStatus) {
-        alert('Nenhum novo status selecionado.');
-        return;
-    }
-
-    const endpoint = '/api/update-status'; 
-    
-    try {
-        const response = await fetch(endpoint, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                id: id,
-                tipo: tipoDoacao,
-                status: novoStatus
-            }),
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            alert(result.message);
-            closeModal();
-            loadPedidosDisponiveis();
-        } else {
-            alert(`Falha: ${result.message}`);
-        }
-    } catch (error) {
-        console.error('Erro de rede:', error);
-        alert('Erro de rede. Tente novamente.');
-    }
-}
-
 // === PESQUISA E PAGINAÇÃO ===
 function updateItemCount(total) {
-    document.getElementById('totalItens').textContent = total;
+    const el = document.getElementById('totalItens');
+    if (el) el.textContent = total;
 }
 
 function setupSearch() {
     const searchInput = document.getElementById('searchInput');
     if (!searchInput) return;
-    searchInput.addEventListener('input', function() {
+    searchInput.addEventListener('input', function () {
         const searchText = this.value.toLowerCase();
-        
-        const pedidosFiltrados = pedidosReais.filter(pedido => 
-            pedido.nome_alimento.toLowerCase().includes(searchText) ||
-            pedido.nome_ong.toLowerCase().includes(searchText)
+
+        const pedidosFiltrados = pedidosReais.filter(pedido =>
+            (pedido.nome_alimento && pedido.nome_alimento.toLowerCase().includes(searchText)) ||
+            (pedido.nome_ong && pedido.nome_ong.toLowerCase().includes(searchText)) ||
+            (pedido.nomeONG && pedido.nomeONG.toLowerCase().includes(searchText))
         );
-        
-        currentPage = 1; 
+
+        currentPage = 1;
         renderizarTabela(pedidosFiltrados);
         setupPagination(pedidosFiltrados.length);
     });
@@ -275,12 +356,7 @@ function setupSearch() {
 
 function setupPagination(totalItems) {
     const totalPaginas = Math.ceil(totalItems / itemsPerPage);
-    document.getElementById('totalPaginas').textContent = totalPaginas;
+    const el = document.getElementById('totalPaginas');
+    if (el) el.textContent = totalPaginas;
+    // Aqui você também pode adicionar lógica para botões "próximo/anterior"
 }
-
-// Fechar modal clicando fora
-document.getElementById('orderModal').addEventListener('click', function(event) {
-    if (event.target === this) {
-        closeModal();
-    }
-});

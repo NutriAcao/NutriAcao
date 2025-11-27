@@ -1,3 +1,11 @@
+// public/js/historicoDoacoesEmpresa.js
+
+// === VARIÁVEIS GLOBAIS ===
+let dadosUsuario = {};
+let historicoCompleto = []; 
+const itemsPerPage = 10;
+let currentPage = 1;
+
 document.addEventListener('DOMContentLoaded', function() {
 
 let nomeUsuario = document.getElementById('textNomeUsuario')
@@ -5,21 +13,42 @@ let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
-    const res = await fetch('/api/usuarioToken');
-    const dados = await res.json();
-
+    console.log('>>> Iniciando carregarUsuario...');
     
+    // PRIMEIRO: Buscar dados básicos do token
+    const tokenRes = await fetch('/api/usuarioToken');
+    const tokenData = await tokenRes.json();
+    console.log('>>> Dados do token:', tokenData);
 
-    nomeUsuario.innerHTML = dados.nome
-    nomeInstituicao.innerHTML = dados.nomeInstituicao
+    // SEGUNDO: Buscar dados completos do usuário
+    const userRes = await fetch('/api/usuario');
+    const userData = await userRes.json();
+    console.log('>>> Dados completos:', userData);
 
-    let id_usuario = dados.id;
-   
+    // Combina os dados
+    const dados = {
+      ...tokenData,
+      ...userData.data // Dados completos da API /api/usuario
+    };
 
-    const excedentesEmpresa = await carregarExcedentesEmpresa(id_usuario);
-    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_usuario);
+    console.log('>>> Dados combinados:', dados);
+    
+    // CORREÇÃO: Usar os dados corretos da API
+    if (nomeUsuario) {
+        nomeUsuario.innerHTML = dados.nome || dados.nome_fantasia || 'Usuário';
+    }
+    
+    if (nomeInstituicao) {
+        nomeInstituicao.innerHTML = dados.nome_fantasia || dados.razao_social || 'Instituição';
+    }
 
-  // define os IDs com base no tipo
+    // CORREÇÃO CRÍTICA: Usar o ID do TOKEN, não de outro lugar
+    let id_empresa = tokenData.id; // ← USA O ID DO TOKEN
+    console.log('>>> ID da empresa (CORRETO):', id_empresa);
+
+    const excedentesEmpresa = await carregarExcedentesEmpresa(id_empresa);
+    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_empresa);
+    // define os IDs com base no tipo
     const tableId ='doacoesTableEmpresa';
     const searchInputId = 'searchInputEmpresa';
     const totalItensId ='totalItensEmpresa';
@@ -39,148 +68,199 @@ async function carregarUsuario() {
     preencherTabelaComExcedentes(excedentesEmpresa, tableId);
     preencherTabelaComSolicitacoes(solicitacoesEmpresa, tableIdSolicitacoes);
 
-
     setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId);
     setupTable(searchInputIdSolicitacoes, tableIdSolicitacoes, totalItensIdSolicitacoes, totalPaginasIdSolicitacoes, paginationControlsIdSolicitacoes);
 
-
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
+    // Fallback em caso de erro
+    if (nomeUsuario) nomeUsuario.innerHTML = 'Usuário';
+    if (nomeInstituicao) nomeInstituicao.innerHTML = 'Instituição';
   }
 }
 
 async function carregarExcedentesEmpresa(id) {
   try {
+    console.log('>>> Carregando excedentes para empresa ID:', id);
     
-     const res = await fetch(`/doacoesConcluidasEmpresa/excedentesConcluidosEmpresa?id=${encodeURIComponent(id)}`);
+    const res = await fetch(`/doacoesConcluidasEmpresa/excedentesConcluidosEmpresa?id=${encodeURIComponent(id)}`);
+
+    if (!res.ok) {
+      throw new Error(`Erro HTTP: ${res.status}`);
+    }
 
     const doacoes = await res.json();
-
     console.log('Excedentes concluídos:', doacoes);
-    return doacoes; // ← Aqui está certo!
+    return doacoes;
   } catch (erro) {
-    console.error('Erro ao carregar doações do usuário:', erro);
-    return []; // ← retorna array vazio em caso de erro
+    console.error('Erro ao carregar excedentes da empresa:', erro);
+    return [];
   }
 }
 
 async function carregarSolicitacoesEmpresa(id) {
   try {
+    console.log('>>> Carregando solicitações para empresa ID:', id);
     
-     const res = await fetch(`/doacoesConcluidasEmpresa/doacoesSolicitadasConcluidasEmpresa?id=${encodeURIComponent(id)}`);
+    // USA APENAS A ROTA QUE ESTÁ FUNCIONANDO
+    const res = await fetch(`/doacoesConcluidasEmpresa/doacoesSolicitadasConcluidasEmpresa?id=${encodeURIComponent(id)}`);
+
+    if (!res.ok) {
+      throw new Error(`Erro HTTP: ${res.status}`);
+    }
 
     const doacoes = await res.json();
-
-    console.log('Solicitações concluídas:', doacoes);
-    return doacoes; // ← Aqui está certo!
+    console.log('✅ Solicitações concluídas recebidas:', doacoes);
+    return doacoes;
   } catch (erro) {
-    console.error('Erro ao carregar doações do usuário:', erro);
-    return []; // ← retorna array vazio em caso de erro
+    console.error('Erro ao carregar solicitações da empresa:', erro);
+    return [];
   }
 }
 
 function preencherTabelaComExcedentes(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) {
+    console.error('Tbody não encontrado para:', tableId);
+    return;
+  }
+  
   tbody.innerHTML = ''; // Limpa a tabela
 
-  if (!doacoes.length) {
-    
-        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
-        return;
-    
-  } else {
-    doacoes.forEach(item => {
+  if (!doacoes || !doacoes.length) {
+    // Conta as colunas dinamicamente para o colspan
+    const table = document.getElementById(tableId);
+    const colCount = table ? table.querySelector('thead tr').cells.length : 3;
+    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhum excedente doado encontrado.</td></tr>`;
+    return;
+  }
+
+  doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    
+    // Verifica a estrutura dos dados
+    console.log('Item excedente:', item);
+    
     tr.innerHTML = `
-      <td>${item.nome_alimento}</td>
-      <td>${item.quantidade}</td>
-      <td>${item.ong?.nome || 'ONG não identificada'}</td>
+      <td>${item.titulo || 'N/A'}</td>
+      <td>${item.quantidade || 'N/A'}</td>
+      <td>${item.ong?.nome_ong || item.nome_ong || 'N/A'}</td>
     `;
     tbody.appendChild(tr);
   });
-  }
-  
 }
-
 function preencherTabelaComSolicitacoes(doacoes, tableId) {
   const tbody = document.querySelector(`#${tableId} tbody`);
+  if (!tbody) {
+    console.error('Tbody não encontrado para:', tableId);
+    return;
+  }
+  
   tbody.innerHTML = ''; // Limpa a tabela
 
-  if (!doacoes.length) {
-    
-        tbody.innerHTML = '<tr><td colspan="7">Nenhum pedido de doação disponível no momento.</td></tr>';
-        return;
-    
-  } else {
-    doacoes.forEach(item => {
+  console.log('🎯 Dados recebidos para solicitações:', doacoes);
+
+  if (!doacoes || !doacoes.length) {
+    // Conta as colunas dinamicamente para o colspan
+    const table = document.getElementById(tableId);
+    const colCount = table ? table.querySelector('thead tr').cells.length : 3;
+    tbody.innerHTML = `<tr><td colspan="${colCount}">Nenhuma solicitação concluída encontrada.</td></tr>`;
+    return;
+  }
+
+  doacoes.forEach(item => {
     const tr = document.createElement('tr');
+    
+    // DEBUG: Verifica a estrutura completa do item
+    console.log('🔍 Item solicitação completo:', item);
+    
+    // Tenta diferentes formas de acessar os dados
+    const titulo = item.titulo || 'N/A';
+    const quantidade = item.quantidade_desejada || item.quantidade || 'N/A';
+    
+    // Diferentes formas de acessar o nome da ONG
+    let nomeOng = 'N/A';
+    if (item.ong && item.ong.nome_ong) {
+      nomeOng = item.ong.nome_ong;
+    } else if (item.nome_ong) {
+      nomeOng = item.nome_ong;
+    } else if (item.ong_nome) {
+      nomeOng = item.ong_nome;
+    }
+    
+    console.log(`📊 Dados extraídos: "${titulo}", "${quantidade}", "${nomeOng}"`);
+    
     tr.innerHTML = `
-      <td>${item.nome_alimento}</td>
-      <td>${item.quantidade}</td>
-      <td>${item.nomeONG}</td>
+      <td>${titulo}</td>
+      <td>${quantidade}</td>
+      <td>${nomeOng}</td>
     `;
     tbody.appendChild(tr);
   });
-  }
   
+  console.log(`✅ Tabela ${tableId} preenchida com ${doacoes.length} itens`);
+}
+function setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId) {
+    const searchInput = document.getElementById(searchInputId);
+    const table = document.getElementById(tableId);
+    const totalItens = document.getElementById(totalItensId);
+    const totalPaginas = document.getElementById(totalPaginasId);
+    const paginationControls = document.getElementById(paginationControlsId);
+
+    // Verifica se todos os elementos existem
+    if (!searchInput || !table || !totalItens || !totalPaginas || !paginationControls) {
+        console.warn('Elementos não encontrados para setupTable:', {
+            searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId
+        });
+        return;
+    }
+
+    let currentPage = 1;
+    const itemsPerPage = 10;
+
+    function getRows() {
+        return Array.from(table.querySelectorAll('tbody tr'));
+    }
+
+    function renderTable() {
+        const rows = getRows();
+        const searchTerm = searchInput.value.toLowerCase();
+        const filteredRows = rows.filter(row =>
+            row.textContent.toLowerCase().includes(searchTerm)
+        );
+        totalItens.textContent = filteredRows.length;
+        const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
+        totalPaginas.textContent = totalPages;
+
+        rows.forEach(row => row.style.display = 'none');
+        filteredRows
+            .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+            .forEach(row => row.style.display = '');
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        paginationControls.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const btn = document.createElement('button');
+            btn.textContent = i;
+            btn.className = (i === currentPage) ? 'active' : '';
+            btn.addEventListener('click', () => {
+                currentPage = i;
+                renderTable();
+            });
+            paginationControls.appendChild(btn);
+        }
+    }
+
+    searchInput.addEventListener('input', () => {
+        currentPage = 1;
+        renderTable();
+    });
+
+    renderTable();
 }
 
-
-
-    function setupTable(searchInputId, tableId, totalItensId, totalPaginasId, paginationControlsId) {
-        const searchInput = document.getElementById(searchInputId);
-        const table = document.getElementById(tableId);
-        const totalItens = document.getElementById(totalItensId);
-        const totalPaginas = document.getElementById(totalPaginasId);
-        const paginationControls = document.getElementById(paginationControlsId);
-
-        let currentPage = 1;
-        const itemsPerPage = 10;
-
-        function getRows() {
-            return Array.from(table.querySelectorAll('tbody tr'));
-        }
-
-        function renderTable() {
-            const rows = getRows();
-            const searchTerm = searchInput.value.toLowerCase();
-            const filteredRows = rows.filter(row =>
-                row.textContent.toLowerCase().includes(searchTerm)
-            );
-            totalItens.textContent = filteredRows.length;
-            const totalPages = Math.ceil(filteredRows.length / itemsPerPage) || 1;
-            totalPaginas.textContent = totalPages;
-
-            rows.forEach(row => row.style.display = 'none');
-            filteredRows
-                .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-                .forEach(row => row.style.display = '');
-
-            renderPagination(totalPages);
-        }
-
-        function renderPagination(totalPages) {
-            paginationControls.innerHTML = '';
-            for (let i = 1; i <= totalPages; i++) {
-                const btn = document.createElement('button');
-                btn.textContent = i;
-                btn.className = (i === currentPage) ? 'active' : '';
-                btn.addEventListener('click', () => {
-                    currentPage = i;
-                    renderTable();
-                });
-                paginationControls.appendChild(btn);
-            }
-        }
-
-        searchInput.addEventListener('input', () => {
-            currentPage = 1;
-            renderTable();
-        });
-
-        renderTable();
-    }
-    
-    carregarUsuario();
+carregarUsuario();
 });
-

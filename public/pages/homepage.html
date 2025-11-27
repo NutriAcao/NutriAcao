@@ -143,49 +143,38 @@
     </div>
   </section>
   
-  <section class="depoimentos">
+ <section class="depoimentos">
   <h2>O que dizem sobre o Nutriação</h2>
 
-  <div class="depoimento">
-    <p class="mensagem">"Com o Nutriação, conseguimos doar alimentos excedentes com rapidez e segurança. Uma plataforma que realmente faz a diferença!"</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>Renata Costa – Doadora</span>
+  <!-- Botão para abrir o modal -->
+  <button class="btn-abrir-modal" onclick="abrirModalDepoimentos()">
+  depoimentos
+  </button>
+
+  <!-- Modal -->
+  <div id="modalDepoimentos" class="modal-depoimentos">
+    <div class="modal-conteudo">
+      <!-- Cabeçalho do modal -->
+      <div class="modal-header">
+        <h3>Depoimentos da Comunidade</h3>
+        <button class="btn-fechar" onclick="fecharModalDepoimentos()">&times;</button>
+      </div>
+
+      <!-- Área de depoimentos com scroll -->
+      <div class="modal-body" id="modalBody">
+        <!-- Depoimentos serão carregados aqui -->
+      </div>
+
+      <!-- Rodapé do modal -->
+      <div class="modal-footer">
+        <a href="https://forms.gle/zWqnSWPiZdtoA1d96" target="_blank" class="btn-depoimento">
+          📝 Deixar meu depoimento
+        </a>
+        <p class="aviso">*Os depoimentos passam por moderação</p>
+      </div>
     </div>
   </div>
 
-  <div class="depoimento">
-    <p class="mensagem">"Graças à plataforma, conseguimos receber alimentos frescos semanalmente. Minha família agradece por essa iniciativa incrível."</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="far fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>José Almeida – Beneficiário</span>
-    </div>
-  </div>
-
-  <div class="depoimento">
-    <p class="mensagem">"A tecnologia do Nutriação facilitou a logística de entrega dos alimentos e reduziu o desperdício na nossa ONG."</p>
-    <div class="avaliacao">
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-      <i class="fas fa-star"></i>
-    </div>
-    <div class="autor">
-      <span>ONG Sementes do Bem</span>
-    </div>
   </div>
 </section>
 <section class="faq">
@@ -220,7 +209,7 @@
             </a>
             <div class="answer">
               <p>  
-              Em versões futuras com login ativo, será possível registrar doações em um painel do doador.
+              Após o acesso da plataforma, vá até o menu lateral e selecione "Cadastrar Excedentes" ou "Cadastrar Solicitação". Preencha os detalhes da doação e envie.
               </p>
             </div>
           </div>
@@ -242,7 +231,7 @@
             </a>
             <div class="answer">
               <p>  
-              As informações são protegidas conforme os princípios da LGPD, com armazenamento seguro e acesso restrito.
+              As informações são protegidas conforme os princípios da LGPD, com armazenamento seguro e acesso restrito, além de modulos padronizados para aumentar a segurança e impedir o vazamento de dados.
               </p>
             </div>
           </div>
@@ -253,7 +242,8 @@
             </a>
             <div class="answer">
               <p>  
-              Sim. Apenas instituições com atuação reconhecida e ativa no combate à insegurança alimentar poderão utilizar a plataforma.
+              Sim. Apenas instituições com atuação reconhecida poderão utilizar a plataforma, ainda assim, é recomendado que verifique a autenticidade das ONGs.
+              Pesquise, verifique avaliações e, se possível, entre em contato diretamente para garantir que são legítimas. Proteja-se contra fraudes.
               </p>
             </div>
           </div>
@@ -264,7 +254,7 @@
             </a>
             <div class="answer">
               <p>
-              Futuramente, haverá um campo para cadastrar demandas. Atualmente, a navegação é passiva, visualizando as ofertas.
+                As ONGs podem cadastrar suas necessidades específicas na plataforma, facilitando a conexão com doadores que possuem os alimentos requisitados.
               </p>
             </div>
           </div>
@@ -297,7 +287,8 @@
             </a>
             <div class="answer">
               <p>
-              A plataforma solicitará informações básicas e verificações por e-mail. Confirmações mais robustas poderão ser aplicadas futuramente.
+              A plataforma solicitará informações básicas e verificações por e-mail,  ainda assim, é recomendado que verifique a autenticidade das ONGs.
+              Pesquise, verifique avaliações e, se possível, entre em contato diretamente para garantir que são legítimas. Proteja-se contra fraudes.
               </p>
             </div>
           </div>
@@ -331,11 +322,11 @@
 <script type="module" src="/js/menu.js"></script>
 <script type="module" src="/js/scroll.js"></script>
 <script type="module" src="/js/search.js"></script>
-<script type="module" src="/js/main.js"></script>
+
 <script type="module" src="/js/ongs.js"></script>
 <script type="module" src="/js/map.js"></script>
 <script type="module" src="/js/suporte.js"></script>
-
+<script src="/js/depoimentos.js"></script>
 
 </body>
 </html>

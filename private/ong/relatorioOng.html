@@ -2,57 +2,106 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link rel="stylesheet" href="/styles/style-relatorio.css">
-  
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="../assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Relatórios de Consumo - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-relatorioImpacto.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <style>
+        /* Estilos para loading e mensagens */
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #004AAD;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .mensagem {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+        .mensagem.success { background-color: #2ecc71; }
+        .mensagem.error { background-color: #e74c3c; }
+        .mensagem.info { background-color: #3498db; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
-        <!-- Sidebar -->
+        <div id="divSideLine"><img src="/assets/Logo-white.png" alt="Logo NutriAção"></div>
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
+            
+            <!-- MENU PARA ONG -->
             <ul class="menu">
-               <li>
+                <li>
                     <a href="/visualizacaoDoacoes.html">
-                        <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
+                        <i class="fas fa-box-open"></i> Visualizar Doações
                     </a>
                 </li>
-
-                 <li>
-                    <a href="/cadastrarDoacoesONG.html" id="toggleGestao">
-                        <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
-                    </a>
-                </li>
-                
                 <li>
                     <a href="/minhasSolicitacoes.html">
                         <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
                     </a>
                 </li>
-
-                 <li>
+                <li>
                     <a href="/HistoricoDoacoesONG.html">
                         <i class="fas fa-history"></i> Histórico de Doações
                     </a>
                 </li>
-               
                 <li>
-                    
+                    <a href="/cadastrarDoacoesONG.html">
+                        <i class="fas fa-plus-circle"></i> Cadastrar Solicitação
+                    </a>
+                </li>
+                <li>
                     <a href="/relatorioOng.html" class="active">
                         <i class="fas fa-chart-line"></i> Relatórios de Consumo
                     </a>
                 </li>
                 <li>
-                    <a href="#">
+                    <a href="/minhaContaOng.html">
                         <i class="fas fa-user-circle"></i> Minha Conta
                     </a>
                 </li>
@@ -64,72 +113,267 @@
             </ul>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
             <div class="header">
-               
-<h2>Relatórios</h2> 
+                <h2>Relatórios de Consumo</h2>
                 <div class="user-info">
                     <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
                     <div>
-                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">ONG Fome Zero</p>
+                        <h4 id="textNomeUsuario">Carregando...</h4>
+                        <p id="textNomeInstituicao">Carregando...</p>
                     </div>
                 </div>
-               
-        </div>
+            </div>
             
+            <!-- Filtros -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Filtros</h3>
+                </div>
+                <div class="card-body">
+                    <div class="filters-impacto">
+                        <div class="filter-group">
+                            <label for="periodo">Período</label>
+                            <select id="periodo">
+                                <option value="todos">Todos os períodos</option>
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                                <option value="90">Últimos 3 meses</option>
+                                <option value="365">Último ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group custom-date" style="display: none;">
+                            <label for="dataInicio">Data Início</label>
+                            <input type="text" id="dataInicio" placeholder="Selecione a data">
+                        </div>
+                        
+                        <div class="filter-group custom-date" style="display: none;">
+                            <label for="dataFim">Data Fim</label>
+                            <input type="text" id="dataFim" placeholder="Selecione a data">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="tipoAlimento">Tipo de Alimento</label>
+                            <select id="tipoAlimento">
+                                <option value="todos">Todos</option>
+                                <option value="frutas">Frutas</option>
+                                <option value="legumes">Legumes</option>
+                                <option value="verduras">Verduras</option>
+                                <option value="graos">Grãos</option>
+                                <option value="laticinios">Laticínios</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <!-- PARA ONG: FILTRO DE EMPRESA -->
+                        <div class="filter-group">
+                            <label for="empresa">Empresa Doadora</label>
+                            <select id="empresa">
+                                <option value="todas">Todas</option>
+                                <!-- JavaScript vai preencher dinamicamente -->
+                            </select>
+                        </div>
+                        
+                        <button id="aplicarFiltros" class="btn-primary-filter">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                        
+                        <button id="exportarRelatorio" class="btn-primary-filter">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
             
+            <!-- Resumo de Impacto -->
+            <div class="impact-summary">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalAlimentos">0 kg</h3>
+                        <p>Alimentos Recebidos</p>
+                    </div>
+                </div>
                 
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalRefeicoes">0</h3>
+                        <p>Refeições Fornecidas</p>
+                    </div>
+                </div>
                 
-        <main>
-           
-    <section class="top-row" aria-label="Principais informações">
-      <article class="card" role="region" aria-labelledby="info1">
-        <div>
-          <h3 id="info1" class="label">Total em Doações (kg)</h3>
-          <div id="doacoesKg">1200</div>
-        </div>
-      </article>
-
-      <article class="card" role="region" aria-labelledby="info2">
-        <div>
-          <h3 id="info2" class="label">Total de Empresas Contribuidoras</h3>
-          <div id="totalEmpresas">R$ 74.200</div>
-        </div>
-      </article>
-
-      <article class="card" role="region" aria-labelledby="info3">
-        <div>
-          <h3 id="info3" class="label">Doações Atendidas</h3>
-          <div id="doacoesAtendidas">3.8%</div>
-        </div>
-      </article>
-    </section>
-
-    <section class="charts" aria-label="Gráficos">
-      <div class="chart-box" aria-hidden="false">
- 
-        <img src="grafico1.png" alt="Gráfico de usuários por dia" />
-        
-      </div>
-
-      <div class="chart-box" aria-hidden="false">
-       
-        <img src="grafico2.png" alt="Gráfico de receita por produto" />
-     
-      </div>
-    </section>
-
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="pessoasBeneficiadas">0</h3>
+                        <p>Pessoas Beneficiadas</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="co2Evitado">0 kg</h3>
+                        <p>CO² Evitado</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráficos -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Visualização de Dados</h3>
+                </div>
+                <div class="card-body">
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h4>Doações por Tipo de Alimento</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartTipoAlimento"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h4>Recebimento ao Longo do Tempo</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartTemporal"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h4>Empresas Doadoras</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartOngs"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabela de Detalhes -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Detalhes das Doações Recebidas</h3>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Pesquisar doações...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTable">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Alimento</th>
+                                    <th>Quantidade</th>
+                                    <th>Empresa Doadora</th>
+                                    <th>Refeições Fornecidas</th>
+                                    <th>CO² Evitado</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <tr>
+                                    <td colspan="7" class="no-data">Carregando dados...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Total de Páginas: <span id="totalPaginas">0</span>
+                            | Itens encontrados: <span id="totalItens">0</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active" data-page="1">1</button>
+                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </main>
-                    
-                    
-                
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Carregando dados...</p>
+        </div>
+    </div>
+
+    <!-- Modal para Detalhes da Doação -->
+    <dialog id="doacaoModal" class="modal">
+        <div class="modal-header">
+            <h3>Detalhes da Doação #<span id="doacaoId"></span></h3>
+            <button class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações da Doação</h3>
+            <div class="doacao-info">
+                <p><strong>Data:</strong> <span id="doacaoData">...</span></p>
+                <p><strong>Empresa Doadora:</strong> <span id="doacaoOng">...</span></p>
+                <p><strong>Status:</strong> <span id="doacaoStatus">...</span></p>
+                <p><strong>Responsável:</strong> <span id="doacaoResponsavel">...</span></p>
+                <p><strong>Endereço de Entrega:</strong> <span id="doacaoEndereco">...</span></p>
+                <p><strong>Telefone:</strong> <span id="doacaoTelefone">...</span></p>
             </div>
 
+            <h3 class="section-title">Itens Recebidos</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Alimento</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Refeições Fornecidas</th>
+                        <th>CO² Evitado (kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="doacaoItemsList">
+                </tbody>
+            </table>
 
-    
-    
-    
+            <h3 class="section-title">Impacto Total</h3>
+            <div class="impacto-total">
+                <div class="impacto-item">
+                    <span class="impacto-label">Total de Refeições:</span>
+                    <span class="impacto-valor" id="impactoRefeicoes">0</span>
+                </div>
+                <div class="impacto-item">
+                    <span class="impacto-label">CO² Evitado:</span>
+                    <span class="impacto-valor" id="impactoCO2">0 kg</span>
+                </div>
+                <div class="impacto-item">
+                    <span class="impacto-label">Pessoas Beneficiadas:</span>
+                    <span class="impacto-valor" id="impactoPessoas">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+            <button id="exportarDetalhes" class="btn-primary">Exportar Detalhes</button>
+        </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <script src="/js/relatorioImpacto.js"></script>
 </body>
 </html>

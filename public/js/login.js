@@ -1,58 +1,180 @@
+//refatorado
+
+import { showPopup, hidePopup, trapFocus } from './modal.js';
+
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('formulario-login');
     const usuarioInput = document.getElementById('user');
     const senhaInput = document.getElementById('password');
     const empresaRadio = document.getElementById('empresa');
     const ongRadio = document.getElementById('ong');
-    
+
+    // Preencher dados salvos se existirem
+    preencherDadosSalvos();
 
     form.addEventListener('submit', async (event) => {
         event.preventDefault();
 
-        const usuario = usuarioInput.value.trim();
+        const email = usuarioInput.value.trim();
         const senha = senhaInput.value;
 
-        if (!usuario || !senha || (!empresaRadio.checked && !ongRadio.checked)) {
-            alert('Por favor, selecione uma das opções e preencha todos os campos!');
+        // Validação básica
+        if (!email || !senha || (!empresaRadio.checked && !ongRadio.checked)) {
+            showPopup('Por favor, selecione uma das opções e preencha todos os campos!', {
+                title: 'Campos incompletos',
+                type: 'error'
+            });
             return;
         }
 
         try {
-            const response = await fetch('/api/login', {
+            console.log('🔐 Tentativa de login:', {
+                email: email,
+                tipo: empresaRadio.checked ? 'empresa' : 'ong'
+            });
+
+            // Fazer requisição de login
+            const response = await fetch('/api/auth/login', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: usuario, senha, tipo: empresaRadio.checked ? 'empresa' : 'ong' })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    senha: senha
+                }),
+                credentials: 'include' // Importante para cookies
             });
 
             const resultado = await response.json();
 
-            if (!response.ok) {
-        alert(`Erro: ${resultado.message}`);
-        return;
-    }
+            console.log('📨 Resposta do servidor:', resultado);
 
-    
+            if (!response.ok || !resultado.success) {
+                showPopup('Por favor, verifique seu email e senha e tente novamente!', {
+                    title: 'Credenciais inválidas',
+                    type: 'error'
+                });
+                return;
+            }
 
+            // ✅ Login bem-sucedido
+            console.log('✅ Login bem-sucedido!', resultado.usuario);
 
-    // Verifica se o tipo retornado bate com o tipo selecionado
-    if (resultado.tipo === 'ong' && ongRadio.checked) {
-        alert('Login bem-sucedido!');
-        window.location.href = '/visualizacaoDoacoes.html';
-        
-    } else if (resultado.tipo === 'empresa' && empresaRadio.checked) {
-        alert('Login bem-sucedido!');
-        window.location.href = '/visualizacaoOngs.html';
+            // Salvar dados do usuário no localStorage para uso na UI
+            localStorage.setItem('usuario', JSON.stringify(resultado.usuario));
 
-    } else {
-        alert('Erro: Usuário não encontrado no tipo selecionado !');
-    }
+            // Verificar se o tipo do usuário bate com o tipo selecionado
+            const tipoUsuario = resultado.usuario.tipo;
+            const tipoSelecionado = empresaRadio.checked ? 'empresa' : 'ong';
 
-} catch (error) {
-            console.error('Erro de rede:', error);
-            alert('Falha na comunicação com o servidor');
-            
+            if (tipoUsuario !== tipoSelecionado) {
+                showPopup('Este email está cadastrado como ' + tipoUsuario + ', mas você selecionou ' + tipoSelecionado + '.', {
+                    title: 'Usuário inválido',
+                    type: 'error'
+                });
+                // Limpar dados
+                localStorage.removeItem('usuario');
+                return;
+            }
+
+            // ✅ Redirecionar para a página específica
+            console.log('🚀 Redirecionando para:', resultado.redirectUrl);
+            window.location.href = resultado.redirectUrl;
+
+        } catch (error) {
+            showPopup('Falha na comunicação com o servidor. Tente novamente.', {
+                title: 'Erro de rede',
+                type: 'error'
+            });
+            console.error('💥 Erro de rede:', error);
         }
     });
+
+    // Função para preencher dados salvos automaticamente
+    function preencherDadosSalvos() {
+        const usuarioSalvo = localStorage.getItem('usuario');
+        if (usuarioSalvo) {
+            try {
+                const usuario = JSON.parse(usuarioSalvo);
+                usuarioInput.value = usuario.email || '';
+
+                // Marcar o radio button baseado no tipo salvo
+                if (usuario.tipo === 'empresa') {
+                    empresaRadio.checked = true;
+                } else if (usuario.tipo === 'ong') {
+                    ongRadio.checked = true;
+                }
+
+                console.log('📝 Dados preenchidos automaticamente:', usuario.email);
+            } catch (error) {
+                console.error('Erro ao recuperar dados salvos:', error);
+            }
+        }
+    }
+
+
 });
 
+// Função global para verificar autenticação (usada em outras páginas)
+function verificarAutenticacao() {
+    const usuario = JSON.parse(localStorage.getItem('usuario') || 'null');
 
+    if (!usuario) {
+        // Tentar fazer requisição para verificar se o cookie ainda é válido
+        return fetch('/api/auth/perfil', {
+            method: 'GET',
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    window.location.href = '/loginpage.html';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    localStorage.setItem('usuario', JSON.stringify(data.usuario));
+                    return data.usuario;
+                } else {
+                    window.location.href = '/loginpage.html';
+                    return null;
+                }
+            })
+            .catch(() => {
+                window.location.href = '/loginpage.html';
+                return null;
+            });
+    }
+
+    return Promise.resolve(usuario);
+}
+
+// Função para obter dados do usuário (útil para outras páginas)
+function obterUsuario() {
+    return JSON.parse(localStorage.getItem('usuario') || 'null');
+}
+
+// Função para verificar se é empresa
+function isEmpresa() {
+    const usuario = obterUsuario();
+    return usuario && usuario.tipo === 'empresa';
+}
+
+// Função para verificar se é ONG
+function isOng() {
+    const usuario = obterUsuario();
+    return usuario && usuario.tipo === 'ong';
+}
+
+// Exportar funções para uso em outros arquivos (se usando modules)
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        verificarAutenticacao,
+        fazerLogout,
+        obterUsuario,
+        isEmpresa,
+        isOng
+    };
+}

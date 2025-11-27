@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Relatórios de Impacto - NutriAção</title>
+    <link rel="stylesheet" href="styles/style-relatorioImpacto.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="assets/Logo-white.png" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+</head>
+<body>
+    <div class="container">
+        <div id="divSideLine"><img src="assets/Logo-white.png" alt="Logo NutriAção"></div>
+        <aside class="sidebar">
+            <div class="logo">
+                <h1>Nutri<span>Ação</span></h1>
+            </div>
+            
+            <ul class="menu">
+                <li>
+                    <a href="/visualizacaoOngs.html">
+                        <i class="fas fa-building"></i> Visualizar ONGs
+                    </a>
+                </li>
+                <li>
+                    <a href="/cadastrarExcedentes.html">
+                        <i class="fas fa-plus-circle"></i> Cadastrar Excedentes
+                    </a>
+                </li>
+                <li>
+                    <a href="/minhasDoacoesAtivasEmpresa.html">
+                        <i class="fas fa-hand-holding-heart"></i> Minhas Doações Ativas
+                    </a>
+                </li>
+                <li>
+                    <a href="/HistoricoDoacoesEmpresa.html">
+                        <i class="fas fa-history"></i> Histórico de Doações
+                    </a>
+                </li>
+                <li>
+                    <a href="/relatorioImpacto.html" class="active">
+                        <i class="fas fa-chart-line"></i> Relatórios de Impacto
+                    </a>
+                </li>
+                <li>
+                    <a href="/minhaContaEmpresa.html">
+                        <i class="fas fa-user-circle"></i> Minha Conta
+                    </a>
+                </li>
+                <li>
+                    <a href="/suporteEmpresa.html">
+                        <i class="fas fa-headset"></i> Suporte / FAQ
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h2>Relatórios de Impacto</h2>
+                <div class="user-info">
+                    <img src="https://ui-avatars.com/api/?name=Empresa+Exemplo&background=004AAD&color=fff" alt="Empresa Exemplo">
+                    <div>
+                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
+                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Filtros</h3>
+                </div>
+                <div class="card-body">
+                    <div class="filters-impacto">
+                        <div class="filter-group">
+                            <label for="periodo">Período</label>
+                            <select id="periodo">
+                                <option value="7">Últimos 7 dias</option>
+                                <option value="30" selected>Últimos 30 dias</option>
+                                <option value="90">Últimos 3 meses</option>
+                                <option value="365">Último ano</option>
+                                <option value="custom">Personalizado</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group custom-date" style="display: none;">
+                            <label for="dataInicio">Data Início</label>
+                            <input type="text" id="dataInicio" placeholder="Selecione a data">
+                        </div>
+                        
+                        <div class="filter-group custom-date" style="display: none;">
+                            <label for="dataFim">Data Fim</label>
+                            <input type="text" id="dataFim" placeholder="Selecione a data">
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="tipoAlimento">Tipo de Alimento</label>
+                            <select id="tipoAlimento">
+                                <option value="todos">Todos</option>
+                                <option value="frutas">Frutas</option>
+                                <option value="legumes">Legumes</option>
+                                <option value="verduras">Verduras</option>
+                                <option value="graos">Grãos</option>
+                                <option value="laticinios">Laticínios</option>
+                                <option value="outros">Outros</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter-group">
+                            <label for="ong">ONG Beneficiada</label>
+                            <select id="ong">
+                                <option value="todas">Todas</option>
+                                <option value="ong1">ONG Esperança</option>
+                                <option value="ong2">Instituto Solidariedade</option>
+                                <option value="ong3">Comunidade Unida</option>
+                            </select>
+                        </div>
+                        
+                        <button id="aplicarFiltros" class="btn-primary-filter">
+                            <i class="fas fa-filter"></i> Aplicar Filtros
+                        </button>
+                        
+                        <button id="exportarRelatorio" class="btn-primary-filter">
+                            <i class="fas fa-file-export"></i> Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Resumo de Impacto -->
+            <div class="impact-summary">
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-apple-alt"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalAlimentos">0 kg</h3>
+                        <p>Alimentos Doados</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="totalRefeicoes">0</h3>
+                        <p>Refeições Fornecidas</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="pessoasBeneficiadas">0</h3>
+                        <p>Pessoas Beneficiadas</p>
+                    </div>
+                </div>
+                
+                <div class="summary-card">
+                    <div class="summary-icon">
+                        <i class="fas fa-leaf"></i>
+                    </div>
+                    <div class="summary-content">
+                        <h3 id="co2Evitado">0 kg</h3>
+                        <p>CO² Evitado</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gráficos -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Visualização de Dados</h3>
+                </div>
+                <div class="card-body">
+                    <div class="charts-container">
+                        <div class="chart-card">
+                            <h4>Doações por Tipo de Alimento</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartTipoAlimento"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h4>Doações ao Longo do Tempo</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartTemporal"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="chart-card">
+                            <h4>ONGs Beneficiadas</h4>
+                            <div class="chart-wrapper">
+                                <canvas id="chartOngs"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabela de Detalhes -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Detalhes das Doações</h3>
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Pesquisar doações...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTable">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Alimento</th>
+                                    <th>Quantidade</th>
+                                    <th>ONG Beneficiada</th>
+                                    <th>Refeições Fornecidas</th>
+                                    <th>CO² Evitado</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody">
+                                <!-- Dados serão inseridos via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination">
+                        <div class="pagination-info">
+                            Total de Páginas: <span id="totalPaginas">1</span>
+                            | Itens encontrados: <span id="totalItens">0</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active" data-page="1">1</button>
+                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal para Detalhes da Doação -->
+    <dialog id="doacaoModal" class="modal">
+        <div class="modal-header">
+            <h3>Detalhes da Doação #<span id="doacaoId"></span></h3>
+            <button class="btn-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações da Doação</h3>
+            <div class="doacao-info">
+                <p><strong>Data:</strong> <span id="doacaoData">...</span></p>
+                <p><strong>ONG Beneficiada:</strong> <span id="doacaoOng">...</span></p>
+                <p><strong>Status:</strong> <span id="doacaoStatus">...</span></p>
+                <p><strong>Responsável:</strong> <span id="doacaoResponsavel">...</span></p>
+                <p><strong>Endereço de Entrega:</strong> <span id="doacaoEndereco">...</span></p>
+            </div>
+
+            <h3 class="section-title">Itens Doados</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Alimento</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Refeições Fornecidas</th>
+                        <th>CO² Evitado (kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="doacaoItemsList">
+                </tbody>
+            </table>
+
+            <h3 class="section-title">Impacto Total</h3>
+            <div class="impacto-total">
+                <div class="impacto-item">
+                    <span class="impacto-label">Total de Refeições:</span>
+                    <span class="impacto-valor" id="impactoRefeicoes">0</span>
+                </div>
+                <div class="impacto-item">
+                    <span class="impacto-label">CO² Evitado:</span>
+                    <span class="impacto-valor" id="impactoCO2">0 kg</span>
+                </div>
+                <div class="impacto-item">
+                    <span class="impacto-label">Pessoas Beneficiadas:</span>
+                    <span class="impacto-valor" id="impactoPessoas">0</span>
+                </div>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">Fechar</button>
+            <button id="exportarDetalhes" class="btn-primary">Exportar Detalhes</button>
+        </div>
+    </dialog>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <script src="js/relatorioImpacto.js"></script>
+</body>
+</html>

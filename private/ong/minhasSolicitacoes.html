@@ -1,169 +1,203 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
-  <title>Painel de Empresas - NutriAção</title>
-  <link rel="stylesheet" href="/styles/style-HistoricoDoacoes.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <title>Minhas Solicitações - NutriAção</title>
+    <link rel="stylesheet" href="/styles/style-visualizacaoOngs.css">
+    <link rel="stylesheet" href="/styles/style-doacoesAtivasEmpresa.css">
+    <link rel="stylesheet" href="/styles/style-modal.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="shortcut icon" href="/assets/Logo-white.png" type="image/x-icon">
+
 </head>
+
 <body>
+
+<div id="app-modal" class="app-modal" aria-hidden="true" role="dialog" aria-modal="true"
+aria-labelledby="app-modal-title">
+<div class="app-modal-backdrop" data-close></div>
+<div class="app-modal-panel" role="document">
+<header class="app-modal-header">
+<h2 id="app-modal-title" class="app-modal-title">Aviso</h2>
+<button class="app-modal-close" aria-label="Fechar" data-close>&times;</button>
+</header>
+<div class="app-modal-body" id="app-modal-body">Mensagem</div>
+<footer class="app-modal-footer">
+<button id="app-modal-ok" class="app-modal-ok">OK</button>
+</footer>
+</div>
+</div>
+
     <div class="container">
         <div id="divSideLine"><img src="/assets/Logo-white.png" alt=""></div>
-        <!-- Sidebar -->
         <aside class="sidebar">
             <div class="logo">
                 <h1>Nutri<span>Ação</span></h1>
             </div>
             <ul class="menu">
-               <li>
-                    <a href="/visualizacaoDoacoes.html">
-                        <i class="fas fa-hand-holding-usd"></i> Visualizar Doações
-                    </a>
+                <li><a href="/visualizacaoDoacoes.html"><i class="fas fa-hand-holding-usd"></i> Visualizar Doações</a>
                 </li>
-
-
-                 <li>
-                    <a href="/cadastrarDoacoesONG.html" >
-                        <i class="fas fa-plus-circle"></i> Cadastrar Solicitações
-                    </a>
+                <li><a href="/cadastrarDoacoesONG.html"><i class="fas fa-plus-circle"></i> Cadastrar Solicitações</a>
                 </li>
-                
-                <li>
-                    <a href="/minhasSolicitacoes.html" id="toggleGestao" class="active">
-                        <i class="fas fa-hand-holding-heart"></i> Minhas Solicitações
-                    </a>
-                </li>
-
-                 <li>
-                    <a href="/HistoricoDoacoesONG.html">
-                        <i class="fas fa-history"></i> Histórico de Doações
-                    </a>
-                </li>
-               
-                <li>
-                    
-                    <a href="/relatorioOng.html">
-                        <i class="fas fa-chart-line"></i> Relatórios de Consumo
-                    </a>
-                </li>
-                <li>
-                    <a href="#">
-                        <i class="fas fa-user-circle"></i> Minha Conta
-                    </a>
-                </li>
-                <li>
-                    <a href="/suporteONG.html">
-                        <i class="fas fa-headset"></i> Suporte / FAQ
-                    </a>
-                </li>
+                <li><a href="/minhasSolicitacoes.html" class="active"><i class="fas fa-hand-holding-heart"></i> Minhas
+                        Solicitações</a></li>
+                <li><a href="/HistoricoDoacoesONG.html"><i class="fas fa-history"></i> Histórico de Doações</a></li>
+                <li><a href="/relatorioOng.html"><i class="fas fa-chart-line"></i> Relatórios de Impacto</a></li>
+                <li><a href="/minhaContaOng.html"><i class="fas fa-user-circle"></i> Minha Conta</a></li>
+                <li><a href="/suporteONG.html"><i class="fas fa-headset"></i> Suporte / FAQ</a></li>
+            </ul>
         </aside>
-        
-        <!-- Main Content -->
+
         <main class="main-content">
             <div class="header">
-                <h2>Doações Ativas</h2>
-
-
+                <h2>Minhas Solicitações Ativas</h2>
                 <div class="user-info">
-                    <img src="https://ui-avatars.com/api/?name=ONG+Exemplo&background=004AAD&color=fff" alt="ONG Exemplo">
+                    <img src="https://ui-avatars.com/api/?name=O&background=004AAD&color=fff" alt="Avatar">
                     <div>
-                        <h4 id="textNomeUsuario">Usuário Ativo</h4>
-                        <p id="textNomeInstituicao">Empresa Fome Zero</p>
+                        <h4 id="textNomeUsuario">Carregando...</h4>
+                        <p id="textNomeInstituicao">Carregando...</p>
                     </div>
                 </div>
-    
-
             </div>
-            
-            <div class="card" id="historicoEmpresa">
+
+            <!-- Tabela 1: Solicitações Disponíveis da ONG -->
+            <div class="card">
                 <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInputOng" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
+                    <h3>Solicitações Cadastradas (Disponíveis)</h3>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
                         <table id="doacoesTableOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Produto Pedido</th>
-                                    <th>Quantidade (Kilos)</th>
-                                    
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Parceiro</th>
+                                    <th>Status</th>
+                                    <th class="actions">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                               
+                            <tbody id="tableBodyDisponiveis">
+                                <tr>
+                                    <td colspan="5" class="no-data">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasOng">2</span>
-                            | Itens encontrados: <span id="totalItensOng">10</span>
-                        </div>
-                        <div class="pagination-controls" id="paginationControlsOng">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
-                    </div>
                 </div>
             </div>
-                   
-              
-            <div class="card" id="historicoEmpresa">
+
+            <!-- Tabela 2: Pedidos Reservados da ONG -->
+            <div class="card">
                 <div class="card-header">
-                    <div class="search-container">
-                        <input type="text" id="searchInputEmpresa" placeholder="Pesquisar alimentos...">
-                        <i class="fas fa-search"></i>
-                    </div>
+                    <h3>Solicitações em Andamento (Reservadas por Empresas)</h3>
                 </div>
-                
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table id="doacoesTableEmpresa">
+                        <table id="doacoesTableSolicitacaoOng">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Pedidos em Andamento</th>
-                                    <th>Quantidade (Kilos)</th>
-                                    
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                    <th class="actions">Ações</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                               
+                            <tbody id="tableBodyReservados">
+                                <tr>
+                                    <td colspan="5" class="no-data">Carregando...</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
-                    
-                    <div class="pagination">
-                        <div class="pagination-info">
-                            Total de Páginas: <span id="totalPaginasEmpresa">2</span>
-                            | Itens encontrados: <span id="totalItensEmpresa">10</span>
-                        </div>
-                        <div class="pagination-controls" id="paginationControlsEmpresa">
-                            <button id="prevPage"><i class="fas fa-chevron-left"></i></button>
-                            <button class="page-btn active" data-page="1">1</button>
-                            <button class="page-btn" data-page="2">2</button>
-                            <button id="nextPage"><i class="fas fa-chevron-right"></i></button>
-                        </div>
+                </div>
+            </div>
+
+            <!-- Tabela 3: Doações Reservadas pela ONG -->
+            <div class="card">
+                <div class="card-header">
+                    <h3>Excedentes em Andamento (Doações que eu Reservei)</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table id="doacoesTableExcedenteOng">
+                            <thead>
+                                <tr>
+                                    <th>Alimento</th>
+                                    <th>Quantidade (Kg/L)</th>
+                                    <th>Empresa</th>
+                                    <th>Status</th>
+                                    <th class="actions">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBodyDoacoes">
+                                <tr>
+                                    <td colspan="5" class="no-data">Carregando...</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
+
         </main>
-        
     </div>
 
-    
-    <script src="/js/doacoesAtivasOng.js"></script>
+    <!-- Modal de Detalhes -->
+    <dialog id="orderModal" class="modal">
+        <div class="modal-header">
+            <h3 id="modalTitle">Carregando... <span id="orderId"></span></h3>
+            <button class="btn-close" onclick="closeModal('orderModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3 class="section-title">Informações</h3>
+            <div class="order-info" id="modalDetails">
+                <p>Carregando...</p>
+            </div>
+
+            <h3 class="section-title">Itens</h3>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Unidade</th>
+                        <th>Observações</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsList">
+                    <tr>
+                        <td colspan="4" class="no-data">Carregando itens...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('orderModal')">Fechar</button>
+            <button id="btnCancelar" class="btn-danger" style="display: none;">Cancelar Reserva</button>
+            <button id="btnConcluir" class="btn-primary" style="display: none;">Concluir</button>
+        </div>
+    </dialog>
+
+    <!-- Modal de Confirmação -->
+    <dialog id="confirmModal" class="modal">
+        <div class="modal-header">
+            <h3>Confirmar Ação</h3>
+            <button class="btn-close" onclick="closeModal('confirmModal')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p id="confirmMessage">Tem certeza que deseja realizar esta ação?</p>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal('confirmModal')">Voltar</button>
+            <button id="btnConfirmarAcao" class="btn-danger">Sim, Confirmar</button>
+        </div>
+    </dialog>
+
+    <script type="module" src="/js/minhasSolicitacoes.js"></script>
 </body>
+
 </html>

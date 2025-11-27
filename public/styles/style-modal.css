@@ -1,0 +1,101 @@
+/* Modal base */
+.app-modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  font-family: inherit;
+}
+
+/* Fundo semitransparente */
+.app-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(2px);
+}
+
+/* Painel do modal */
+.app-modal-panel {
+  position: relative;
+  background: #fff;
+  color: #111;
+  width: min(520px, 90vw);
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  transform: translateY(-10px) scale(.98);
+  opacity: 0;
+  transition: transform .18s ease, opacity .18s ease;
+  z-index: 2001;
+  overflow: hidden;
+}
+
+/* Mostrar modal */
+.app-modal[aria-hidden="false"] .app-modal-panel {
+  transform: translateY(0) scale(1);
+  opacity: 1;
+}
+
+/* Header */
+.app-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: var(--color-main);
+  color: var(--color-secondary-text);
+}
+
+.app-modal-title {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
+/* Body */
+.app-modal-body {
+  padding: 1.25rem;
+  font-size: 0.98rem;
+  background: #f7f7f7;
+  color: #222;
+}
+
+/* Footer */
+.app-modal-footer {
+  padding: 0.75rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  background: #fff;
+}
+
+/* Botões */
+.app-modal-ok,
+.app-modal-close {
+  background: var(--color-main);
+  color: var(--color-secondary-text);
+  border: none;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.app-modal-close {
+  background: transparent;
+  color: var(--color-secondary-text);
+  font-size: 1.4rem;
+  line-height: 1;
+  padding: 0 0.5rem;
+}
+
+/* Tipos de mensagem */
+.app-modal-panel.info .app-modal-header { background: #004aad; }
+.app-modal-panel.error .app-modal-header { background: #c62828; }
+.app-modal-panel.success .app-modal-header { background: #2e7d32; }
+
+/* Responsivo */
+@media (max-width: 420px) {
+  .app-modal-panel { width: 95vw; }
+}

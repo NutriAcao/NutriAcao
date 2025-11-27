@@ -1,7 +1,8 @@
+// public/js/cadastroDoacoesOng.js
+import { showPopup } from './modal.js';
 let dadosUsuario = {};
 let nomeUsuario = document.getElementById('textNomeUsuario')
 let nomeInstituicao = document.getElementById('textNomeInstituicao')
-
 
 async function carregarUsuario() {
   try {
@@ -9,10 +10,11 @@ async function carregarUsuario() {
     const dados = await res.json();
 
     dadosUsuario = dados
-
     nomeUsuario.innerHTML = dadosUsuario.nome
     nomeInstituicao.innerHTML = dadosUsuario.nomeInstituicao
     
+    // Carregar categorias para ONG também
+    await carregarCategorias();
   
   } catch (erro) {
     console.error('Erro ao buscar usuário:', erro);
@@ -20,78 +22,232 @@ async function carregarUsuario() {
 }
 
 
+async function carregarCategorias() {
+  try {
+    const catResponse = await fetch('/api/categorias');
+    const catData = await catResponse.json();
+    
+    if (catData.success) {
+      const categoriaSelect = document.getElementById('categoria');
+      if (categoriaSelect) {
+        catData.data.forEach(categoria => {
+          const option = document.createElement('option');
+          option.value = categoria.id;
+          option.textContent = categoria.nome;
+          categoriaSelect.appendChild(option);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Erro ao carregar categorias:', error);
+  }
+}
+
 let formDoacaoOng = document.getElementById("form-cadastro-ong");
 
-if (formDoacaoOng) {
-  formDoacaoOng.addEventListener('submit', async (event) => {
-    event.preventDefault();
+// Atualize a função de submit no frontend
+// if (formDoacaoOng) {
+//   formDoacaoOng.addEventListener('submit', async (event) => {
+//     event.preventDefault();
 
-    const formData = new FormData(formDoacaoOng);
-    const dadosCompletos = Object.fromEntries(formData.entries());
+//     const formData = new FormData(formDoacaoOng);
+//     const dadosCompletos = Object.fromEntries(formData.entries());
 
-    const dadosOng = {
-      // Dados da Ong
-      nome: dadosUsuario.nomeInstituicao,
-      email_Institucional: dadosUsuario.email,
-      nome_alimento: dadosCompletos.nome_alimento,
-      quantidade: dadosCompletos.quantidade,
-      telefone: dadosCompletos.telefone,
-      email: dadosCompletos.email,
-      id_ong: dadosUsuario.id
-    };
+//     const dadosSolicitacao = {
+//       titulo: dadosCompletos.nome_alimento,
+//       descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
+//       categoria_id: parseInt(dadosCompletos.categoria) || 1,
+//       quantidade_desejada: parseFloat(dadosCompletos.quantidade),
+//       telefone_contato: dadosCompletos.telefone,
+//       email_contato: dadosCompletos.email
+//       // ong_id REMOVIDO - será buscado automaticamente pelo controller
+//     };
 
-function validarDados(dados) {
-  const erros = [];
+//     // Validação
+//     const erros = validarDados(dadosSolicitacao);
 
-  //validação da quantidade
-  const quantidade = Number(dados.quantidade);
-  if (isNaN(quantidade) || quantidade < 0 || quantidade > 500) {
-    erros.push("A quantidade deve ser um número entre 0 e 500.");
-  }
+//     if (erros.length > 0) {
+//       alert("Erros encontrados:\n\n" + erros.join("\n"));
+//       return;
+//     }
 
-  //validação do telefone
-  const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone);
-  if (!telefoneValido) {
-    erros.push("O número de telefone informado é inválido.");
-  }
+//     try {
+//       const response = await fetch('/api/solicitacoes-ong', {
+//         method: 'POST',
+//         headers: {
+//           'Content-Type': 'application/json'
+//         },
+//         body: JSON.stringify(dadosSolicitacao)
+//       });
 
-  return erros;
-}
+//       const resultado = await response.json();
 
-let checagem = validarDados(dadosOng);
+//       if (resultado.success) {
+//         alert('✅ Solicitação cadastrada com sucesso!');
+//         formDoacaoOng.reset();
+//       } else {
+//         alert('❌ Erro ao cadastrar a solicitação: ' + resultado.message);
+//       }
 
-if (checagem.length > 0) {
-  alert("Erros encontrados:\n\n" + checagem.join("\n"));
-  return;
-}
+//     } catch (error) {
+//       console.error('Erro de rede:', error);
+//       alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+//     }
+//   });
+// }
 
-    
-
+// Função principal para carregar dados do usuário
+async function carregarDadosUsuario() {
     try {
-      const response = await fetch('/api/cadastro/doacaoOng', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dadosOng)
-      });
-
-      const resultado = await response.json();
-
-      if (response.ok) {
-        alert('✅ Doação cadastrada com sucesso!');
-        formDoacaoOng.reset();
+        console.log('>>> Carregando dados do usuário...');
         
-      } else {
-        alert('❌ Erro ao cadastrar a doação. Verifique os dados e tente novamente.');
-      }
-
+        const response = await fetch('/api/usuario');
+        
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        
+        const resultado = await response.json();
+        console.log('>>> Resposta completa:', resultado);
+        
+        if (resultado.success && resultado.data) {
+            const dados = resultado.data;
+            
+            // Salva os dados do usuário globalmente
+            dadosUsuario = dados;
+            
+            // Atualiza a UI
+            atualizarElementoUI('textNomeUsuario', dados.nome || 'Usuário');
+            atualizarElementoUI('textNomeInstituicao', dados.nome_fantasia || dados.nome_ong || dados.razao_social || 'Instituição');
+            
+            console.log('>>> Dados carregados:', {
+                nome: dados.nome,
+                instituicao: dados.nome_fantasia || dados.nome_ong || dados.razao_social
+            });
+        } else {
+            throw new Error(resultado.message || 'Erro na resposta da API');
+        }
+        
     } catch (error) {
-      console.error('Erro de rede ao comunicar com o servidor:', error);
-      alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
+        console.error('Erro ao carregar usuário:', error);
+        // Fallback em caso de erro
+        atualizarElementoUI('textNomeUsuario', 'Usuário');
+        atualizarElementoUI('textNomeInstituicao', 'Instituição');
     }
-  });
 }
 
-window.addEventListener('DOMContentLoaded', carregarUsuario);
+// Função auxiliar para atualizar elementos da UI
+function atualizarElementoUI(elementId, texto) {
+    const elemento = document.getElementById(elementId);
+    if (elemento) {
+        elemento.textContent = texto;
+    } else {
+        console.warn(`Elemento com ID '${elementId}' não encontrado`);
+    }
+}
 
+// Validação dos dados do formulário
+function validarDados(dados) {
+    const erros = [];
+
+    // Validação da quantidade
+    const quantidade = Number(dados.quantidade_desejada);
+    if (isNaN(quantidade) || quantidade <= 0 || quantidade > 500) {
+        erros.push("A quantidade deve ser um número entre 1 e 500.");
+    }
+
+    // Validação do telefone
+    const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone_contato);
+    if (!telefoneValido) {
+        erros.push("O número de telefone informado é inválido.");
+    }
+
+    // Validação do título
+    if (!dados.titulo || dados.titulo.trim().length < 3) {
+        erros.push("O nome do alimento deve ter pelo menos 3 caracteres.");
+    }
+
+    // Validação da categoria
+    if (!dados.categoria_id) {
+        erros.push("Selecione uma categoria.");
+    }
+
+    return erros;
+}
+
+// Configurar o formulário
+function configurarFormulario() {
+    const formDoacaoOng = document.getElementById("form-cadastro-ong");
+
+    if (formDoacaoOng) {
+        formDoacaoOng.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const formData = new FormData(formDoacaoOng);
+            const dadosCompletos = Object.fromEntries(formData.entries());
+
+            // Verifica se dadosUsuario.id existe
+            if (!dadosUsuario.id) {
+                showPopup('Erro: Dados do usuário não carregados. Recarregue a página.', { title: 'Erro', type: 'error', okText: 'OK' });
+                return;
+            }
+
+            const dadosSolicitacao = {
+                titulo: dadosCompletos.nome_alimento,
+                descricao: dadosCompletos.descricao || `Solicitação de ${dadosCompletos.nome_alimento}`,
+                categoria_id: parseInt(dadosCompletos.categoria),
+                quantidade_desejada: parseFloat(dadosCompletos.quantidade),
+                telefone_contato: dadosCompletos.telefone,
+                email_contato: dadosCompletos.email,
+                ong_id: dadosUsuario.id
+            };
+
+            // Validação
+            const erros = validarDados(dadosSolicitacao);
+
+            if (erros.length > 0) {
+                showPopup("Erros encontrados:\n\n" + erros.join("\n"), { title: 'Erro', type: 'error', okText: 'OK' });
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/solicitacoes-ong', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(dadosSolicitacao)
+                });
+
+                const resultado = await response.json();
+
+                if (resultado.success) {
+                    showPopup('✅ Solicitação cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
+                    formDoacaoOng.reset();
+                } else {
+                    showPopup('❌ Erro ao cadastrar a solicitação: ' + resultado.message, { title: 'Erro', type: 'error', okText: 'OK' });
+                }
+
+            } catch (error) {
+                console.error('Erro de rede:', error);
+                showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
+            }
+        });
+    }
+}
+
+// Inicialização quando a página carrega
+document.addEventListener('DOMContentLoaded', async function() {
+    console.log('>>> Iniciando cadastroDoacoesOng.js...');
+    
+    // Carrega dados do usuário primeiro
+    await carregarDadosUsuario();
+    
+    // Depois carrega as categorias
+    await carregarCategorias();
+    
+    // Configura o formulário
+    configurarFormulario();
+    
+    console.log('>>> cadastroDoacoesOng.js inicializado com sucesso!');
+});

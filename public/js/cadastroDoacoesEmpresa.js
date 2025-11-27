@@ -1,111 +1,233 @@
+// public/js/cadastroDoacoesEmpresa.js
+import { showPopup } from './modal.js';
 let dadosUsuario = {};
-let nomeUsuario = document.getElementById('textNomeUsuario')
-let nomeInstituicao = document.getElementById('textNomeInstituicao')
 
 async function carregarUsuario() {
   try {
-    const res = await fetch('/api/usuarioToken');
-    const dados = await res.json();
-
-    dadosUsuario = dados
-
-    nomeUsuario.innerHTML = dadosUsuario.nome
-    nomeInstituicao.innerHTML = dadosUsuario.nomeInstituicao
+    console.log('1. Iniciando carregarUsuario...');
     
-  
+    // PRIMEIRO: Buscar dados básicos do token
+    const tokenRes = await fetch('/api/usuarioToken');
+    console.log('2. Resposta token status:', tokenRes.status);
+    
+    if (!tokenRes.ok) throw new Error(`HTTP ${tokenRes.status}`);
+    
+    const tokenData = await tokenRes.json();
+    console.log('3. Dados do token:', tokenData);
+
+    // SEGUNDO: Buscar dados completos do usuário
+    console.log('4. Buscando dados completos...');
+    const userRes = await fetch('/api/usuario');
+    console.log('5. Resposta usuario status:', userRes.status);
+    
+    if (!userRes.ok) throw new Error(`HTTP ${userRes.status}`);
+    
+    const userData = await userRes.json();
+    console.log('6. Dados completos:', userData);
+
+    // Combina os dados
+    dadosUsuario = {
+      ...tokenData,
+      ...userData.data // Dados completos da API /api/usuario
+    };
+    
+    console.log('7. Dados combinados:', dadosUsuario);
+
+    // Atualiza a interface
+    const nomeUsuario = document.getElementById('textNomeUsuario');
+    const nomeInstituicao = document.getElementById('textNomeInstituicao');
+    
+    if (nomeUsuario) {
+      nomeUsuario.textContent = dadosUsuario.nome || dadosUsuario.nome_fantasia || 'Usuário';
+      console.log('8. Nome atualizado:', dadosUsuario.nome || dadosUsuario.nome_fantasia);
+    }
+    
+    if (nomeInstituicao) {
+      nomeInstituicao.textContent = dadosUsuario.nome_fantasia || dadosUsuario.razao_social || 'Instituição';
+      console.log('9. Instituição atualizada:', dadosUsuario.nome_fantasia || dadosUsuario.razao_social);
+    }
+    
+    console.log('10. Chamando carregarSelects...');
+    await carregarSelects();
+    console.log('11. carregarSelects concluído');
+    
   } catch (erro) {
-    console.error('Erro ao buscar usuário:', erro);
+    console.error('ERRO em carregarUsuario:', erro);
+    // Fallback
+    const nomeUsuario = document.getElementById('textNomeUsuario');
+    const nomeInstituicao = document.getElementById('textNomeInstituicao');
+    if (nomeUsuario) nomeUsuario.textContent = 'Usuário';
+    if (nomeInstituicao) nomeInstituicao.textContent = 'Instituição';
   }
 }
 
+async function carregarSelects() {
+  try {
+    console.log('12. Carregando selects...');
+    
+    // Categorias
+    const catResponse = await fetch('/api/categorias');
+    const catData = await catResponse.json();
+    
+    if (catData.success) {
+      const select = document.getElementById('categoria');
+      if (select) {
+        select.innerHTML = '<option value="">Selecione a categoria</option>';
+        catData.data.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.id;
+          option.textContent = cat.nome;
+          select.appendChild(option);
+        });
+        console.log('13. Categorias carregadas:', catData.data.length);
+      }
+    }
 
-let formDoacaoEmpresa = document.getElementById("form-cadastro-empresa");
+    // Unidades de medida
+    const unidResponse = await fetch('/api/unidades-medida');
+    const unidData = await unidResponse.json();
+    
+    if (unidData.success) {
+      const select = document.getElementById('unidade_medida');
+      if (select) {
+        select.innerHTML = '<option value="">Selecione a unidade</option>';
+        unidData.data.forEach(unidade => {
+          const option = document.createElement('option');
+          option.value = unidade.id;
+          option.textContent = `${unidade.nome} (${unidade.abreviacao})`;
+          select.appendChild(option);
+        });
+        console.log('14. Unidades carregadas:', unidData.data.length);
+      }
+    }
+    
+  } catch (error) {
+    console.error('ERRO em carregarSelects:', error);
+  }
+}
 
-if (formDoacaoEmpresa) {
-  formDoacaoEmpresa.addEventListener('submit', async (event) => {
-    event.preventDefault();
+function configurarFormulario() {
+  console.log('15. Configurando formulário...');
+  
+  const form = document.getElementById("form-cadastro-empresa");
+  
+  if (form) {
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      console.log('16. Formulário submetido!');
 
-    const formData = new FormData(formDoacaoEmpresa);
-    const dadosCompletos = Object.fromEntries(formData.entries());
+      const formData = new FormData(form);
+      const dadosCompletos = Object.fromEntries(formData.entries());
+      console.log('17. Dados do formulário:', dadosCompletos);
 
-    const dadosEmpresa = {
-      // dados da Empresa
-      nome: dadosUsuario.nomeInstituicao,
-      email_Institucional: dadosUsuario.email,
-      nome_alimento: dadosCompletos.nome_alimento,
-      quantidade: dadosCompletos.quantidade,
-      data_validade: dadosCompletos.data_validade,
-      cep_retirada: dadosCompletos.cep_retirada,
-      telefone: dadosCompletos.telefone,
-      email: dadosCompletos.email,
-      id_empresa: dadosUsuario.id
-    };
+      // Verifica se dadosUsuario está carregado
+      if (!dadosUsuario.id) {
+        showPopup('Erro: Dados do usuário não carregados. Recarregue a página.', { title: 'Erro', type: 'error', okText: 'OK' });
+        return;
+      }
 
-    function validarDados(dados) {
+      // CORREÇÃO: Mapear campos para os nomes exatos que a API espera
+      const dadosEnvio = {
+        // CORREÇÃO: Campo obrigatório - usar 'titulo' em vez de 'nome_alimento'
+        titulo: dadosCompletos.nome_alimento, // ⬅️ CORREÇÃO AQUI
+        
+        // CORREÇÃO: Campo obrigatório - garantir que categoria_id seja enviado
+        categoria_id: parseInt(dadosCompletos.categoria), // ⬅️ CORREÇÃO AQUI
+        
+        // Campo obrigatório
+        quantidade: parseFloat(dadosCompletos.quantidade),
+        
+        // Campos opcionais mas importantes
+        descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`,
+        data_validade: dadosCompletos.data_validade || null,
+        
+        // Dados da empresa
+        empresa_id: dadosUsuario.id,
+        nome_empresa: dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome,
+        email_contato: dadosCompletos.email || dadosUsuario.email,
+        telefone_contato: dadosCompletos.telefone || '',
+        
+        // Outros campos
+        unidade_medida_id: parseInt(dadosCompletos.unidade_medida),
+        cep_retirada: dadosCompletos.cep_retirada
+      };
+
+      console.log('18. Dados para envio:', dadosEnvio);
+
+      // VALIDAÇÃO: Verificar campos obrigatórios antes do envio
+      const erros = validarDados(dadosEnvio);
+      if (erros.length > 0) {
+        showPopup('Erros no formulário:\n' + erros.join('\n'), { title: 'Erro', type: 'error', okText: 'OK' });
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/cadastro/doacaoEmpresa', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify(dadosEnvio)
+        });
+
+        const resultado = await response.json();
+        console.log('19. Resposta do servidor:', resultado);
+
+        if (resultado.success) {
+          showPopup('✅ Doação cadastrada com sucesso!', { title: 'Sucesso', type: 'success', okText: 'OK' });
+          form.reset();
+          // Opcional: redirecionar para outra página
+          // window.location.href = '/minhasDoacoes.html';
+        } else {
+          showPopup('❌ Erro ao cadastrar a doação: ' + resultado.message, { title: 'Erro', type: 'error', okText: 'OK' });
+        }
+      } catch (error) {
+        console.error('ERRO no envio:', error);
+        showPopup('Ocorreu um erro de conexão. Tente novamente mais tarde.', { title: 'Erro', type: 'error', okText: 'OK' });
+      }
+    });
+  }
+}
+
+// CORREÇÃO: Função de validação para garantir campos obrigatórios
+function validarDados(dados) {
   const erros = [];
-
-  // validação da quantidade
-  const quantidade = Number(dados.quantidade);
-  if (isNaN(quantidade) || quantidade < 1 || quantidade > 500) {
-    erros.push("A quantidade deve ser um número entre 1 e 500.");
+  
+  if (!dados.titulo || dados.titulo.trim() === '') {
+    erros.push('• Título é obrigatório');
   }
-
-  // validação do CEP (formato brasileiro: 00000-000 ou 00000000)
-  const cepValido = /^\d{5}-?\d{3}$/.test(dados.cep_retirada);
-  if (!cepValido) {
-    erros.push("O CEP informado é inválido.");
+  
+  if (!dados.categoria_id || isNaN(dados.categoria_id)) {
+    erros.push('• Categoria é obrigatória');
   }
-
-  // validação do telefone (formato brasileiro: (XX) XXXXX-XXXX ou similar)
-  const telefoneValido = /^\(?\d{2}\)?[\s-]?\d{4,5}-?\d{4}$/.test(dados.telefone);
-  if (!telefoneValido) {
-    erros.push("O número de telefone informado é inválido.");
+  
+  if (!dados.quantidade || dados.quantidade <= 0 || isNaN(dados.quantidade)) {
+    erros.push('• Quantidade deve ser um número maior que zero');
   }
-
-  // validação da data (não pode ser passada)
-  const hoje = new Date();
-  const dataValidade = new Date(dados.data_validade);
-  if (isNaN(dataValidade.getTime()) || dataValidade < hoje) {
-    erros.push("A data de validade não pode ser uma data passada.");
+  
+  if (!dados.unidade_medida_id || isNaN(dados.unidade_medida_id)) {
+    erros.push('• Unidade de medida é obrigatória');
   }
-
+  
+  if (!dados.empresa_id) {
+    erros.push('• ID da empresa não encontrado');
+  }
+  
   return erros;
 }
 
-let checagem = validarDados(dadosEmpresa);
-
-if (checagem.length > 0) {
-  alert("Erros encontrados:\n\n" + checagem.join("\n"));
-  return;
+// Configurar data mínima para hoje
+function configurarDataMinima() {
+  const dataInput = document.getElementById('data_validade');
+  if (dataInput) {
+    const hoje = new Date().toISOString().split('T')[0];
+    dataInput.min = hoje;
+    console.log('Data mínima configurada:', hoje);
+  }
 }
 
-
-    try {
-      const response = await fetch('/api/cadastro/doacaoEmpresa', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(dadosEmpresa)
-      });
-
-      const resultado = await response.json();
-
-      if (response.ok) {
-        alert('✅ Doação cadastrada com sucesso!');
-        formDoacaoEmpresa.reset();
-        // Se houver modalEmpresa, você pode fechá-lo aqui:
-        // modalEmpresa.style.display = 'none';
-      } else {
-        alert('❌ Erro ao cadastrar a doação. Verifique os dados e tente novamente.');
-      }
-
-    } catch (error) {
-      console.error('Erro de rede ao comunicar com o servidor:', error);
-      alert('Ocorreu um erro de conexão. Tente novamente mais tarde.');
-    }
-  });
-}
-
-window.addEventListener('DOMContentLoaded', carregarUsuario);
-
+// Inicialização
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('0. DOM Carregado - Iniciando...');
+  carregarUsuario();
+  configurarFormulario();
+  configurarDataMinima();
+});
