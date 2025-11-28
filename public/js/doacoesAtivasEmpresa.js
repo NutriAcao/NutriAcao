@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let nomeUsuario = document.getElementById('textNomeUsuario');
     let nomeInstituicao = document.getElementById('textNomeInstituicao');
-    let ID_EMPRESA_LOGADA = null;
     let ID_USUARIO = null;
 
     async function carregarUsuario() {
@@ -20,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function () {
             nomeInstituicao.innerHTML = dados.nomeInstituicao;
 
             // Assumindo que o objeto do usuário contém empresa_id
-            ID_EMPRESA_LOGADA = dados.empresa_id;
             ID_USUARIO = dados.id;
 
             await carregarTodasTabelas();
@@ -37,9 +35,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 solicitacoesAndamento,
                 excedentesAndamento
             ] = await Promise.all([
-                ExcedentesCadastradosEmpresa(ID_EMPRESA_LOGADA),
+                ExcedentesCadastradosEmpresa(ID_USUARIO),
                 SolicitacoesAndamentoEmpresa(ID_USUARIO),
-                ExcedentesAndamentoEmpresa(ID_EMPRESA_LOGADA)
+                ExcedentesAndamentoEmpresa(ID_USUARIO)
             ]);
 
             console.log('Excedentes cadastrados:', excedentesCadastrados);
@@ -347,7 +345,7 @@ async function abrirDetalhesModal(id, tipo) {
     try {
         let endpoint = '';
         if (tipo === 'excedente-disponivel') {
-            endpoint = `/api/doacoes-ativas/excedentes-cadastrados/${id}`;
+            endpoint = `/api/doacoes-ativas/detalhes/excedente-disponivel/${id}`;
         } else if (tipo === 'pedido-reservado') {
             endpoint = `/api/doacoes-ativas/detalhes/solicitacao/${id}`;
         } else if (tipo === 'excedente-reservado') {

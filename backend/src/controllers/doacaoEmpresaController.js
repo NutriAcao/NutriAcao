@@ -4,13 +4,15 @@ import { supabase } from '../config/supabaseClient.js';
 // Função para cadastrar doação da empresa
 export async function cadastrarDoacaoEmpresa(req, res) {
     try {
-        const usuario_id = req.usuario.id;
-        const { 
-            titulo, 
-            descricao, 
-            categoria_id, 
-            quantidade, 
-            unidade_medida_id, 
+        // Extrai id (usuario_id) e empresa_id do corpo da requisição, conforme solicitado
+        const {
+            id, // ID do usuário enviado pelo front
+            empresa_id, // ID da empresa enviado pelo front
+            titulo,
+            descricao,
+            categoria_id,
+            quantidade,
+            unidade_medida_id,
             data_validade,
             observacoes,
             telefone_contato,
@@ -19,23 +21,17 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 
         // Validações básicas
         if (!titulo || !quantidade || !categoria_id) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Título, quantidade e categoria são obrigatórios' 
+            return res.status(400).json({
+                success: false,
+                message: 'Título, quantidade e categoria são obrigatórios'
             });
         }
 
-        // Buscar ID da empresa associada ao usuário
-        const { data: empresaData, error: empresaError } = await supabase
-            .from('empresas')
-            .select('id')
-            .eq('usuario_id', usuario_id)
-            .single();
-
-        if (empresaError || !empresaData) {
-            return res.status(400).json({ 
+        // Validação dos IDs
+        if (!id || !empresa_id) {
+            return res.status(400).json({
                 success: false,
-                message: 'Empresa não encontrada para este usuário' 
+                message: 'ID do usuário e ID da empresa são obrigatórios'
             });
         }
 
@@ -43,7 +39,8 @@ export async function cadastrarDoacaoEmpresa(req, res) {
         const { data: excedenteData, error: excedenteError } = await supabase
             .from('excedentes')
             .insert({
-                empresa_id: empresaData.id,
+                empresa_id: empresa_id, // Usa o ID enviado
+                usuario_id: id,         // Usa o ID enviado
                 titulo: titulo,
                 descricao: descricao,
                 categoria_id: categoria_id,
@@ -58,10 +55,10 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 
         if (excedenteError) {
             console.error('Erro ao cadastrar excedente:', excedenteError);
-            return res.status(500).json({ 
+            return res.status(500).json({
                 success: false,
                 message: 'Erro ao cadastrar excedente',
-                error: excedenteError.message 
+                error: excedenteError.message
             });
         }
 
@@ -69,7 +66,8 @@ export async function cadastrarDoacaoEmpresa(req, res) {
         const { data: doacaoData, error: doacaoError } = await supabase
             .from('doacoes_disponiveis')
             .insert({
-                empresa_id: empresaData.id,
+                empresa_id: empresa_id, // Usa o ID enviado
+                usuario_id: id,         // Usa o ID enviado
                 excedente_id: excedenteData.id,
                 titulo: titulo,
                 descricao: descricao,
@@ -86,22 +84,22 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 
         if (doacaoError) {
             console.error('Erro ao cadastrar doação disponível:', doacaoError);
-            
+
             // Rollback: remove o excedente se a doação falhar
             await supabase
                 .from('excedentes')
                 .delete()
                 .eq('id', excedenteData.id);
-                
-            return res.status(500).json({ 
+
+            return res.status(500).json({
                 success: false,
                 message: 'Erro ao cadastrar doação',
-                error: doacaoError.message 
+                error: doacaoError.message
             });
         }
 
         console.log(`✅ Doação cadastrada com sucesso - ID: ${doacaoData.id}`);
-        
+
         res.status(201).json({
             success: true,
             message: 'Doação cadastrada com sucesso!',
@@ -110,10 +108,10 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 
     } catch (error) {
         console.error('❌ Erro interno ao cadastrar doação:', error);
-        res.status(500).json({ 
+        res.status(500).json({
             success: false,
             message: 'Erro interno do servidor',
-            error: error.message 
+            error: error.message
         });
     }
 }
@@ -122,7 +120,7 @@ export async function cadastrarDoacaoEmpresa(req, res) {
 export async function getExcedentesDisponiveisEmpresa(req, res) {
     try {
         const usuario_id = req.usuario.id;
-        
+
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
@@ -162,7 +160,7 @@ export async function getExcedentesDisponiveisEmpresa(req, res) {
 export async function getExcedentesReservadosEmpresa(req, res) {
     try {
         const usuario_id = req.usuario.id;
-        
+
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
@@ -201,7 +199,7 @@ export async function getExcedentesReservadosEmpresa(req, res) {
 export async function getExcedentesConcluidosEmpresa(req, res) {
     try {
         const usuario_id = req.usuario.id;
-        
+
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
@@ -266,7 +264,7 @@ export async function getSolicitacoesDisponiveisEmpresa(req, res) {
 export async function getSolicitacoesReservadasEmpresa(req, res) {
     try {
         const usuario_id = req.usuario.id;
-        
+
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
@@ -305,7 +303,7 @@ export async function getSolicitacoesReservadasEmpresa(req, res) {
 export async function getSolicitacoesConcluidasEmpresa(req, res) {
     try {
         const usuario_id = req.usuario.id;
-        
+
         const { data: empresaData, error: empresaError } = await supabase
             .from('empresas')
             .select('id')
