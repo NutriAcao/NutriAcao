@@ -356,7 +356,87 @@ function setupSearch() {
 
 function setupPagination(totalItems) {
     const totalPaginas = Math.ceil(totalItems / itemsPerPage);
-    const el = document.getElementById('totalPaginas');
-    if (el) el.textContent = totalPaginas;
-    // Aqui você também pode adicionar lógica para botões "próximo/anterior"
+    const totalPaginasEl = document.getElementById('totalPaginas');
+    if (totalPaginasEl) totalPaginasEl.textContent = totalPaginas;
+
+    // Selecionar o container dos controles de paginação
+    const paginationControls = document.querySelector('.pagination-controls');
+    if (!paginationControls) return;
+
+    // Limpar botões existentes (exceto prev/next)
+    const existingPageButtons = paginationControls.querySelectorAll('.page-btn');
+    existingPageButtons.forEach(btn => btn.remove());
+
+    // Obter botões prev/next
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+
+    // Criar botões de página dinamicamente
+    for (let i = 1; i <= totalPaginas; i++) {
+        const pageButton = document.createElement('button');
+        pageButton.className = 'page-btn';
+        if (i === currentPage) {
+            pageButton.classList.add('active');
+        }
+        pageButton.textContent = i;
+        pageButton.dataset.page = i;
+
+        pageButton.addEventListener('click', function () {
+            currentPage = parseInt(this.dataset.page);
+            renderizarTabela(pedidosReais);
+            updatePaginationButtons();
+        });
+
+        // Inserir antes do botão "next"
+        if (nextButton) {
+            paginationControls.insertBefore(pageButton, nextButton);
+        } else {
+            paginationControls.appendChild(pageButton);
+        }
+    }
+
+    // Configurar botão "Anterior"
+    if (prevButton) {
+        prevButton.onclick = function () {
+            if (currentPage > 1) {
+                currentPage--;
+                renderizarTabela(pedidosReais);
+                updatePaginationButtons();
+            }
+        };
+        prevButton.disabled = currentPage === 1;
+    }
+
+    // Configurar botão "Próximo"
+    if (nextButton) {
+        nextButton.onclick = function () {
+            if (currentPage < totalPaginas) {
+                currentPage++;
+                renderizarTabela(pedidosReais);
+                updatePaginationButtons();
+            }
+        };
+        nextButton.disabled = currentPage === totalPaginas || totalPaginas === 0;
+    }
+}
+
+// Função auxiliar para atualizar o estado dos botões de paginação
+function updatePaginationButtons() {
+    const paginationControls = document.querySelector('.pagination-controls');
+    if (!paginationControls) return;
+
+    const pageButtons = paginationControls.querySelectorAll('.page-btn');
+    pageButtons.forEach(btn => {
+        btn.classList.remove('active');
+        if (parseInt(btn.dataset.page) === currentPage) {
+            btn.classList.add('active');
+        }
+    });
+
+    const prevButton = document.getElementById('prevPage');
+    const nextButton = document.getElementById('nextPage');
+    const totalPaginas = Math.ceil(pedidosReais.length / itemsPerPage);
+
+    if (prevButton) prevButton.disabled = currentPage === 1;
+    if (nextButton) nextButton.disabled = currentPage === totalPaginas || totalPaginas === 0;
 }
