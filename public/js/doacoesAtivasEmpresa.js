@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let nomeUsuario = document.getElementById('textNomeUsuario');
     let nomeInstituicao = document.getElementById('textNomeInstituicao');
     let ID_USUARIO = null;
+    let ID_EMPRESA = null;
 
     async function carregarUsuario() {
         try {
@@ -20,6 +21,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Assumindo que o objeto do usuário contém empresa_id
             ID_USUARIO = dados.id;
+            ID_EMPRESA = dados.empresa_id;
 
             await carregarTodasTabelas();
 
@@ -37,7 +39,7 @@ document.addEventListener('DOMContentLoaded', function () {
             ] = await Promise.all([
                 ExcedentesCadastradosEmpresa(ID_USUARIO),
                 SolicitacoesAndamentoEmpresa(ID_USUARIO),
-                ExcedentesAndamentoEmpresa(ID_USUARIO)
+                ExcedentesAndamentoEmpresa(ID_EMPRESA)
             ]);
 
             console.log('Excedentes cadastrados:', excedentesCadastrados);

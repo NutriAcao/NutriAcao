@@ -84,16 +84,17 @@ export async function buscarExcedentesConcluidosPorEmpresa(id_empresa) {
 
 export async function buscarDoacoesSolicitadasConcluidasEmpresa(id_empresa) {
     const { data, error } = await supabase
-        .from('doacoesSolicitadas')
-        .select(`
-            nome_alimento,
-            quantidade,
-            dataCadastroSolicitacao,
-            nomeONG
-        `)
-        .eq('id_empresa_reserva', id_empresa)
-        .eq('status', 'concluído');
-
+        .from('solicitacoes_ong_concluido')
+  .select(`
+    titulo,
+    quantidade_desejada,
+    data_criacao,
+    ongs (
+      nome_ong
+    )
+  `)
+  .eq('empresa_id', id_empresa)
+  .eq('status', 'concluído');
     if (error) {
         console.error('Erro ao buscar doações solicitadas:', error);
         return [];
