@@ -150,7 +150,17 @@ function renderizarTabela(doacoes) {
                 <td>${empresa}</td>
                 <td>${categoria}</td>
                 <td>${dataValidadeFormatada}</td>
-                <td><span class="status ${String(status).toLowerCase()}">${status}</span></td>
+                <td><span class="status-disponivel" style="    background-color: #d4edda;
+                color: #155724;
+                padding: 6px 10px;
+                border-radius: 3px;
+                font-size: 0.75rem;
+                font-weight: 600;
+                border: 0px solid #c3e6cb;
+                display: inline-block;
+                text-align: center;
+                min-width: 100px;
+                }">Disponível</span></td>
                 <td>
                     <button onclick="openModal(${doacao.id})" class="btn-visualizar-pedido">Visualizar Pedido</button>
                 </td>
