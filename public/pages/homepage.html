@@ -100,16 +100,16 @@
   <h2 style="font-family: 'Poppins', sans-serif; font-size: 1.5rem; margin-left: 1rem;">Mapa de ONGs próximas</h2>
   <p style="font-family: 'Poppins', sans-serif; font-size: 0.9rem; margin-left: 1rem;">(Você pode escolher a sua localização clicando no mapa ou buscando)</p>
   <br>
-  <div style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); max-width: 100%; margin: 1rem auto;">
   
-</div>
-<div id="map-container">
-  <div id="map"></div>
-</div>
+  <div id="map-container">
+    <div id="map"></div>
+  </div>
+  
   <div id="search-container">
-  <br>
-  <input type="text" id="searchInput" placeholder="Digite uma cidade ou endereço...">
-  <button id="searchBtn" onclick="buscarLocalizacao()">Buscar</button>
+    <br>
+    <input type="text" id="searchInput" placeholder="Digite uma cidade ou endereço...">
+    <button id="searchBtn">Buscar</button> <!-- Removido o onclick -->
+  </div>
 </div>
 
     </section>
@@ -327,6 +327,7 @@
 <script type="module" src="/js/map.js"></script>
 <script type="module" src="/js/suporte.js"></script>
 <script src="/js/depoimentos.js"></script>
-
+<script src="https://cdn.userway.org/widget.js" data-account="wTStVEqWHc"></script>
+<script src="/js/map-search.js"></script>
 </body>
 </html>

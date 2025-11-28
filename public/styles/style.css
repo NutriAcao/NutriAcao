@@ -84,7 +84,7 @@
     top: 0;
     left: 0;
     transition: 0.5s ease-in-out;
-    z-index: 1000;
+  
     background-color: transparent;
      z-index: 9999;
 }
@@ -169,7 +169,7 @@ nav a {
 
 .btn-cadastro {
     background-color: var(--color-main);
-    padding: 6px 18px;
+    padding: 6px 40px;
     border-radius: 4px;
     color: var(--color-secondary-text);
     transition: 0.3s ease;
@@ -1431,4 +1431,19 @@ input::placeholder{
   color: white;
   text-decoration: none;
   transform: translateY(-1px);
+}
+
+/* Opção 1 - usando margin */
+.btn-login, .btn-cadastro {
+    margin-left: -5px;
+}
+
+/* Opção 2 - usando transform (mais suave) */
+.btn-login, .btn-cadastro {
+    transform: translateX(-5px);
+}
+
+/* Opção 3 - se estiverem em um container junto com a navegação */
+nav ul {
+    margin-right: 20px;
 }
