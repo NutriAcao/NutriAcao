@@ -12,7 +12,7 @@ router.post('/ong', cadastrarOng);
 router.post('/cadastrar', cadastrarEmpresa);
 router.get('/:id', buscarEmpresa);
 router.post('/doacaoEmpresa', verificarToken, cadastrarDoacaoEmpresa)
-router.post('/doacaoOng', cadastrarDoacaoOng)
+router.post('/doacaoOng', verificarToken, cadastrarDoacaoOng)
 
 
 export default router;

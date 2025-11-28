@@ -5,13 +5,13 @@ let dadosUsuario = {};
 async function carregarUsuario() {
   try {
     console.log('1. Iniciando carregarUsuario...');
-    
+
     // PRIMEIRO: Buscar dados básicos do token
     const tokenRes = await fetch('/api/usuarioToken');
     console.log('2. Resposta token status:', tokenRes.status);
-    
+
     if (!tokenRes.ok) throw new Error(`HTTP ${tokenRes.status}`);
-    
+
     const tokenData = await tokenRes.json();
     console.log('3. Dados do token:', tokenData);
 
@@ -19,9 +19,9 @@ async function carregarUsuario() {
     console.log('4. Buscando dados completos...');
     const userRes = await fetch('/api/usuario');
     console.log('5. Resposta usuario status:', userRes.status);
-    
+
     if (!userRes.ok) throw new Error(`HTTP ${userRes.status}`);
-    
+
     const userData = await userRes.json();
     console.log('6. Dados completos:', userData);
 
@@ -30,27 +30,27 @@ async function carregarUsuario() {
       ...tokenData,
       ...userData.data // Dados completos da API /api/usuario
     };
-    
+
     console.log('7. Dados combinados:', dadosUsuario);
 
     // Atualiza a interface
     const nomeUsuario = document.getElementById('textNomeUsuario');
     const nomeInstituicao = document.getElementById('textNomeInstituicao');
-    
+
     if (nomeUsuario) {
       nomeUsuario.textContent = dadosUsuario.nome || dadosUsuario.nome_fantasia || 'Usuário';
       console.log('8. Nome atualizado:', dadosUsuario.nome || dadosUsuario.nome_fantasia);
     }
-    
+
     if (nomeInstituicao) {
       nomeInstituicao.textContent = dadosUsuario.nome_fantasia || dadosUsuario.razao_social || 'Instituição';
       console.log('9. Instituição atualizada:', dadosUsuario.nome_fantasia || dadosUsuario.razao_social);
     }
-    
+
     console.log('10. Chamando carregarSelects...');
     await carregarSelects();
     console.log('11. carregarSelects concluído');
-    
+
   } catch (erro) {
     console.error('ERRO em carregarUsuario:', erro);
     // Fallback
@@ -64,11 +64,11 @@ async function carregarUsuario() {
 async function carregarSelects() {
   try {
     console.log('12. Carregando selects...');
-    
+
     // Categorias
     const catResponse = await fetch('/api/categorias');
     const catData = await catResponse.json();
-    
+
     if (catData.success) {
       const select = document.getElementById('categoria');
       if (select) {
@@ -86,7 +86,7 @@ async function carregarSelects() {
     // Unidades de medida
     const unidResponse = await fetch('/api/unidades-medida');
     const unidData = await unidResponse.json();
-    
+
     if (unidData.success) {
       const select = document.getElementById('unidade_medida');
       if (select) {
@@ -100,7 +100,7 @@ async function carregarSelects() {
         console.log('14. Unidades carregadas:', unidData.data.length);
       }
     }
-    
+
   } catch (error) {
     console.error('ERRO em carregarSelects:', error);
   }
@@ -108,9 +108,9 @@ async function carregarSelects() {
 
 function configurarFormulario() {
   console.log('15. Configurando formulário...');
-  
+
   const form = document.getElementById("form-cadastro-empresa");
-  
+
   if (form) {
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
@@ -130,23 +130,24 @@ function configurarFormulario() {
       const dadosEnvio = {
         // CORREÇÃO: Campo obrigatório - usar 'titulo' em vez de 'nome_alimento'
         titulo: dadosCompletos.nome_alimento, // ⬅️ CORREÇÃO AQUI
-        
+
         // CORREÇÃO: Campo obrigatório - garantir que categoria_id seja enviado
         categoria_id: parseInt(dadosCompletos.categoria), // ⬅️ CORREÇÃO AQUI
-        
+
         // Campo obrigatório
         quantidade: parseFloat(dadosCompletos.quantidade),
-        
+
         // Campos opcionais mas importantes
         descricao: dadosCompletos.descricao || `Doação de ${dadosCompletos.nome_alimento} - CEP: ${dadosCompletos.cep_retirada}`,
         data_validade: dadosCompletos.data_validade || null,
-        
+
         // Dados da empresa
-        empresa_id: dadosUsuario.id,
+        id: dadosUsuario.id, // ID do usuário
+        empresa_id: dadosUsuario.empresa_id, // ID da empresa
         nome_empresa: dadosUsuario.nome_fantasia || dadosUsuario.razao_social || dadosUsuario.nome,
         email_contato: dadosCompletos.email || dadosUsuario.email,
         telefone_contato: dadosCompletos.telefone || '',
-        
+
         // Outros campos
         unidade_medida_id: parseInt(dadosCompletos.unidade_medida),
         cep_retirada: dadosCompletos.cep_retirada
@@ -164,7 +165,7 @@ function configurarFormulario() {
       try {
         const response = await fetch('/api/cadastro/doacaoEmpresa', {
           method: 'POST',
-          headers: {'Content-Type': 'application/json'},
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(dadosEnvio)
         });
 
@@ -190,28 +191,74 @@ function configurarFormulario() {
 // CORREÇÃO: Função de validação para garantir campos obrigatórios
 function validarDados(dados) {
   const erros = [];
-  
+
   if (!dados.titulo || dados.titulo.trim() === '') {
     erros.push('• Título é obrigatório');
   }
-  
+
   if (!dados.categoria_id || isNaN(dados.categoria_id)) {
     erros.push('• Categoria é obrigatória');
   }
-  
+
   if (!dados.quantidade || dados.quantidade <= 0 || isNaN(dados.quantidade)) {
     erros.push('• Quantidade deve ser um número maior que zero');
   }
-  
+
   if (!dados.unidade_medida_id || isNaN(dados.unidade_medida_id)) {
     erros.push('• Unidade de medida é obrigatória');
   }
-  
+
   if (!dados.empresa_id) {
     erros.push('• ID da empresa não encontrado');
   }
-  
+
+  // Validação de CEP
+  const cepRegex = /^[0-9]{5}-[0-9]{3}$/;
+  if (dados.cep_retirada && !cepRegex.test(dados.cep_retirada)) {
+    erros.push('• CEP inválido. Use o formato 00000-000.');
+  }
+
+  // Validação de Telefone
+  const telefoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;
+  if (dados.telefone_contato && dados.telefone_contato.trim() !== '' && !telefoneRegex.test(dados.telefone_contato)) {
+    erros.push('• Telefone inválido. Use o formato (11) 99999-9999.');
+  }
+
   return erros;
+}
+
+// Função para formatar CEP
+function formatarCEP(value) {
+  return value
+    .replace(/\D/g, '')              // Remove tudo que não for número
+    .replace(/(\d{5})(\d)/, '$1-$2') // Adiciona o hífen após 5 dígitos
+    .replace(/(-\d{3})\d+?$/, '$1'); // Limita a 8 dígitos
+}
+
+// Função para formatar Telefone (fixo ou celular)
+function formatarTelefone(value) {
+  return value
+    .replace(/\D/g, '')                           // Remove não números
+    .replace(/(\d{2})(\d)/, '($1) $2')            // Coloca DDD entre ()
+    .replace(/(\d{4,5})(\d{4})$/, '$1-$2')        // Coloca hífen
+    .slice(0, 15);                                // Limita a 15 caracteres
+}
+
+// Aplica formatação enquanto digita
+document.getElementById("cep_retirada").addEventListener("input", function (e) {
+  e.target.value = formatarCEP(e.target.value);
+});
+
+document.getElementById("telefone").addEventListener("input", function (e) {
+  e.target.value = formatarTelefone(e.target.value);
+});
+
+// Validação e envio unificados no evento submit do formulário
+// O listener de click no botão #enviar foi removido para evitar conflitos com o submit do form e o fetch API
+
+// Função auxiliar para validar regex
+function validarRegex(valor, regex) {
+  return regex.test(valor);
 }
 
 // Configurar data mínima para hoje
@@ -225,7 +272,7 @@ function configurarDataMinima() {
 }
 
 // Inicialização
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   console.log('0. DOM Carregado - Iniciando...');
   carregarUsuario();
   configurarFormulario();

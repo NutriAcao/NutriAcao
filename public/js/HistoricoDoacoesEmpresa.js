@@ -43,11 +43,12 @@ async function carregarUsuario() {
     }
 
     // CORREÇÃO CRÍTICA: Usar o ID do TOKEN, não de outro lugar
-    let id_empresa = tokenData.id; // ← USA O ID DO TOKEN
+    let id_empresa = tokenData.empresa_id; // ← USA O ID DO TOKEN
+    let id_usuario = tokenData.id;
     console.log('>>> ID da empresa (CORRETO):', id_empresa);
 
     const excedentesEmpresa = await carregarExcedentesEmpresa(id_empresa);
-    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_empresa);
+    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_usuario);
     // define os IDs com base no tipo
     const tableId ='doacoesTableEmpresa';
     const searchInputId = 'searchInputEmpresa';
