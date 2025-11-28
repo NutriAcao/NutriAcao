@@ -31,6 +31,13 @@ router.put("/usuario/senha", verificarToken, (req, res) => {
 
 // Endpoints específicos para atualizar dados completos
 router.put("/empresa", verificarToken, EmpresaController.putDadosEmpresa);
+// DELETE /api/usuario -> excluir conta (despacha por tipo)
+router.delete("/usuario", verificarToken, (req, res) => {
+	const tipo = req.usuario && req.usuario.tipo;
+	if (tipo === "empresa") return EmpresaController.deleteConta(req, res);
+	if (tipo === "ong") return OngController.deleteConta(req, res);
+	return res.status(400).json({ success: false, message: "Tipo de usuário inválido." });
+});
 router.put("/ong", verificarToken, OngController.putDadosOng);
 
 export default router;

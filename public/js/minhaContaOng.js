@@ -409,3 +409,28 @@ document.getElementById("atualizar-dados-ong").addEventListener("click", () => {
     }
   };
 });
+
+// --- Excluir conta (ONG) ---
+const btnExcluirOng = document.getElementById('excluir-conta');
+if (btnExcluirOng) {
+  btnExcluirOng.addEventListener('click', async () => {
+    if (!confirm('Tem certeza que deseja excluir sua conta? Esta ação é irreversível.')) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/usuario', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const j = await res.json();
+      if (j.success) {
+        localStorage.removeItem('token');
+        window.location.href = '/loginpage';
+      } else {
+        alert('Erro ao excluir conta: ' + (j.message || 'Resposta inválida'));
+      }
+    } catch (e) {
+      console.error('Erro ao chamar DELETE /api/usuario:', e);
+      alert('Erro ao excluir conta. Veja o console para mais detalhes.');
+    }
+  });
+}

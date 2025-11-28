@@ -266,3 +266,88 @@ export async function alterarSenha(usuarioId, senhaAtual, novaSenha) {
     throw err;
   }
 }
+
+// Excluir usuário e todas as dependências (empresa ou ong)
+export async function excluirUsuario(usuarioId, tipo) {
+  try {
+    // First, fetch related organization id (empresa or ong)
+    if (tipo === 'ong') {
+      const { data: ong } = await supabase.from('ongs').select('id').eq('usuario_id', usuarioId).maybeSingle();
+      const ongId = ong && ong.id;
+
+      if (ongId) {
+        // delete child rows that reference ong_id (order matters)
+        const tablesOngChilds = [
+          'solicitacoes_ong_reservada',
+          'solicitacoes_ong_concluido',
+          'doacoes_reservadas',
+          'doacoes_concluidas',
+          'metricas',
+          'solicitacoes_ong'
+        ];
+
+        for (const table of tablesOngChilds) {
+          const { error } = await supabase.from(table).delete().eq('ong_id', ongId);
+          if (error) {
+            // if table doesn't have ong_id column or other FK prevents deletion, log and continue to try other tables
+            console.warn(`Erro ao deletar de ${table} por ong_id=${ongId}:`, error.message || error);
+          }
+        }
+
+        // Finally delete the ong row
+        const { error: delOngErr } = await supabase.from('ongs').delete().eq('id', ongId);
+        if (delOngErr) {
+          console.error('Erro ao deletar ong:', delOngErr);
+          throw delOngErr;
+        }
+      }
+    } else if (tipo === 'empresa') {
+      const { data: empresa } = await supabase.from('empresas').select('id').eq('usuario_id', usuarioId).maybeSingle();
+      const empresaId = empresa && empresa.id;
+
+      if (empresaId) {
+        const tablesEmpresaChilds = [
+          'doacoes_reservadas',
+          'doacoes_concluidas',
+          'doacoes_disponiveis',
+          'solicitacoes_ong_reservada',
+          'solicitacoes_ong_concluido',
+          'metricas',
+          'excedentes'
+        ];
+
+        for (const table of tablesEmpresaChilds) {
+          const { error } = await supabase.from(table).delete().eq('empresa_id', empresaId);
+          if (error) {
+            console.warn(`Erro ao deletar de ${table} por empresa_id=${empresaId}:`, error.message || error);
+          }
+        }
+
+        const { error: delEmpresaErr } = await supabase.from('empresas').delete().eq('id', empresaId);
+        if (delEmpresaErr) {
+          console.error('Erro ao deletar empresa:', delEmpresaErr);
+          throw delEmpresaErr;
+        }
+      }
+    }
+
+    // Remove responsavel and enderecos linked to usuario
+    const { error: delRespErr } = await supabase.from('responsaveis').delete().eq('usuario_id', usuarioId);
+    if (delRespErr) console.warn('Erro ao deletar responsaveis:', delRespErr.message || delRespErr);
+
+    const { error: delEndErr } = await supabase.from('enderecos').delete().eq('usuario_id', usuarioId);
+    if (delEndErr) console.warn('Erro ao deletar enderecos:', delEndErr.message || delEndErr);
+
+    // Finally delete usuario
+    const { error: delUserErr } = await supabase.from('usuarios').delete().eq('id', usuarioId);
+    if (delUserErr) {
+      console.error('Erro ao deletar usuario:', delUserErr);
+      throw delUserErr;
+    }
+
+    return true;
+  } catch (err) {
+    console.error('Erro em excluirUsuario:', err);
+    throw err;
+  }
+}
