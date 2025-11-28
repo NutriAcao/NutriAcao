@@ -214,38 +214,63 @@ function validarDados(dados) {
   return erros;
 }
 
+// Função para formatar CEP
+function formatarCEP(value) {
+    return value
+        .replace(/\D/g, '')              // Remove tudo que não for número
+        .replace(/(\d{5})(\d)/, '$1-$2') // Adiciona o hífen após 5 dígitos
+        .replace(/(-\d{3})\d+?$/, '$1'); // Limita a 8 dígitos
+}
+
+// Função para formatar Telefone (fixo ou celular)
+function formatarTelefone(value) {
+    return value
+        .replace(/\D/g, '')                           // Remove não números
+        .replace(/(\d{2})(\d)/, '($1) $2')            // Coloca DDD entre ()
+        .replace(/(\d{4,5})(\d{4})$/, '$1-$2')        // Coloca hífen
+        .slice(0, 15);                                // Limita a 15 caracteres
+}
+
+// Aplica formatação enquanto digita
+document.getElementById("cep_retirada").addEventListener("input", function(e) {
+    e.target.value = formatarCEP(e.target.value);
+});
+
+document.getElementById("telefone").addEventListener("input", function(e) {
+    e.target.value = formatarTelefone(e.target.value);
+});
+
+// Validação ao enviar
 document.getElementById("enviar").addEventListener("click", function(event) {
-    // Impede envio automático
     event.preventDefault();
 
-    // Pega os valores dos campos
     const cep = document.getElementById("cep_retirada").value.trim();
     const telefone = document.getElementById("telefone").value.trim();
 
-    // Expressões regulares para validação
-    const cepRegex = /^[0-9]{5}-[0-9]{3}$/;              // CEP: 00000-000
-    const telefoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;  // Telefone: (11) 99999-9999 ou (11) 9999-9999
+    // Regex para validação
+    const cepRegex = /^[0-9]{5}-[0-9]{3}$/;                 // CEP: 00000-000
+    const telefoneRegex = /^\(\d{2}\)\s\d{4,5}-\d{4}$/;     // Telefone fixo ou celular
 
     let valido = true;
     let mensagens = [];
 
-    // Valida CEP
     if (!cepRegex.test(cep)) {
         valido = false;
         mensagens.push("CEP inválido. Use o formato 00000-000.");
     }
 
-    // Valida Telefone
     if (!telefoneRegex.test(telefone)) {
         valido = false;
-        mensagens.push("Telefone inválido. Use o formato (11) 99999-9999.");
+        mensagens.push("Telefone inválido. Use o formato (11) 99999-9999 ou (11) 9999-9999.");
     }
 
-    // Exibe mensagens ou envia formulário
     if (!valido) {
-        showPopup(mensagens.join("\n"), { title: 'Erro nos dados do formulário', type: 'error', okText: 'OK' });
+        showPopup(mensagens.join("\n"), { 
+            title: 'Erro nos dados do formulário', 
+            type: 'error', 
+            okText: 'OK' 
+        });
     } else {
-        // Se tudo estiver válido, envia o formulário
         document.querySelector("form").submit();
     }
 });
