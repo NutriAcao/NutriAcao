@@ -1347,3 +1347,88 @@ input::placeholder{
     padding: 1rem;
   }
 }
+/* Estilos para a seção de depoimentos */
+.depoimentos {
+  padding: 4rem 2rem;
+  background-color: white; /* Removido o fundo cinza */
+  text-align: center;
+}
+
+.depoimentos h2 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  color: #0b56a1;
+}
+
+/* Botão para abrir modal - CORRIGIDO */
+.btn-abrir-modal {
+  background: #004AAD; /* Cor principal solicitada */
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 3rem;
+  display: inline-block; /* Garante alinhamento correto */
+  min-width: 200px; /* Largura mínima para evitar deformações */
+}
+
+.btn-abrir-modal:hover {
+  background: #003172; /* Cor escura solicitada */
+  color: white; /* Garante que continue branco no hover */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave no hover */
+  border-radius: 8px;
+}
+
+/* MODAL - Fundo corrigido */
+.modal-depoimentos {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-conteudo {
+  background-color: white; /* Removido fundo cinza do modal */
+  margin: 2% auto;
+  padding: 0;
+  width: 90%;
+  max-width: 800px;
+  height: 90vh;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Botão de depoimento no modal atualizado */
+.btn-depoimento {
+  display: inline-block;
+  background: #004AAD; /* Cor principal */
+  color: white;
+  text-decoration: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  transition: background 0.3s ease;
+  margin-bottom: 0.5rem;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-depoimento:hover {
+  background: #003172; /* Cor escura */
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
