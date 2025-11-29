@@ -63,6 +63,10 @@
 
         <!-- Conteúdo principal -->
         <main class="main-content">
+             <button class="logout-btn" onclick="fazerLogout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sair
+            </button>
             <div class="page-header">
                 <h2>Minha Conta</h2>
                 <p>Gerencie as informações do responsável e da sua ONG</p>
@@ -190,5 +194,16 @@
 
     <script src="/js/minhaContaOng.js"></script>
     <script src="https://cdn.userway.org/widget.js" data-account="wTStVEqWHc"></script>
+     <script>
+        // Função para fazer logout
+        function fazerLogout() {
+            if (confirm('Tem certeza que deseja sair?')) {
+                // Remove o token do localStorage
+                localStorage.removeItem('token');
+                // Redireciona para a página de login
+                window.location.href = '/loginpage';
+            }
+        }
+    </script>
 </body>
 </html>
