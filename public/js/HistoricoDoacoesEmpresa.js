@@ -15,40 +15,41 @@ async function carregarUsuario() {
   try {
     console.log('>>> Iniciando carregarUsuario...');
     
-    // PRIMEIRO: Buscar dados básicos do token
-    const tokenRes = await fetch('/api/usuarioToken');
-    const tokenData = await tokenRes.json();
-    console.log('>>> Dados do token:', tokenData);
+  // Buscar dados completos do usuário (inclui empresa_id quando for empresa)
+  const userRes = await fetch('/api/usuario');
+  const userData = await userRes.json();
+  console.log('>>> Dados completos:', userData);
 
-    // SEGUNDO: Buscar dados completos do usuário
-    const userRes = await fetch('/api/usuario');
-    const userData = await userRes.json();
-    console.log('>>> Dados completos:', userData);
+  if (!userData || !userData.success || !userData.data) {
+    throw new Error('Falha ao obter dados do usuário');
+  }
 
-    // Combina os dados
-    const dados = {
-      ...tokenData,
-      ...userData.data // Dados completos da API /api/usuario
-    };
+  const dados = userData.data;
 
-    console.log('>>> Dados combinados:', dados);
-    
-    // CORREÇÃO: Usar os dados corretos da API
-    if (nomeUsuario) {
-        nomeUsuario.innerHTML = dados.nome || dados.nome_fantasia || 'Usuário';
+  console.log('>>> Dados do usuário (usados):', dados);
+
+  // Preencher nome e instituição
+  if (nomeUsuario) {
+    nomeUsuario.innerHTML = dados.nome || dados.nome_fantasia || 'Usuário';
+  }
+
+  if (nomeInstituicao) {
+    nomeInstituicao.innerHTML = dados.nome_fantasia || dados.razao_social || 'Instituição';
+  }
+
+  // Usar empresa_id retornado pelo endpoint /api/usuario
+  const id_empresa = dados.empresa_id;
+    console.log('>>> ID da empresa (usado):', id_empresa);
+
+    if (!id_empresa) {
+      console.warn('Usuário não associado a uma empresa (nenhum empresa_id disponível). Mostrando tabelas vazias.');
+      preencherTabelaComExcedentes([], 'doacoesTableEmpresa');
+      preencherTabelaComSolicitacoes([], 'doacoesTableEmpresaSolicitacoes');
+      return;
     }
-    
-    if (nomeInstituicao) {
-        nomeInstituicao.innerHTML = dados.nome_fantasia || dados.razao_social || 'Instituição';
-    }
-
-    // CORREÇÃO CRÍTICA: Usar o ID do TOKEN, não de outro lugar
-    let id_empresa = tokenData.empresa_id; // ← USA O ID DO TOKEN
-    let id_usuario = tokenData.id;
-    console.log('>>> ID da empresa (CORRETO):', id_empresa);
 
     const excedentesEmpresa = await carregarExcedentesEmpresa(id_empresa);
-    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_usuario);
+    const solicitacoesEmpresa = await carregarSolicitacoesEmpresa(id_empresa);
     // define os IDs com base no tipo
     const tableId ='doacoesTableEmpresa';
     const searchInputId = 'searchInputEmpresa';

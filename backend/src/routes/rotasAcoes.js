@@ -240,19 +240,26 @@ router.put('/reservar-pedido', verificarToken, async (req, res) => {
     
     try {
         console.log('📦 Body recebido:', req.body);
-        console.log('👤 Usuário autenticado:', req.user);
+        console.log('👤 Usuário autenticado:', req.usuario);
 
-        const { pedido_id, empresa_id } = req.body;
+        const { pedido_id } = req.body;
 
-        if (!pedido_id || !empresa_id) {
-            console.log('❌ Dados incompletos:', { pedido_id, empresa_id });
+        if (!pedido_id) {
+            console.log('❌ Dados incompletos:', { pedido_id });
             return res.status(400).json({ 
                 success: false, 
-                message: 'ID do pedido e ID da empresa são obrigatórios' 
+                message: 'ID do pedido é obrigatório' 
             });
         }
 
-        console.log(`🔄 Iniciando reserva - Pedido: ${pedido_id}, Empresa: ${empresa_id}`);
+        // Inferir empresa a partir do usuário autenticado (mais seguro)
+        const usuarioId = req.usuario && req.usuario.id;
+        if (!usuarioId) {
+            console.error('❌ Usuário ausente no token');
+            return res.status(401).json({ success: false, message: 'Usuário não autenticado' });
+        }
+
+        console.log(`🔄 Iniciando reserva - Pedido: ${pedido_id}, Usuário (token): ${usuarioId}`);
 
         // 1. Buscar o pedido disponível
         console.log('🔍 Buscando pedido disponível...');
@@ -273,30 +280,31 @@ router.put('/reservar-pedido', verificarToken, async (req, res) => {
             });
         }
 
-        // 2. Buscar dados da empresa
-        console.log('🏢 Buscando dados da empresa...');
+        // 2. Buscar dados da empresa a partir do usuario autenticado
+        console.log('🏢 Buscando dados da empresa via usuario_id do token...');
+
         const { data: empresa, error: errorEmpresa } = await supabase
             .from('empresas')
             .select('*')
-            .eq('id', empresa_id)
-            .single();
+            .eq('usuario_id', usuarioId)
+            .maybeSingle();
 
-        console.log('📊 Dados da empresa:', { empresa, errorEmpresa });
+        console.log('📊 Dados da empresa encontrados:', { empresa, errorEmpresa });
 
         if (errorEmpresa || !empresa) {
-            console.error('❌ Empresa não encontrada:', errorEmpresa);
+            console.error('❌ Empresa não encontrada para o usuário:', errorEmpresa);
             return res.status(404).json({ 
                 success: false, 
-                message: 'Empresa não encontrada' 
+                message: 'Empresa não encontrada para o usuário autenticado' 
             });
         }
 
         // 3. Inserir na tabela de reservados
         console.log('💾 Inserindo pedido reservado...');
-        const { data: pedidoReservado, error: errorReserva } = await supabase
+    const { data: pedidoReservado, error: errorReserva } = await supabase
             .from('solicitacoes_ong_reservada')
             .insert({
-                empresa_id: empresa_id,
+        empresa_id: empresa.id,
                 ong_id: pedidoDisponivel.ong_id,
                 titulo: pedidoDisponivel.titulo || pedidoDisponivel.nome_alimento,
                 descricao: pedidoDisponivel.descricao,

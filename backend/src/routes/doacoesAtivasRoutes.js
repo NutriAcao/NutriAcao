@@ -22,7 +22,7 @@ router.get('/excedentes-cadastrados/:empresaId', async (req, res) => {
                 dd.cep_retirada,
                 dd.endereco_retirada
             FROM doacoes_disponiveis dd
-            WHERE dd.usuario_id = $1 
+        WHERE dd.empresa_id = $1 
             ORDER BY dd.data_publicacao DESC
         `;
 

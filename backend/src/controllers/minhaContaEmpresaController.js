@@ -17,6 +17,7 @@ export async function getEmpresaCompleta(req, res) {
       success: true,
       data: {
         id: usuario.id,
+        empresa_id: empresa.id,
         email: usuario.email,
         nome: usuario.nome,
         telefone: usuario.telefone,
