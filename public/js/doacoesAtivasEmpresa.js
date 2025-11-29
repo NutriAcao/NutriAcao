@@ -13,19 +13,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function carregarUsuario() {
         try {
-            const res = await fetch('/api/usuario');
-            const resultado = await res.json();
+            const res = await fetch('/api/usuarioToken');
+            const dados = await res.json();
 
-            if (!resultado || !resultado.success || !resultado.data) {
-                throw new Error('Falha ao obter dados do usuário');
-            }
+            nomeUsuario.innerHTML = dados.nome;
+            nomeInstituicao.innerHTML = dados.nomeInstituicao;
 
-            const dados = resultado.data;
-
-            nomeUsuario.innerHTML = dados.nome || 'Usuário';
-            nomeInstituicao.innerHTML = dados.nome_fantasia || dados.nome_ong || dados.razao_social || 'Instituição';
-
-            // IDs do usuário e da empresa (obtidos do endpoint /api/usuario)
+            // Assumindo que o objeto do usuário contém empresa_id
             ID_USUARIO = dados.id;
             ID_EMPRESA = dados.empresa_id;
 
@@ -43,8 +37,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 solicitacoesAndamento,
                 excedentesAndamento
             ] = await Promise.all([
-                ExcedentesCadastradosEmpresa(ID_EMPRESA),
-                SolicitacoesAndamentoEmpresa(ID_EMPRESA),
+                ExcedentesCadastradosEmpresa(ID_USUARIO),
+                SolicitacoesAndamentoEmpresa(ID_USUARIO),
                 ExcedentesAndamentoEmpresa(ID_EMPRESA)
             ]);
 

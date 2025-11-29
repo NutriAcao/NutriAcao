@@ -223,6 +223,28 @@ app.post('/api/reservar-doacao-ong', verificarToken, verificarOng, async (req, r
       });
     }
 
+      // ----- Limite semanal: ONG pode reservar no máximo 4 doações por semana -----
+      try {
+        const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+        const { data: recentReservations, error: recentError } = await supabase
+          .from('doacoes_reservadas')
+          .select('id')
+          .eq('ong_id', id_ong)
+          .gte('data_publicacao', sevenDaysAgo);
+
+        if (recentError) {
+          console.error('Erro ao verificar reservas recentes:', recentError);
+        } else if (recentReservations && recentReservations.length >= 4) {
+          return res.status(429).json({
+            success: false,
+            message: 'Limite semanal atingido: você já reservou 4 doações nesta semana.'
+          });
+        }
+      } catch (err) {
+        console.error('Erro ao checar limite semanal de reservas:', err);
+        // não bloqueia a operação por falha na checagem
+      }
+
     // 2. Inserir na tabela de reservadas
     const { data: reservaData, error: reservaError } = await supabase
       .from('doacoes_reservadas')

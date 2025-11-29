@@ -121,6 +121,22 @@ router.post('/api/reservar-doacao', verificarToken, async (req, res) => {
         }
 
         const item = originalResult.rows[0];
+        // ----- Limite: ONG pode reservar no máximo 4 doações por semana -----
+        if (tipoDoacao === 'excedente') {
+            try {
+                const countQuery = `SELECT COUNT(*) FROM doacoes_reservadas WHERE ong_id = $1 AND data_publicacao >= NOW() - INTERVAL '7 days'`;
+                const countResult = await pool.query(countQuery, [usuarioId]);
+                const reservedLast7Days = parseInt(countResult.rows[0].count, 10) || 0;
+                if (reservedLast7Days >= 4) {
+                    return res.status(429).json({
+                        message: 'Limite semanal atingido: você já reservou 4 doações nesta semana.'
+                    });
+                }
+            } catch (countErr) {
+                console.error('Erro ao verificar limite semanal de reservas:', countErr);
+                // Não bloqueia por falha na verificação; apenas loga e continua
+            }
+        }
         
         // Insere na tabela de reservas
         let insertQuery;
